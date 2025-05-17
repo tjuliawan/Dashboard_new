@@ -3,7 +3,7 @@
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
         <a class="align-items-center d-flex m-0 navbar-brand text-wrap" href="{{ route('dashboard') }}">
             <img src="../assets/img/bg_icons_246_x_160.png" class="navbar-brand-img h-100" alt="...">
-            <span class="ms-3 font-weight-bold">DN Tagih</span>
+            <span class="ms-3 font-weight-bold">DN Management System</span>
         </a>
     </div>
     <hr class="horizontal dark mt-0">
@@ -30,7 +30,7 @@
                 </a>
             </li>
             <li class="nav-item mt-2">
-                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Transaction</h6>
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Tagih</h6>
             </li>
             <li class="nav-item pb-2">
                 <a class="nav-link {{ str_contains(Request::path(), 'add-new-tagih-sales-dn') ? 'active' : '' }}" href="{{ url('add-new-tagih-sales-dn') }}">
@@ -65,6 +65,20 @@
                 </a>
             </li>
             {{-- end transaksi --}}
+            <li class="nav-item mt-2">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Payment</h6>
+            </li>
+              <li class="nav-item pb-2">
+                <a class="nav-link {{ str_contains(Request::path(), 'dn-payment') ? 'active' : '' }}" href="{{ url('dn-payment') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1rem;" class="fas fa-lg fa-money-bills ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'dn-payment') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">DN Payment</span>
+                </a>
+            </li>
+            <li class="nav-item mt-2">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Other</h6>
+            </li>
             @auth
                 @if (Auth::user()->role === 'Administrator')
                     <li class="nav-item pb-2">

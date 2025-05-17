@@ -25,6 +25,18 @@ class DN_Controller extends Controller
         // session(['token' => $token]);
         return view ('dn_transaction.Add_New_Tagih_Sales_DN.index', compact('user') );
     }
+    public function index_payment()
+    {
+        Session::flash('url','Master Central');
+        $user = auth()->user();
+        auth()->user()->tokens()->delete();
+        $email = session('email');
+        $user = User::where('email', $email)->firstOrFail();
+        // dd($email);
+        // $token = $user->createToken('auth_token')->plainTextToken;
+        // session(['token' => $token]);
+        return view ('dn_transaction.payment.index', compact('user') );
+    }
     public function index_list_tr_tagih_sales_DN_d_date()
     {
         Session::flash('url','Master Central');

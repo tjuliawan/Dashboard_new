@@ -114,6 +114,11 @@ Route::post('/dn-tagih/update/po-code', [DN_Controller::class, 'update_dn_tagih_
 Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail'])->middleware('auth');
 Route::post('/dn-tagih/store-kwitansi', [DN_Controller::class, 'store_kwitansi'])->middleware('auth');
 
+// payment 
+
+Route::get('/dn-payment', [DN_Controller::class, 'index_payment'])->name('dn-payment')->middleware('auth');
+
+
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/register', [RegisterController::class, 'create']);
