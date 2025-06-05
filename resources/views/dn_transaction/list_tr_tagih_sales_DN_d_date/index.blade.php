@@ -323,6 +323,19 @@
                             end_date: end_date,
                             input_main_code: input_main_code,                            
                             product: $('#select_product').val(),
+                        },                        
+                        error: function(xhr, status, error) {
+                            console.error('Error loading data:', error);
+                            $('#loader_body').hide();
+
+                            let errorMessage = 'Gagal mengambil data. Silakan coba lagi.';
+                            
+                            new Noty({
+                                text: `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`,
+                                type: 'error',
+                                timeout: 3000,
+                                layout: 'topRight'
+                            }).show();
                         }
                     },
                     columns: [{
@@ -413,11 +426,27 @@
                     lengthMenu: [
                         [10, 25, 50, 100, -1],
                         [10, 25, 50, 100, "Semua"]
+                    ],                    
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            text: 'Download Excel',
+                            exportOptions: {
+                                footer: true,
+                                format: {
+                                    body: function (data, row, column, node) {
+                                        if (column === 14 | column === 15| column === 13) {
+                                            return data.replace(/[^\d,-]/g, '').replace(',', '.'); 
+                                        }
+                                        return data;
+                                    }
+                                }
+                            },
+                            customize: function (xlsx) {
+                                let sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            }
+                        }
                     ],
-                    buttons: [{
-                        extend: 'excel',
-                        text: 'Download Excel',
-                    }],
                     language: {
                         lengthMenu: "_MENU_",
                         search: "Pencarian:",
@@ -434,7 +463,7 @@
             get_client();
             function get_client(){
                 $.ajax({
-                    url: 'http://127.0.0.1:8989/api/get_client',
+                    url: '/get_client',
                     type: 'GET', 
                     headers: {
                         'X-API-KEY': 'hgsjkt205'
@@ -541,7 +570,7 @@
                                             <option selected>Vehicle</option>
                                         </select>
                                         <small>Code</small>
-                                        <input class="form-control form-control-sm" type="text" id="input_main_code" placeholder="Code">
+                                        <input class="form-control form-control-sm" type="text" id="input_main_code" placeholder="Code ex: INV-TSD-202505-0001">
                                         
                                         <small>Product</small>
                                         <select class="form-control form-control-sm" aria-label="Large select example" id="select_product" multiple>

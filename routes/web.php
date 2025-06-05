@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\DN_Controller;
+use App\Http\Controllers\DN_payment_Controller;
+use App\Http\Controllers\DN_report_Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,6 +103,7 @@ Route::get('/page-kwitansi', [DN_Controller::class, 'index_kwitansi'])->name('pa
 Route::get('/get_client', [DN_Controller::class, 'get_client'])->middleware('auth');
 Route::get('/get_vehicle', [DN_Controller::class, 'get_vehicle'])->middleware('auth');
 Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware('auth');
+Route::get('/get_chaimber', [DN_Controller::class, 'get_chaimber'])->middleware('auth');
 Route::get('/data_for_chart_1', [DN_Controller::class, 'data_for_chart_1'])->middleware('auth');
 Route::get('/get_header_dn_tagih', [DN_Controller::class, 'get_header_dn_tagih'])->middleware('auth');
 Route::get('/dn_tagih/get_table_add_tagih_sales_dn', [DN_Controller::class, 'get_table_add_tagih_sales_dn'])->middleware('auth');
@@ -113,12 +116,47 @@ Route::post('/dn-tagih/store', [DN_Controller::class, 'store_dn_tagih'])->middle
 Route::post('/dn-tagih/update/po-code', [DN_Controller::class, 'update_dn_tagih_po_code'])->middleware('auth');
 Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail'])->middleware('auth');
 Route::post('/dn-tagih/store-kwitansi', [DN_Controller::class, 'store_kwitansi'])->middleware('auth');
+Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware('auth');
+
+// from ba 
+Route::get('/add-tagih-sales-dn-from-ba', [DN_Controller::class, 'index_edit_tagih_sales_dn_from_ba'])->name('edit-tagih-sales-dn-from-ba')->middleware('auth');
 
 // payment 
 
-Route::get('/dn-payment', [DN_Controller::class, 'index_payment'])->name('dn-payment')->middleware('auth');
+Route::get('/dn-payment', [DN_payment_Controller::class, 'index_payment'])->name('dn-payment')->middleware('auth');
+Route::get('/get_header_coa_transaksi', [DN_payment_Controller::class, 'get_header_coa_transaksi'])->middleware('auth');
+Route::get('/get_detail_coa_transaksi', [DN_payment_Controller::class, 'get_detail_coa_transaksi'])->middleware('auth');
+Route::get('/get_data_dn_payment', [DN_payment_Controller::class, 'get_data_dn_payment'])->middleware('auth');
+Route::post('/dn-payment/store-payment', [DN_payment_Controller::class, 'store_payment'])->middleware('auth');
+Route::get('/get_cabang', [DN_payment_Controller::class, 'get_cabang'])->middleware('auth');
+Route::get('/cetak-pdf/payment', [DN_payment_Controller::class, 'cetakPDF_payment'])->middleware('auth');
 
 
+// faktur pajak
+Route::get('/faktur-pajak', [DN_payment_Controller::class, 'index_faktur_pajak'])->name('faktur-pajak')->middleware('auth');
+Route::get('/dn_tagih/get_list_pajak', [DN_payment_Controller::class, 'get_list_pajak'])->middleware('auth');
+Route::post('/update-faktur-pajak', [DN_payment_Controller::class, 'store_faktur_pajak'])->middleware('auth');
+Route::post('/update-faktur-pajak-confirm', [DN_payment_Controller::class, 'store_faktur_pajak_confirm'])->middleware('auth');
+// DN_report_Controller
+
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('/report-list-kwitansi', [DN_report_Controller::class, 'index_list_Kwitansi'])->name('/report-list-kwitansi');
+	Route::get('/report-list-dn', [DN_report_Controller::class, 'index_list_dn'])->name('/report-list-dn');
+	Route::get('/report/get-list-kwitansi', [DN_report_Controller::class, 'get_list_kwitansi']);
+	Route::get('/report/get/list_kwitansi-chart', [DN_report_Controller::class, 'get_list_kwitansi_chart']);
+	Route::get('/report/get/list_dn-chart', [DN_report_Controller::class, 'get_list_dn_chart']);
+	Route::get('/report/get/list_dn', [DN_report_Controller::class, 'get_list_dn']);
+});
+// pemotongan kwitansi
+
+Route::group(['middleware' => 'auth'], function () {
+	Route::get('/pemotongan-kwitansi', [DN_payment_Controller::class, 'index_pemotongan_kwitansi'])->name('pemotongan-kwitansi');
+	Route::get('/report-list-dn', [DN_report_Controller::class, 'index_list_dn'])->name('/report-list-dn');
+	Route::get('/report/get-list-kwitansi', [DN_report_Controller::class, 'get_list_kwitansi']);
+	Route::get('/report/get/list_kwitansi-chart', [DN_report_Controller::class, 'get_list_kwitansi_chart']);
+	Route::get('/report/get/list_dn-chart', [DN_report_Controller::class, 'get_list_dn_chart']);
+	Route::get('/report/get/list_dn', [DN_report_Controller::class, 'get_list_dn']);
+});
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/register', [RegisterController::class, 'create']);
