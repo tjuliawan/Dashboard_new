@@ -7,6 +7,7 @@
         $(document).ready(function() {
             let tampunganData = [];
             let url_code;
+            let total_sales;
             $('#loader_body').hide();
             $('#apply_filter').click(function() {
                 tampunganData = [];
@@ -64,12 +65,7 @@
                             data: {
                                 start_date: $('#start_date').val(),
                                 end_date: $('#end_date').val(),
-                                total_sales: parseFloat(
-                                    $('#sales_text').text()
-                                        .replace(/Rp\s?/i, '')
-                                        .replace(/\./g, '')
-                                        .replace(/,/g, '.')     
-                                ),
+                                total_sales: total_sales,
                                 cabang_code : $('#select_cabang').val(),
                                 tampunganData: tampunganData,
                                 _token: $('meta[name="csrf-token"]').attr('content') 
@@ -182,24 +178,6 @@
                         return;
                     }
                 }
-                // if (vehicle === "") {
-                    //     Swal.fire({
-                        //         icon: 'error',
-                        //         title: 'Oops...',
-                        //         text: 'Please select a vehicle!',
-                        //     });
-                        //     $('#loader_body').hide();
-                        //     return;
-                        // }
-                        // if (business === "") {
-                            //     Swal.fire({
-                                //         icon: 'error',
-                                //         title: 'Oops...',
-                                //         text: 'Please select a business!',
-                                //     });
-                                //     $('#loader_body').hide();
-                //     return;
-                // }
                 if (start_date === "") {
                     Swal.fire({
                         icon: 'error',
@@ -252,30 +230,24 @@
                                 return `<input type="checkbox" class="form-check-input row-checkbox">`;
                             }
                         },
-                        // {
-                            //     data: null,
-                            //     render: function(data, type, row, meta) {
-                                //         return meta.row + 1;
-                                //     }
-                                // },
-                                { data : 'Sales_DN_Code_d' , name : 'Sales_DN_Code_d' },
-                                { data : 'Sales_DN_date' , name : 'Sales_DN_date' },
-                                { data : 'Sales_DN_COno' , name : 'Sales_DN_COno' },
-                                { data : 'Sales_DN_Driver' , name : 'Sales_DN_Driver' },
-                                { data : 'client_code' , name : 'client_code' },
-                                { data : 'cab_desc' , name : 'cab_desc' },
-                                { data : 'sales_dn_productcode' , name : 'sales_dn_productcode' },
-                                { data : 'Sales_DN_vehicle' , name : 'Sales_DN_vehicle' },
-                                { data : 'Sales_DN_route_product_client_vehicle' , name : 'Sales_DN_route_product_client_vehicle' },
-                                {
-                                    data: 'Sales_DN_Productcodeqty',
-                                    name: 'Sales_DN_Productcodeqty',
-                                    render: function(data, type, row, meta) {
-                                        return parseInt(data, 10) || 0; 
-                                    }
-                                },
-                                {
-                                    data: 'routveh_salesbotol',
+                        { data : 'Sales_DN_Code_d' , name : 'Sales_DN_Code_d' },
+                        { data : 'Sales_DN_date' , name : 'Sales_DN_date' },
+                        { data : 'Sales_DN_COno' , name : 'Sales_DN_COno' },
+                        { data : 'Sales_DN_Driver' , name : 'Sales_DN_Driver' },
+                        { data : 'client_code' , name : 'client_code' },
+                        { data : 'cab_desc' , name : 'cab_desc' },
+                        { data : 'sales_dn_productcode' , name : 'sales_dn_productcode' },
+                        { data : 'Sales_DN_vehicle' , name : 'Sales_DN_vehicle' },
+                        { data : 'Sales_DN_route_product_client_vehicle' , name : 'Sales_DN_route_product_client_vehicle' },
+                        {
+                            data: 'Sales_DN_Productcodeqty',
+                            name: 'Sales_DN_Productcodeqty',
+                            render: function(data, type, row, meta) {
+                                return parseInt(data, 10) || 0; 
+                            }
+                        },
+                        {
+                            data: 'routveh_salesbotol',
                             name: 'routveh_salesbotol',
                             render: function(data, type, row) {
                                 if (data === null || data === undefined || data === '') {
@@ -285,8 +257,6 @@
                                 if (type === 'display') {
                                     return parseFloat(data).toLocaleString('id-ID', {
                                         useGrouping: true,
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2
                                     });
                                 }
                                 
@@ -304,8 +274,6 @@
                                 if (type === 'display') {
                                     return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
                                         useGrouping: true,
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2
                                     });
                                 }
 
@@ -380,8 +348,6 @@
                                 if (type === 'display') {
                                     return parseFloat(data).toLocaleString('id-ID', {
                                         useGrouping: true,
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2
                                     });
                                 }
 
@@ -398,8 +364,6 @@
                                 if (type === 'display') {
                                     return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
                                         useGrouping: true,
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2
                                     });
                                 }
 
@@ -437,6 +401,7 @@
                 const total = tampunganData.reduce((sum, item) => {
                     return sum + parseFloat(item.totalsales || 0);
                 }, 0);
+                total_sales = total;
                 $('#sales_text').text(
                     total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
                 );
@@ -465,6 +430,7 @@
                     tableMain.row.add(rowData).draw();
                     row.remove().draw();
                 }
+                console.log(tampunganData);
                 updateTotalSales();
             });
 
@@ -604,7 +570,6 @@
             $('#start_date').val(today);
             $('#end_date').val(today);
             // $('#date_register_tagihan').val(today);
-
         });
     </script>
 @endsection
