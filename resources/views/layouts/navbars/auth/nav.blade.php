@@ -15,9 +15,9 @@
                 </a>
             </div> --}}
             {{-- <div class="ms-md-3 pe-md-3 d-flex align-items-center">
-            <div class="input-group">
+            <div class="input-group input-group-sm">
                 <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
-                <input type="text" class="form-control" placeholder="Type here...">
+                <input type="text" class="form-control" id="menuSearch" placeholder="Type here...">
             </div>
             </div> --}}
             <ul class="navbar-nav  justify-content-end">
@@ -119,6 +119,18 @@
     </div>
 </nav>
 <!-- End Navbar -->
+{{-- <script>
+  document.getElementById('menuSearch').addEventListener('keyup', function () {
+    const searchTerm = this.value.toLowerCase();
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    menuItems.forEach(function (item) {
+      const text = item.innerText.toLowerCase();
+      item.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+  });
+</script> --}}
+
 <style>
     .navbar-vertical {
       background: linear-gradient(180deg, #ffffff, #f9f9fb);

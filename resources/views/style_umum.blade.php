@@ -142,6 +142,12 @@
 
     /* CSS Choices.js  */
     /* tabel */
+    .choices {
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 0px;
+        font-size: 10px !important;
+    }
     .page-item.active .page-link {
         background: linear-gradient(135deg, #1ccb0c, #8ee46d);
         border-color: #1ccb0c00;
@@ -181,11 +187,11 @@
     /* Item terpilih (tags) */
     .choices__item--selectable {
         /* background-color: #f866f89d; */
-        color: rgb(151, 146, 146);
+        color: rgb(65, 61, 61);
         border-radius: 6px;
-        padding: 3px 8px;
-        margin: 3px 5px 3px 0;
-        font-size: 12px;
+        padding: 3px 3px;
+        margin: 0;
+        font-size: 11px;
     }
 
 
@@ -196,7 +202,7 @@
         border-radius: 8px;
         max-height: 300px;
         overflow-y: auto;
-        font-size: 13px;
+        font-size: 11px !important;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
 
@@ -222,6 +228,7 @@
     .choices__placeholder {
         color: #999;
         opacity: 0.7;
+        font-size: 11px !important;
     }
 
     /* Custom Select2 Theme */
@@ -291,6 +298,13 @@
     }
     .noty_type__success {
         background: #55efc4 !important;
+        color: #f5faff !important;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .noty_type__error {
+        background: #eb3b5a !important;
         color: #f5faff !important;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         border-radius: 12px;

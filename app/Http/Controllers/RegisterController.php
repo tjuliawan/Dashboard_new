@@ -22,14 +22,14 @@ class RegisterController extends Controller
             'username' => ['required', 'max:50', Rule::unique('users', 'username')],
             'name' => ['required', 'max:50'],
             'email' => ['required', 'email', 'max:50', Rule::unique('users', 'email')],
-            'password' => ['required', 'min:5', 'max:20'],
+            'password' => ['required', 'min:8', 'max:20'],
             'ms_divisi' => ['required'],
             'sub_divisi' => ['required'],
-            'company' => ['required'],
-            'cabang' => ['required'],
+            'ms_company' => ['required'],
+            'ms_branch' => ['required'],
             'agreement' => ['accepted']
         ]);
-        
+        // dd($attributes);
         $emailExists = DB::connection('ms_sql_hgs')
             ->table('ms_employee')
             ->where('emp_email', $attributes['email'])
@@ -56,10 +56,8 @@ class RegisterController extends Controller
         // Buat pengguna baru
         $user = User::create($attributes);
     
-        // Logout pengguna setelah pendaftaran
         Auth::logout();
     
-        // Log informasi sesi setelah logout (jika perlu untuk debugging)
         Log::info('Sesi setelah logout:', session()->all());
     
         // Redirect ke halaman login dengan pesan sukses

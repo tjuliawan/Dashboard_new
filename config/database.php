@@ -113,8 +113,8 @@ return [
             'driver' => env('DB_ms_sql_hgs_CONNECTION', 'sqlsrv'),
             'host' => env('DB_ms_sql_hgs_HOST', 'rcm.hgs.co.id'),
             'port' => env('DB_ms_sql_hgs_PORT', '57403'),
-            // 'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_DUMMY_HGS_2505'),
-            'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_HGS'),
+            'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_DUMMY_HGS_2505'),
+            // 'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_HGS'),
             'username' => env('DB_ms_sql_hgs_USERNAME', 'RCM_SRVWO_HGS'),
             'password' => env('DB_ms_sql_hgs_PASSWORD', 'X4G8tUKurK762J5JWRYX'),
             'charset' => 'utf8',
@@ -122,7 +122,6 @@ return [
             'prefix_indexes' => true,
             'trust_server_certificate' => true,
         ],
-
     ],
 
     /*

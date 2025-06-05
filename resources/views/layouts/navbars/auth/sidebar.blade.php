@@ -9,7 +9,7 @@
     <hr class="horizontal dark mt-0">
     <div class="collapse navbar-collapse  w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
-            <li class="nav-item">
+            <li class="nav-item menu-item">
                 <a class="nav-link {{ Request::is('dashboard') ? 'active' : '' }}" href="{{ url('dashboard') }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -29,7 +29,7 @@
                     <span class="nav-link-text ms-1">Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item mt-2">
+            <li class="nav-item mt-2 menu-item">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Tagih</h6>
             </li>
             <li class="nav-item pb-2">
@@ -40,7 +40,7 @@
                     <span class="nav-link-text ms-1">Add New Tagih Sales DN</span>
                 </a>
             </li>
-            <li class="nav-item pb-2">
+            <li class="nav-item pb-2 menu-item">
                 <a class="nav-link {{ str_contains(Request::path(), 'list-tr-tagih-sales-dn-d-date') ? 'active' : '' }}" href="{{ url('list-tr-tagih-sales-dn-d-date') }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <i style="font-size: 1rem;" class="fas fa-lg fa-clipboard-list ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'list-tr-tagih-sales-dn-d-date') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
@@ -48,7 +48,7 @@
                     <span class="nav-link-text ms-1">List Tagih Sales DN</span>
                 </a>
             </li>
-            <li class="nav-item pb-2">
+            <li class="nav-item pb-2 menu-item">
                 <a class="nav-link {{ str_contains(Request::path(), 'edit-tagih-sales-dn') ? 'active' : '' }}" href="{{ url('edit-tagih-sales-dn') }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <i style="font-size: 1rem;" class="fas fa-lg fa-file-pen ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'edit-tagih-sales-dn') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
@@ -56,7 +56,15 @@
                     <span class="nav-link-text ms-1">Edit Tagih Sales DN</span>
                 </a>
             </li>
-            <li class="nav-item pb-2">
+            <li class="nav-item pb-2 menu-item">
+                <a class="nav-link {{ str_contains(Request::path(), 'add-tagih-sales-dn-from-ba') ? 'active' : '' }}" href="{{ url('add-tagih-sales-dn-from-ba') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1rem;" class="fas fa-lg fa-file-pen ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'add-tagih-sales-dn-from-ba') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Add DN From BA</span>
+                </a>
+            </li>
+            <li class="nav-item pb-2menu-item">
                 <a class="nav-link {{ str_contains(Request::path(), 'page-kwitansi') ? 'active' : '' }}" href="{{ url('page-kwitansi') }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <i style="font-size: 1rem;" class="fas fa-lg fa-money-bills ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'page-kwitansi') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
@@ -65,23 +73,62 @@
                 </a>
             </li>
             {{-- end transaksi --}}
-            <li class="nav-item mt-2">
+            {{-- payment --}}
+            <li class="nav-item mt-2menu-item">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Payment</h6>
             </li>
-              <li class="nav-item pb-2">
+            <li class="nav-item pb-2">
                 <a class="nav-link {{ str_contains(Request::path(), 'dn-payment') ? 'active' : '' }}" href="{{ url('dn-payment') }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                         <i style="font-size: 1rem;" class="fas fa-lg fa-money-bills ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'dn-payment') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
                     </div>
                     <span class="nav-link-text ms-1">DN Payment</span>
                 </a>
+            </li> 
+            <li class="nav-item pb-2">
+                <a class="nav-link {{ str_contains(Request::path(), 'faktur-pajak') ? 'active' : '' }}" href="{{ url('faktur-pajak') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1rem;" class="fas fa-lg fa-file-invoice ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'faktur-pajak') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Faktur Pajak</span>
+                </a>
             </li>
+            {{-- <li class="nav-item pb-2">
+                <a class="nav-link {{ str_contains(Request::path(), 'pemotongan-kwitansi') ? 'active' : '' }}" href="{{ url('pemotongan-kwitansi') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1rem;" class="fas fa-lg fa-file-invoice ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'pemotongan-kwitansi') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Pemotongan Kwitansi</span>
+                </a>
+            </li> --}}
+            {{-- end payment --}}
+            {{-- report --}}
+            <li class="nav-item mt-2menu-item">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Report</h6>
+            </li>
+            <li class="nav-item pb-2">
+                <a class="nav-link {{ str_contains(Request::path(), 'report-list-dn') ? 'active' : '' }}" href="{{ url('report-list-dn') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1rem;" class="fas fa-lg fa-file-invoice ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'report-list-dn') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">List DN</span>
+                </a>
+            </li>
+            <li class="nav-item pb-2">
+                <a class="nav-link {{ str_contains(Request::path(), 'report-list-kwitansi') ? 'active' : '' }}" href="{{ url('report-list-kwitansi') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
+                        <i style="font-size: 1rem;" class="fas fa-lg fa-file-invoice ps-2 pe-2 text-center text-dark {{ str_contains(Request::path(), 'report-list-kwitansi') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">List Kwitasi</span>
+                </a>
+            </li>
+            {{-- end report --}}
             <li class="nav-item mt-2">
                 <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Other</h6>
             </li>
             @auth
                 @if (Auth::user()->role === 'Administrator')
-                    <li class="nav-item pb-2">
+                    <li class="nav-item pb-2 menu-item">
                         <a class="nav-link {{ str_contains(Request::path(), 'user-activation') ? 'active' : '' }}" href="{{ url('user-activation') }}">
                             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                                 <i style="font-size: 1rem;" class="fas fa-lg fa-user-gear ps-2 pe-2 text-center {{ str_contains(Request::path(), 'user-activation') ? 'text-white' : 'text-dark' }}" aria-hidden="true"></i>

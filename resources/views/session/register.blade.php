@@ -103,7 +103,7 @@
                                             $divisiList = ['Finance'];
                                         @endphp
                                         @foreach ($divisiList as $divisi)
-                                            <option value="{{ $divisi }}" {{ old('divisi') == $divisi ? 'selected' : '' }}>{{ $divisi }}</option>
+                                            <option value="{{ $divisi }}" {{ old('ms_divisi') == $divisi ? 'selected' : '' }}>{{ $divisi }}</option>
                                         @endforeach
                                     </select>
                                     @error('ms_divisi')
@@ -127,32 +127,32 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <select name="company" id="company" class="form-select">
+                                    <select name="ms_company" id="ms_company" class="form-select">
                                         <option value="">Pilih Perusahaan</option>
                                         @php
                                             $companies = ['PT. Handal Guna Sarana', 'PT. Tirta Gracia Utama', 'PT. Tirta Gracia Fiesta', 'PT. Tirta Utama Abadi'];
                                         @endphp
-                                        @foreach ($companies as $company)
-                                            <option value="{{ $company }}" {{ old('company') == $company ? 'selected' : '' }}>{{ $company }}</option>
+                                        @foreach ($companies as $ms_company)
+                                            <option value="{{ $ms_company }}" {{ old('ms_company') == $ms_company ? 'selected' : '' }}>{{ $ms_company }}</option>
                                         @endforeach
                                     </select>
-                                    @error('company')
+                                    @error('ms_company')
                                         <p class="text-danger text-xs mt-2">{{ $message }}</p>
                                     @enderror
                                 </div>
 
                                 <div class="mb-3">
-                                    <select name="cabang" id="cabang" class="form-select">
-                                        <option value="">Pilih Cabang</option>
+                                    <select name="ms_branch" id="ms_branch" class="form-select">
+                                        <option value="">Pilih ms_branch</option>
                                         @php
-                                            $cabangs = ['HGS Pusat', 'HGS Ciherang', 'HGS Subang', 'HGS Sentul', 'HGS Bandung Agriaku', 'HGS Bandung Agrovass', 'HGS Cirebon Agriaku', 'HGS Tasikmalaya Agriaku', 'HGS-SMU-BOGOR', 'TGU Pusat', 'TGU Ciracas', 'TGU Ciracas Bukalapak', 'TGU Sunter Gudang Baru', 'TGU Tangerang', 'TGU Bandung BL', 'TGF Pusat PH', 'TGF Pokenbir', 'TGF Ciracas', 'TGF Suka Itjip PH', 'TGF Suka Itjip Spark Senayan', 'TGF Coffeelicious', 'TGF Chickenbir', 'TGF Pokenrice'];
+                                            $ms_branchs = ['HGS Pusat', 'HGS Ciherang', 'HGS Subang', 'HGS Sentul', 'HGS Bandung Agriaku', 'HGS Bandung Agrovass', 'HGS Cirebon Agriaku', 'HGS Tasikmalaya Agriaku', 'HGS-SMU-BOGOR', 'TGU Pusat', 'TGU Ciracas', 'TGU Ciracas Bukalapak', 'TGU Sunter Gudang Baru', 'TGU Tangerang', 'TGU Bandung BL', 'TGF Pusat PH', 'TGF Pokenbir', 'TGF Ciracas', 'TGF Suka Itjip PH', 'TGF Suka Itjip Spark Senayan', 'TGF Coffeelicious', 'TGF Chickenbir', 'TGF Pokenrice'];
 
                                         @endphp
-                                        @foreach ($cabangs as $cabang)
-                                            <option value="{{ $cabang }}" {{ old('cabang') == $cabang ? 'selected' : '' }}>{{ $cabang }}</option>
+                                        @foreach ($ms_branchs as $ms_branch)
+                                            <option value="{{ $ms_branch }}" {{ old('ms_branch') == $ms_branch ? 'selected' : '' }}>{{ $ms_branch }}</option>
                                         @endforeach
                                     </select>
-                                    @error('cabang')
+                                    @error('ms_branch')
                                         <p class="text-danger text-xs mt-2">{{ $message }}</p>
                                     @enderror
                                 </div>

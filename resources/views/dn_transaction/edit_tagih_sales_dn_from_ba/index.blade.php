@@ -20,6 +20,7 @@
             $('#loader_body').hide();
         // fungsi print
             $('#btn_print_report').click(function() {
+                var client_code = $('#select_client').val();
                                     
                 if(product === 'Water Tanker'){
                     var url = '/cetak-pdf/dn-tagih-inv-wt?code=' + encodeURIComponent(code_head) +
@@ -30,9 +31,9 @@
                         '&client_code=' + encodeURIComponent(client_code);
                     window.open(url, '_blank');
                     if(client_code === 'TUA'){
-                        // var url2 = '/cetak-pdf/dn-tagih-kwitansi?code=' + encodeURIComponent(code_head) +
-                        //     '&client_code=' + encodeURIComponent(client_code);
-                        // window.open(url2, '_blank');
+                        var url2 = '/cetak-pdf/dn-tagih-kwitansi?code=' + encodeURIComponent(code_head) +
+                            '&client_code=' + encodeURIComponent(client_code);
+                        window.open(url2, '_blank');
                     }
                 }
             });
@@ -54,7 +55,6 @@
                         code: $('#input_main_code').val()
                     },
                     success: function (response) {
-                        // console.log(response);
                         total_tagihan = response.salesdntagih_Total_tagihan;   
                         client_code = response.salesdntagih_client_code; 
                         code_head = response.salesdntagih_code_h;  
@@ -79,11 +79,14 @@
 
                             $('#loader_search').hide();
                         } else {
-                            initializeDataTable();
+                            // initializeDataTable();
+                            $('#loader_search').hide();
                             $('.div_confirmation').show();
+                            $('.div_add_more_data').show();
                         }
                     },
-                    error: function () {
+                    error: function (xhr, status, error) {
+                        errormessage =  xhr.responseJSON.message;
                         $('.div_confirmation').hide();
                         $('#div_table_list_tr_tagih_sales_DN_d_date').hide();
                         if ($.fn.DataTable.isDataTable('#table_list_tr_tagih_sales_DN_d_date')) {
@@ -93,7 +96,22 @@
                             $('#table_tampungan').DataTable().clear().destroy();
                         }
                         $('#loader_search').hide();
-                        alert('Terjadi kesalahan. Coba lagi.');
+                         new Noty({
+                            text: `
+                                <div>
+                                    <strong style="color: #dc3545;"><i class="fas fa-exclamation-circle" style="margin-right: 6px;"></i>Terjadi Masalah</strong>
+                                    <p style="margin: 4px 0 8px 0; font-size: 14px; color: #333;">${errormessage}</p>
+                                    <small style="color: #007bff; font-size: 11px; font-style: italic;">Klik disini untuk menutup pesan ini</small>
+                                </div>
+                            `,
+                            type: 'alert',
+                            layout: 'center',
+                            timeout: 8000,
+                            theme: 'bootstrap-v4',
+                            modal: true,
+                            // killer: true, 
+                        }).show();
+                        console.error('Error:', error);
                     }
                 });
             });
@@ -291,6 +309,7 @@
                         tampunganData_add: tampunganData_add,
                         akses_dari: akses_dari,
                         username_pemeberi_akses: username_pemeberi_akses,
+                        is_from_ba: 1,
                         header_code: $('#input_main_code').val(),
                         _token: $('meta[name="csrf-token"]').attr('content') 
                     },
@@ -301,36 +320,29 @@
                             title: 'Transaction Confirmed!',
                             text: 'Your transaction has been successfully processed.',
                         });
-                        $('#Modal_validate').modal('hide');
-                        if (tampunganData.length > 0 && tampunganData[0].client_code) {
-                            client_code = tampunganData[0].client_code;
-                            product = tampunganData[0].sales_dn_productcode;
-                        } else if (tampunganData_add.length > 0 && tampunganData_add[0].client_code) {
-                            client_code = tampunganData_add[0].client_code;
-                            product = tampunganData_add[0].sales_dn_productcode;
-                        }
-                        tampunganData = [];
-                        tampunganData_add = [];
-                        if ($.fn.DataTable.isDataTable('#table_add_tagih_sales_dn')) {
-                            $('#table_add_tagih_sales_dn').DataTable().clear().destroy();
-                        }
-                        if ($.fn.DataTable.isDataTable('#table_tampungan_add')) {
-                            $('#table_tampungan_add').DataTable().clear().destroy();
-                        }
-                        $('.div_add_more_data').hide();
-                        $('#btn_cancel_add_more').hide();
-                        $('#btn_add_more').hide();
-                        $('#new_transaction').show();
-                        $('#btn_print_report').show();
-                        $('#btn_confirm_editing').hide();
-                        $('#div_tabel_tampungan').hide();
-                        $('#div_table_add_tagih_sales_dn').hide();
-                        initializeDataTable();
-                        allowRowClick = 1;
-                        $('input[placeholder="Email/Username"]').val('');
-                        $('input[placeholder="Password"]').val('');
-                        $('#btn_search').hide();
-                        $('#input_main_code').prop('disabled', true);
+                            $('#Modal_validate').modal('hide');
+                            let tampunganData = [];
+                            let tampunganData_add = [];
+                            if ($.fn.DataTable.isDataTable('#table_add_tagih_sales_dn')) {
+                                $('#table_add_tagih_sales_dn').DataTable().clear().destroy();
+                            }
+                            if ($.fn.DataTable.isDataTable('#table_tampungan_add')) {
+                                $('#table_tampungan_add').DataTable().clear().destroy();
+                            }
+                            $('.div_add_more_data').hide();
+                            $('#btn_cancel_add_more').hide();
+                            $('#btn_add_more').hide();
+                            $('#new_transaction').show();
+                            $('#btn_print_report').show();
+                            $('#btn_confirm_editing').hide();
+                            $('#div_tabel_tampungan').hide();
+                            $('#div_table_add_tagih_sales_dn').hide();
+                            initializeDataTable();
+                            allowRowClick = 1;
+                            $('input[placeholder="Email/Username"]').val('');
+                            $('input[placeholder="Password"]').val('');
+                            $('#btn_search').hide();
+                            $('#input_main_code').prop('disabled', true);
                     },
                     error: function(xhr, status, error) {
                         Swal.fire({
@@ -344,317 +356,6 @@
                 });
             }
         // inisialisasi tabel  
-            // table remove    
-                function initializeDataTable() {
-                    $('#loader_body').show();
-                    var client = $('#select_client').val();
-                    var vehicle = $('#select_vehicle').val();
-                    var business = $('#select_business').val();
-                    var staert_date = $('#start_date').val();
-                    var end_date = $('#end_date').val();
-                    var input_main_code = $('#input_main_code').val();
-                    
-                    $('#header_code').val('');
-                    $('#date_register_tagihan').val('');
-                    if (input_main_code === "") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Please Intert the code!',
-                        });
-                        $('#loader_body').hide();
-                        return;
-                    }
-                    if ($.fn.DataTable.isDataTable('#table_list_tr_tagih_sales_DN_d_date')) {
-                        $('#table_list_tr_tagih_sales_DN_d_date').DataTable().clear().destroy();
-                    }
-                    if ($.fn.DataTable.isDataTable('#table_tampungan')) {
-                        $('#table_tampungan').DataTable().clear().destroy();
-                    }
-                    $('#div_table_list_tr_tagih_sales_DN_d_date').show();
-                    tableMain  = $('#table_list_tr_tagih_sales_DN_d_date').DataTable({
-                        serverSide: false,
-                        ajax: {
-                            url: '/dn_tagih/get_table_for_edit_dn_tgih',
-                            type: 'GET',
-                            dataSrc: '',
-                            data: {
-                                input_main_code: input_main_code   
-                            }
-                        },
-                        columns: [
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: 'text-center',
-                                render: function(data, type, row, meta) {
-                                    return `<input type="checkbox" class="form-check-input row-checkbox">`;
-                                }
-                            },
-                            // { data : 'rec_comcode', name : 'rec_comcode'},
-                            // { data : 'rec_areacode', name : 'rec_areacode'},
-                            { data : 'salesdntagih_code_h', name : 'salesdntagih_code_h'},
-                            { data : 'salesdntagih_Sales_dn_code', name : 'salesdntagih_Sales_dn_code'},
-                            { data : 'salesdntagih_Sales_dn_date', name : 'salesdntagih_Sales_dn_date'},
-                            { data : 'salesdntagih_client_code', name : 'salesdntagih_client_code'},
-                            { data : 'sales_dn_productcode', name : 'sales_dn_productcode'},
-                            { data : 'salesdntagih_Sales_dn_codeheader', name : 'salesdntagih_Sales_dn_codeheader'},
-                            { data : 'salesdntagih_cocode_header', name : 'salesdntagih_cocode_header'},
-                            { data : 'salesdntagih_cocode', name : 'salesdntagih_cocode'},
-                            { data : 'salesdntagih_no_po', name : 'salesdntagih_no_po' },
-                            { data : 'salesdntagih_drivercode', name : 'salesdntagih_drivercode'},
-                            { data : 'salesdntagih_routevhcode', name : 'salesdntagih_routevhcode'},
-                            { data : 'salesdntagih_vhcode', name : 'salesdntagih_vhcode'},
-                            {
-                                data: 'salesdntagih_qty',
-                                name: 'salesdntagih_qty',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_salesbotol',
-                                name: 'salesdntagih_salesbotol',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_Tagih_value',
-                                name: 'salesdntagih_Tagih_value',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            { data : 'salesdntagih_note', name : 'salesdntagih_note'},
-                        ],
-                        // responsive: true,
-                        searching: true,
-                        paging: true,
-                        autoWidth: false,
-                        dom: '<"d-flex justify-content-between align-items-start"<"d-flex"Bl><"d-flex justify-content-end"f>><"table-responsive"t><"d-flex justify-content-between align-items-center"ip>',
-                        scrollX: true,
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            [10, 25, 50, 100, "Semua"]
-                        ],
-                        buttons: [{
-                            extend: 'excel',
-                            text: 'Download Excel',
-                        }],
-                        language: {
-                            lengthMenu: "_MENU_",
-                            search: "Pencarian:",
-                            zeroRecords: "Tidak ada data yang ditemukan",
-                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
-                        },
-                        drawCallback: function(settings) {
-                            $('#loader_body').hide();
-                        },
-                        initComplete: function(settings, json) {                   
-                            $('#loader_search').hide();
-                        }
-                    });
-                    tableTampungan = $('#table_tampungan').DataTable({        
-                        columns: [
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: 'text-center',
-                                render: function(data, type, row, meta) {
-                                    return `<input type="checkbox" class="form-check-input tampungan-checkbox" checked>`;
-                                }
-                            },
-                            { data : 'salesdntagih_code_h' },
-                            { data : 'salesdntagih_Sales_dn_code' },
-                            { data : 'salesdntagih_Sales_dn_date' },
-                            { data : 'salesdntagih_client_code' },
-                            { data : 'sales_dn_productcode' },
-                            { data : 'salesdntagih_Sales_dn_codeheader' },
-                            { data : 'salesdntagih_cocode_header' },
-                            { data : 'salesdntagih_cocode' },
-                            { data : 'salesdntagih_no_po' },
-                            { data : 'salesdntagih_drivercode' },
-                            { data : 'salesdntagih_routevhcode' },
-                            { data : 'salesdntagih_vhcode' },
-                            {
-                                data: 'salesdntagih_qty',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_salesbotol',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_Tagih_value',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            { data : 'salesdntagih_note' },
-                        ],
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            [10, 25, 50, 100, "Semua"]
-                        ],
-                        buttons: [{
-                            extend: 'excel',
-                            text: 'Download Excel',
-                        }],
-                        language: {
-                            lengthMenu: "_MENU_",
-                            search: "Pencarian:",
-                            zeroRecords: "Tidak ada data yang ditemukan",
-                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
-                        },
-                        scrollX: true,
-                        processing: false,
-                    });
-                }           
-                function updateTotalSales() {
-                    const total = tampunganData.reduce((sum, item) => {
-                        return sum + parseFloat(item.totalsales || 0);
-                    }, 0);
-                    $('#sales_text').text(
-                        total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
-                    );
-                }
-                $('#table_list_tr_tagih_sales_DN_d_date tbody').on('change', '.row-checkbox', function () {
-                    const tr = $(this).closest('tr');
-                    const row = tableMain.row(tr);
-                    product = tr.find('td:eq(5)').text();
-                    const rowData = row.data();
-
-                    if (this.checked) {
-                        const modifiedRow = $.extend({}, rowData); // Salin data
-                        modifiedRow.note = ''; 
-
-                        tampunganData.push(modifiedRow);
-                        tableTampungan.row.add(modifiedRow).draw(); 
-                        row.remove().draw();
-                    } else {
-                        // Hapus dari tampunganData
-                        const index = tampunganData.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
-                        if (index > -1) {
-                            tampunganData.splice(index, 1);
-                        }
-
-                        // Kembalikan ke tableMain
-                        tableMain.row.add(rowData).draw();
-                        row.remove().draw();
-                    }
-                    // console.log(tampunganData);
-                    updateTotalSales();
-                });
-                $('#table_tampungan tbody').on('change', '.tampungan-checkbox', function () {
-                    const tr = $(this).closest('tr');
-                    const row = tableTampungan.row(tr);
-                    const rowData = row.data();
-
-                    if (!this.checked) {
-                        const index = tampunganData.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
-                        if (index > -1) {
-                            tampunganData.splice(index, 1);
-                        }
-                        tableMain.row.add(rowData).draw();
-                        row.remove().draw();
-                    } else {
-                        tampunganData.push(rowData);
-                        tableTampungan.row.add(rowData).draw();
-                        row.remove().draw();
-                    }
-                    updateTotalSales();
-                });           
-                $('#table_tampungan tbody').on('input', '.note-input', function () {
-                    const code = $(this).data('code');
-                    const value = $(this).val();
-                    const item = tampunganData.find(item => String(item.Sales_DN_Code_d) === String(code));
-                    if (item) {
-                        item.note = value;
-                    }
-                });
             // tabel add
                 function initializeDataTable_add() {
                     $('#loader_body').show();
@@ -665,11 +366,11 @@
                     add_tableMain = $('#table_add_tagih_sales_dn').DataTable({
                         serverSide: false,
                         ajax: {
-                            url: '/dn_tagih/get_table_add_tagih_sales_dn',
+                            url: '/dn_tagih/get_table_add_tagih_sales_dn_from_ba',
                             type: 'GET',
                             dataSrc: '',
                             data: {
-                                dn_code: $('#input_add_search_dn').val(),
+                                co_code: $('#input_add_search_dn').val(),
                             }
                         },
                         columns: [
@@ -891,7 +592,6 @@
                         add_tableMain.row.add(rowData).draw();
                         row.remove().draw();
                     }
-                    console.log(tampunganData_add);
                     updateTotalSales();
                 });
                 $('#table_tampungan_add tbody').on('change', '.tampungan-checkbox', function () {
@@ -970,29 +670,26 @@
                 </div>
             </div>
             <div class="col-12 col-md-auto mb-3">
-                <div class="card h-100 div_confirmation" style="display: none;">
-                    <div class="card-body">
-                        <div>
-                            <button class="btn bg-gradient-success btn-sm " id="btn_confirm_editing">Confirm Editing</button>
-                            <button class="btn btn-sm bg-gradient-success" id="btn_print_report" style="display: none">Print Report</button>
-                        </div>
-                        <button class="btn bg-gradient-warning btn-sm mb-0" id="btn_add_more">+ Add more data</button>                        
-                        <button class="btn btn-sm bg-gradient-warning" id="new_transaction" style="display: none">New Transaction</button>
-                        <button class="btn bg-gradient-warning btn-sm mb-0" id="btn_cancel_add_more" style="display: none">Cancel Add more data</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-auto mb-3">
                 <div class="card h-100 text-center div_add_more_data" style="display: none;">
                     <div class="card-body">
                         <div>
-                            <input class="form-control form-control-sm mb-3" type="text" id="input_add_search_dn" placeholder="input your DN code here" data-bs-toggle="tooltip" data-bs-placement="right" title="Please input your DN code here">
+                            <input class="form-control form-control-sm mb-3" type="text" id="input_add_search_dn" placeholder="input your CO code here" data-bs-toggle="tooltip" data-bs-placement="right" title="Please input your Co code here ex : S25041708878">
                         </div>
                         <button class="btn bg-gradient-info btn-sm mb-0" id="btn_search_for_add_more"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
                     </div>
                 </div>
             </div>
-            
+            <div class="col-12 col-md-auto mb-3">
+                <div class="card h-100 div_confirmation" style="display: none;">
+                    <div class="card-body">
+                        <div>
+                            <button class="btn bg-gradient-success btn-sm " id="btn_confirm_editing">Confirm Editing</button>
+                            <button class="btn btn-sm bg-gradient-success" id="btn_print_report" style="display: none">Print Report</button>
+                        </div>                      
+                        <button class="btn btn-sm bg-gradient-warning" id="new_transaction" style="display: none">New Transaction</button>
+                    </div>
+                </div>
+            </div>
             <div class="col-12" id="div_table_add_tagih_sales_dn" style="display: none;">
                 <div class="card mb-3 ">
                     <div class="card-header pb-0">

@@ -72,7 +72,112 @@
                     ]
                 }).show();
             });
+            let is_table_initialized = 0;
+            $('#btn_list_kwitansi').click(function() {
+                if (is_table_initialized === 0) {
+                    is_table_initialized = 1;
+                    $('#div_table_list_kwitansi').show();
+                    $('#btn_list_kwitansi').text('Tutup List Kwitansi');
+                    initializeDataTable();
+                }else {
+                    is_table_initialized = 0;
+                    $('#div_table_list_kwitansi').hide();
+                    $('#btn_list_kwitansi').text('Tampilkan List Kwitansi');
+                }
+            });
+            function initializeDataTable() {
+                $('#loader_search').show();
+                if ($.fn.DataTable.isDataTable('#list_kwitansi_table')) {
+                    $('#list_kwitansi_table').DataTable().clear().destroy();
+                }
+                $('#div_list_kwitansi_table').show();
+                table = $('#list_kwitansi_table').DataTable({
+                    processing: false,
+                    serverSide: false,
+                    ajax: {
+                        url: '/dn_tagih/get_list_pajak',
+                        type: 'GET',
+                        dataSrc: '',
+                        data: {
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            render: function(data, type, row, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+                        // { data : 'rec_comcode', name : 'rec_comcode'},
+                        // { data : 'rec_areacode', name : 'rec_areacode'},
+                        { data : 'no_kwitansi', name : 'no_kwitansi'},
+                        { data : 'salesdntagih_client_code', name : 'salesdntagih_client_code'},
+                        { data : 'clien_desc', name : 'clien_desc'},
+                        {
+                            data: 'value_tagihan_dn',
+                            name: 'value_tagihan_dn',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
 
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'value_est_pph_4',
+                            name: 'value_est_pph_4',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                    ],
+                    // responsive: true,
+                    searching: true,
+                    paging: true,
+                    autoWidth: false,
+                    dom: '<"d-flex justify-content-between align-items-start"<"d-flex"Bl><"d-flex justify-content-end"f>><"table-responsive"t><"d-flex justify-content-between align-items-center"ip>',
+                    scrollX: true,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    buttons: [{
+                        extend: 'excel',
+                        text: 'Download Excel',
+                    }],
+                    language: {
+                        lengthMenu: "_MENU_",
+                        search: "Pencarian:",
+                        zeroRecords: "Tidak ada data yang ditemukan",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                        infoEmpty: "Tidak ada data",
+                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                    },
+                    initComplete: function(settings, json) {
+                        $('#loader_search').hide();
+                    }
+                });
+            }
             function getheaderdata() {
                 $.ajax({
                     url: '/get_header_dn_tagih',
@@ -81,12 +186,12 @@
                         code: $('#input_main_code').val()
                     },
                     success: function(response) {
-                        total_tagihan = response.salesdntagih_Total_tagihan;
+                        total_tagihan = response.total;
                         client_code = response.salesdntagih_client_code;
                         url_code = response.salesdntagih_code_h;
                         code_head = response.salesdntagih_code_h;
                         product = response.salesdntagih_product_code;
-                        let total = parseFloat(response.salesdntagih_Total_tagihan);
+                        let total = parseFloat(response.total);
                         $('#dn_tagih_code').text(response.salesdntagih_code_h);
                         $('#client_code').text(response.clien_desc);
                         $('#loader_search').hide();
@@ -198,7 +303,7 @@
         <div class="row">
             <div class="col-12 col-md-auto mb-3">
                 <div class="card h-100">
-                    <div class="card-body">
+                    <div class="card-body text-center">
                         <div class="form-group">
                             <div class="input-group">
                                 <input class="form-control form-control-sm" placeholder="Search DN Tagih Code" type="text" id="input_main_code" data-bs-toggle="tooltip" data-bs-placement="top" title="ex : INV-TSD-202505-xxxx">
@@ -209,6 +314,7 @@
                                 <div class="loader" style="display: none" id="loader_search"></div>
                             </div>
                         </div>
+                        {{-- <button type="button" class="btn bg-gradient-info btn-sm btn-rounded mb-0" id="btn_list_kwitansi">Tampilkan List Kwitansi</button> --}}
                     </div>
                 </div>
             </div>
@@ -310,6 +416,35 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                 <div class="col-12" id="div_table_list_kwitansi" style="display: none;">
+                <div class="card mb-4 ">
+                    <div class="card-header pb-0">
+                        <div class="d-flex flex-row justify-content-between">
+                            <div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0" id="list_kwitansi_table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>No Kwitansi</th>
+                                        <th>Client Code</th>
+                                        <th>Client Name</th>
+                                        <th>Value</th>
+                                        <th>Nilai pph PS 6</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
