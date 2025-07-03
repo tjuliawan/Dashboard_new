@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN Tagih - Add New Tagih Sales DN')
+@section('title', 'DN System - Add New Tagih Sales DN')
 @section('css')
 @endsection
 @section('script')
@@ -25,7 +25,7 @@
             $('#btn_print_report').click(function() {
                 var porduct = $('#select_product').val();
                 var client_code = $('#select_client').val();
-                                    
+
                 if(porduct[0] === 'Water Tanker'){
                     var url = '/cetak-pdf/dn-tagih-inv-wt?code=' + encodeURIComponent(url_code) +
                     '&client_code=' + encodeURIComponent(client_code);
@@ -54,13 +54,13 @@
                     icon: 'question',
                     title: 'Confirm Transaction',
                     text: 'Are you sure you want to confirm this transaction?',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, Confirm',
                     cancelButtonText: 'No',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '/dn-tagih/store',  
+                            url: '/dn-tagih/store',
                             type: 'POST',
                             data: {
                                 start_date: $('#start_date').val(),
@@ -68,7 +68,7 @@
                                 total_sales: total_sales,
                                 cabang_code : $('#select_cabang').val(),
                                 tampunganData: tampunganData,
-                                _token: $('meta[name="csrf-token"]').attr('content') 
+                                _token: $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
                                 Swal.fire({
@@ -96,7 +96,7 @@
                                     url_code = response.details[0].salesdntagih_code_h;
                                     var client_code = $('#select_client').val();
                                     var porduct = $('#select_product').val();
-                                    
+
                                     if(porduct[0] === 'Water Tanker'){
                                         var url = '/cetak-pdf/dn-tagih-inv-wt?code=' + encodeURIComponent(url_code) +
                                         '&client_code=' + encodeURIComponent(client_code);
@@ -136,7 +136,7 @@
                     icon: 'question',
                     title: 'Start New Transaction?',
                     text: 'Are you sure you want to start a new transaction? All current data will be reset.',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, start new',
                     cancelButtonText: 'Cancel',
                 }).then((result) => {
@@ -207,6 +207,7 @@
                     serverSide: false,
                     ajax: {
                         url: '/dn_tagih/get_table_add_tagih_sales_dn',
+                        timeout: 1200000,
                         type: 'GET',
                         dataSrc: '',
                         data: {
@@ -243,7 +244,7 @@
                             data: 'Sales_DN_Productcodeqty',
                             name: 'Sales_DN_Productcodeqty',
                             render: function(data, type, row, meta) {
-                                return parseInt(data, 10) || 0; 
+                                return parseInt(data, 10) || 0;
                             }
                         },
                         {
@@ -253,13 +254,13 @@
                                 if (data === null || data === undefined || data === '') {
                                     return '';
                                 }
-                                
+
                                 if (type === 'display') {
                                     return parseFloat(data).toLocaleString('id-ID', {
                                         useGrouping: true,
                                     });
                                 }
-                                
+
                                 return data;
                             }
                         },
@@ -307,7 +308,7 @@
                     drawCallback: function(settings) {
                     },
                     initComplete: function(settings, json) {
-                        $('#loader_body').hide();                        
+                        $('#loader_body').hide();
                         $('#sales_text').text('0,00');
                     }
                 });
@@ -391,7 +392,7 @@
                         zeroRecords: "Tidak ada data yang ditemukan",
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                         infoEmpty: "Tidak ada data",
-                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                     },
                     scrollX: true,
                     processing: false,
@@ -453,7 +454,7 @@
                 }
                 updateTotalSales();
             });
-            
+
             $('#table_tampungan tbody').on('input', '.note-input', function () {
                 const code = $(this).data('code');
                 const value = $(this).val();
@@ -465,13 +466,13 @@
 
             function updateNomorUrut() {
                 tableMain.rows().every(function (rowIdx) {
-                    const row = this.node();  
-                    $(row).find('td').eq(1).text(rowIdx + 1);  
+                    const row = this.node();
+                    $(row).find('td').eq(1).text(rowIdx + 1);
                 });
 
                 tableTampungan.rows().every(function (rowIdx) {
-                    const row = this.node(); 
-                    $(row).find('td').eq(1).text(rowIdx + 1);  
+                    const row = this.node();
+                    $(row).find('td').eq(1).text(rowIdx + 1);
                 });
             }
 
@@ -588,7 +589,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <div class="card  mb-3"> 
+                <div class="card  mb-3">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-auto">
@@ -688,7 +689,7 @@
                                                 color: #212529;
                                             }
 
-                                        </style>                                        
+                                        </style>
                                         {{-- <input class="form-control form-control-sam" type="text" id="sales_text">
                                          --}}
                                         {{-- <small>DN Tagih</small>
@@ -705,7 +706,7 @@
                     <div class="card-header pb-0">
                         <div class="d-flex flex-row justify-content-between">
                             <div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -740,7 +741,7 @@
                     <div class="card-header pb-0">
                         <div class="d-flex flex-row justify-content-between">
                             <div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -756,7 +757,7 @@
                                         <th>CO/SO</th>
                                         <th>Driver</th>
                                         <th>Client</th>
-                                        <th>Cabang</th>                                        
+                                        <th>Cabang</th>
                                         <th>Product</th>
                                         <th>Vehicle</th>
                                         <th>Route</th>
@@ -772,7 +773,7 @@
                         </div>
                     </div>
                 </div>
-            </div>  
+            </div>
         </div>
     </div>
     <div id="modalButton"></div>

@@ -1,27 +1,35 @@
 .btn-custom-green {
-    background: linear-gradient(135deg, #00ff87, #60efff); 
+    background: linear-gradient(135deg, #00ff87, #60efff);
     border: none;
     color: #fff;
     transition: background 0.3s ease;
 }
+
 .btn-custom-green:hover {
     color: #fff;
 }
 
 /* navbar Vertikal */
-.navbar-vertical .navbar-nav > .nav-item .nav-link.active {
-    background: linear-gradient(135deg, #e0f2f1, #c7e4e1); /* gradasi hijau kebiruan yang soft */
-    color: #004d40; /* warna teks gelap agar kontras */
-    border-radius: 8px; /* sedikit rounded untuk kesan modern */
-    font-weight: 500;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+.navbar-vertical .navbar-nav>.nav-item .nav-link.active {
+    background: linear-gradient(135deg, #e0f2f1, #c7e4e1);
+    /* gradasi hijau kebiruan yang soft */
+    color: #004d40 !important;
+    /* warna teks gelap agar kontras */
+    border-radius: 8px;
+    /* sedikit rounded untuk kesan modern */
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.253) !important;
     transition: all 0.3s ease;
 }
 
 
-/* .navbar-vertical .navbar-nav>.nav-item .nav-link.active .icon {
-    background-image: linear-gradient(310deg, #2ad8cf, #cb0c9f) !important;
-} */
+.navbar-vertical .navbar-nav>.nav-item .nav-link:hover {
+    background: linear-gradient(135deg, #e0f2f196, #d9ecead3) !important;
+}
+
+.navbar-vertical .navbar-nav>.nav-item .nav-link.active:hover {
+    background: linear-gradient(135deg, #e0f2f1, #c7e4e1) !important;
+}
 
 /* body */
 .bg-gray-100 {
@@ -34,9 +42,11 @@
     0% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
+
     100% {
         background-position: 0% 50%;
     }
@@ -50,6 +60,7 @@
     color: #fff;
     z-index: 3;
 }
+
 .form-check-input.row-checkbox {
     box-shadow: 0 0 4px rgba(37, 37, 37, 0.432);
 }
@@ -59,7 +70,7 @@
     background-color: #f4f6f900 !important;
     border: 1px solid #c3c6cadc;
     border-radius: 8px !important;
-    padding: 7px; 
+    padding: 7px;
     font-size: 13px;
     color: #292f38c9;
     height: auto;
@@ -98,7 +109,7 @@
     max-height: 300px;
     overflow-y: auto;
     font-size: 13px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* Opsi yang bisa dipilih */
@@ -125,8 +136,8 @@
     opacity: 0.7;
 }
 
- /* Custom Select2 Theme */
- .select2-container--custom .select2-selection--single {
+/* Custom Select2 Theme */
+.select2-container--custom .select2-selection--single {
     background-color: #f4f6f900 !important;
     border: 1px solid #c3c6cadc !important;
     border-radius: 8px !important;
@@ -146,7 +157,8 @@
 }
 
 .select2-container--custom .select2-selection__rendered {
-    line-height: 1.5; /* Sesuaikan dengan tinggi input Bootstrap */
+    line-height: 1.5;
+    /* Sesuaikan dengan tinggi input Bootstrap */
 }
 
 /* Dropdown styling */

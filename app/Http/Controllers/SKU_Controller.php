@@ -15,7 +15,7 @@ class SKU_Controller extends Controller
     {
         Session::flash('url','Master Central');
         $user = auth()->user();
-        auth()->user()->tokens()->delete();
+        // auth()->user()->tokens()->delete();
         $email = session('email');
         $user = User::where('email', $email)->firstOrFail();
         // dd($email);

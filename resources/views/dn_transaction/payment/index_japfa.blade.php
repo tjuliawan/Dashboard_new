@@ -5,8 +5,6 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            let startDate = '';
-            let endDate = '';
             let tampunganData = [];
             let url_code;
             // initializeDataTable();
@@ -35,7 +33,12 @@
             let kredit_val_4 = "";
             let kredit_val_5 = "";
             let kredit_val_6 = "";
+
+            let tahun;
+            let bulan;
+
             $('#loader_body').hide();
+
             function initializeDataTable() {
                 $('#loader_body').show();
 
@@ -46,18 +49,16 @@
                 table = $('#table_users').DataTable({
                     serverSide: false,
                     ajax: {
-                        url: '/get_data_dn_payment',
+                        url: '/get_data_dn_payment_japfa',
                         type: 'GET',
                         dataSrc: '',
                         data: {
-                            startDate: startDate,
-                            endDate: endDate,
-                            client_code: $('#select_client').val(),
-                            cabang_code: $('#select_cabang').val(),
+                            tahun: tahun,
+                            bulan: bulan,
+                            lokasi: $('#select_cabang').val()
                         }
                     },
-                    columns: [
-                        {
+                    columns: [{
                             data: null,
                             orderable: false,
                             searchable: false,
@@ -65,18 +66,30 @@
                             render: function(data, type, row, meta) {
                                 return `<input type="checkbox" class="form-check-input row-checkbox">`;
                             }
-                        },{
+                        }, {
                             data: null,
                             render: function(data, type, row, meta) {
                                 return meta.row + 1;
                             }
                         },
-                        { data: 'salesdntagih_code_h', name: 'salesdntagih_code_h' },
-                        { data: 'salesdntagih_client_code', name: 'salesdntagih_client_code' },
-                        { data: 'cab_desc', name: 'cab_desc' },
                         {
-                            data: 'total',
-                            name: 'total',
+                            data: 'no_kwitansi',
+                            name: 'no_kwitansi'
+                        },
+                        {
+                            data: null, // karena kita tidak pakai datanya
+                            name: 'salesdntagih_client_code',
+                            render: function(data, type, row, meta) {
+                                return 'Japfa';
+                            }
+                        },
+                        {
+                            data: 'lokasi',
+                            name: 'lokasi'
+                        },
+                        {
+                            data: 'value_tagihan_dn',
+                            name: 'value_tagihan_dn',
                             render: function(data, type, row) {
                                 if (data === null || data === undefined || data === '') {
                                     return '';
@@ -125,13 +138,10 @@
                     }
                 });
             }
-            $('#apply_filter_for_table').on('click',function(){
-                if (
-                    startDate == "" &&
-                    endDate == "" &&
-                    $('#select_client').val() == "" &&
-                    $('#select_cabang').val() == ""
-                ) {
+            $('#apply_filter_for_table').on('click', function() {
+                date = $('#input_bulan').val();
+                [tahun, bulan] = date.split('-');
+                if (date == "" || $('#select_cabang').val() == "") {
                     new Noty({
                         text: `
                             <div>
@@ -155,50 +165,15 @@
                     }).show();
                     return;
                 }
-                if ($('#select_client').val() == "") {
-                    new Noty({
-                        text: `
-                            <div>
-                                <strong style="color: #dc3545;">
-                                    <i class="fas fa-exclamation-circle" style="margin-right: 6px;"></i>Attention
-                                </strong>
-                                <p style="margin: 4px 0 8px 0; font-size: 14px; color: #333;">
-                                    Data tidak dapat diproses. Silakan pilih Client terlebih dahulu.
-                                </p>
-                                <small style="color: #007bff; font-size: 11px; font-style: italic;">
-                                    Klik di sini untuk menutup pesan ini
-                                </small>
-                            </div>
-                        `,
-                        type: 'alert',
-                        layout: 'center',
-                        timeout: 3000,
-                        theme: 'bootstrap-v4',
-                        modal: true,
-                        killer: true,
-                    }).show();
-                    return;
-                }
                 $('.div_from_hide').show();
                 $('#sales_text').text('Rp 0,00');
                 initializeDataTable();
             });
             let total_payment_text;
+
             function updateTotalSales() {
-                // const total = tampunganData.reduce((sum, item) => {
-                //     return sum + parseFloat(item.salesdntagih_Total_sales || 0);
-                // }, 0);
-                // total_payment_text = total;
-                // $('#sales_text').text(
-                //     total.toLocaleString('id-ID', {
-                //         style: 'currency',
-                //         currency: 'IDR',
-                //         minimumFractionDigits: 0,
-                //         maximumFractionDigits: 3
-                //     })
-                // );
                 const total = tampunganData.reduce((sum, item) => {
-                    return sum + parseInt(item.total || 0);
+                    return sum + parseInt(item.value_tagihan_dn || 0);
                 }, 0);
                 total_payment_text = total;
                 $('#sales_text').text(
@@ -210,6 +185,7 @@
                     })
                 );
             }
+
             function formatIndoNumber(number) {
                 if (isNaN(number)) return '0';
 
@@ -224,7 +200,7 @@
                 return intPart;
                 // return intPart + ',' + decimalPart;
             }
-            $('#table_users tbody').on('change', '.row-checkbox', function () {
+            $('#table_users tbody').on('change', '.row-checkbox', function() {
                 const tr = $(this).closest('tr');
                 const row = table.row(tr);
                 const rowData = row.data();
@@ -242,25 +218,25 @@
                 total_kredit = (kredit_val_1 + kredit_val_2 + kredit_val_3 + kredit_val_4 + kredit_val_5 + kredit_val_6);
                 total_debit = (debet_val_1 + debet_val_2 + debet_val_3 + debet_val_4 + debet_val_5 + debet_val_6);
 
-                 if(total_debit > total_payment_text){
+                if (total_debit > total_payment_text) {
                     $('#alert_debit').show();
-                }else{
+                } else {
                     $('#alert_debit').hide();
                 }
 
-                if(total_debit < total_payment_text){
+                if (total_debit < total_payment_text) {
                     $('#alert_debit2').show();
-                }else{
+                } else {
                     $('#alert_debit2').hide();
                 }
-                if(total_kredit > total_payment_text){
+                if (total_kredit > total_payment_text) {
                     $('#alert_kredit').show();
-                }else{
+                } else {
                     $('#alert_kredit').hide();
                 }
-                if(total_kredit < total_payment_text){
+                if (total_kredit < total_payment_text) {
                     $('#alert_kredit2').show();
-                }else{
+                } else {
                     $('#alert_kredit2').hide();
                 }
                 console.log(tampunganData);
@@ -290,9 +266,10 @@
                 });
             });
             get_header_coa();
-            function get_header_coa(){
+
+            function get_header_coa() {
                 $.ajax({
-                url: '/get_header_coa_transaksi',
+                    url: '/get_header_coa_transaksi',
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
@@ -306,7 +283,7 @@
                         }
 
                         data.forEach(function(item) {
-                            branchSelect.append('<option value="' + item.transcoa_code + '"> '  + item.transcoa_code + ' | ' + item.transcoa_desc + '</option>');
+                            branchSelect.append('<option value="' + item.transcoa_code + '"> ' + item.transcoa_code + ' | ' + item.transcoa_desc + '</option>');
                         });
                     },
                     error: function(xhr, status, error) {
@@ -314,7 +291,8 @@
                     }
                 });
             }
-            function get_detail_coa(){
+
+            function get_detail_coa() {
                 if ($('#select_header_coa').val() === "") {
                     new Noty({
                         text: `
@@ -341,7 +319,7 @@
                 }
                 $('#loader_body').show();
                 $.ajax({
-                url: '/get_detail_coa_transaksi',
+                    url: '/get_detail_coa_transaksi',
                     type: 'GET',
                     dataType: 'json',
                     data: {
@@ -386,7 +364,7 @@
                         if (debet_code_2 && debet_code_2 !== 'NONE' && debet_code_2 !== '0') {
                             $('#debet_code_2').val(data.transcoa_debet2code + ' - ' + data.debet2_desc);
                             $('#total_val_2').prop('disabled', false);
-                        }else{
+                        } else {
                             $('#total_val_2').prop('disabled', true);
                         }
                         debet_code_3 = data.transcoa_debet3code;
@@ -467,14 +445,15 @@
                     }
                 });
             }
+
             function updateTable() {
                 $('#loader_body').show();
                 $.ajax({
-                    url: '/dn-payment/store-payment',
+                    url: '/dn-payment/store-payment-japfa',
                     type: 'POST',
                     data: {
-                        startDate: startDate,
-                        endDate: endDate,
+                        tahun: tahun,
+                        bulan: bulan,
                         total_payment_text: total_payment_text,
                         tampunganData: tampunganData,
                         debet_code_1: debet_code_1,
@@ -535,9 +514,9 @@
                 });
             }
             // get_cabang();
-            function get_cabang(){
+            function get_cabang() {
                 $.ajax({
-                url: '/get_cabang',
+                    url: '/get_cabang',
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
@@ -559,33 +538,9 @@
                     }
                 });
             }
-            get_client();
-            function get_client(){
-                $.ajax({
-                url: '/get_client',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        var branchSelect = $('#select_client');
-                        branchSelect.empty();
-                        branchSelect.append('<option value="">Client</option>');
 
-                        if (data.error) {
-                            console.error(data.error);
-                            return;
-                        }
-
-                        data.forEach(function(item) {
-                            branchSelect.append('<option value="' + item.clien_id + '">' + item.clien_id +' | '+ item.clien_desc + '</option>');
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching branches:', error);
-                    }
-                });
-            }
             function parseIndoNumber(str) {
-            if (!str) return 0;
+                if (!str) return 0;
 
                 // Hapus titik ribuan
                 let clean = str.replace(/\./g, '');
@@ -660,30 +615,30 @@
                     }).show();
                     return;
                 }
-                // if (total_debit != total_payment_text && total_kredit != total_payment_text) {
-                //     new Noty({
-                //         text: `
-                //             <div>
-                //                 <strong style="color: #dc3545;">
-                //                     <i class="fas fa-exclamation-circle" style="margin-right: 6px;"></i>Attention
-                //                 </strong>
-                //                 <p style="margin: 4px 0 8px 0; font-size: 14px; color: #333;">
-                //                     Jumlah input dan jumlah total pembayaran tidak sesuai. Pastikan keduanya sama sebelum melanjutkan.
-                //                 </p>
-                //                 <small style="color: #007bff; font-size: 11px; font-style: italic;">
-                //                     Klik di sini untuk menutup pesan ini
-                //                 </small>
-                //             </div>
-                //         `,
-                //         type: 'alert',
-                //         layout: 'center',
-                //         timeout: 6000,
-                //         theme: 'bootstrap-v4',
-                //         modal: true,
-                //         killer: true,
-                //     }).show();
-                //     return;
-                // }
+                if (total_debit != total_payment_text && total_kredit != total_payment_text) {
+                    new Noty({
+                        text: `
+                            <div>
+                                <strong style="color: #dc3545;">
+                                    <i class="fas fa-exclamation-circle" style="margin-right: 6px;"></i>Attention
+                                </strong>
+                                <p style="margin: 4px 0 8px 0; font-size: 14px; color: #333;">
+                                    Jumlah input dan jumlah total pembayaran tidak sesuai. Pastikan keduanya sama sebelum melanjutkan.
+                                </p>
+                                <small style="color: #007bff; font-size: 11px; font-style: italic;">
+                                    Klik di sini untuk menutup pesan ini
+                                </small>
+                            </div>
+                        `,
+                        type: 'alert',
+                        layout: 'center',
+                        timeout: 6000,
+                        theme: 'bootstrap-v4',
+                        modal: true,
+                        killer: true,
+                    }).show();
+                    return;
+                }
                 if ($('#payment_date').val() == "") {
                     new Noty({
                         text: `
@@ -778,7 +733,7 @@
                 }).show();
             });
             $('#btn_print').click(function() {
-                var url = '/cetak-pdf/payment?code=' + encodeURIComponent(url_code);
+                var url = '/cetak-pdf/payment-japfa?code=' + encodeURIComponent(url_code);
                 window.open(url, '_blank');
             });
             $('#apply_filter').on('click', function() {
@@ -822,7 +777,7 @@
                 let parts = value.split(',');
                 let intPart = parts[0];
                 intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                if(parts.length > 1){
+                if (parts.length > 1) {
                     let decimalPart = parts[1].substring(0, 3);
                     value = intPart + ',' + decimalPart;
                 } else {
@@ -850,67 +805,35 @@
                 $('#text_debit').text(formatIndoNumber(total_debit));
                 $('#text_kredit').text(formatIndoNumber(total_kredit));
 
-                if(total_debit > total_payment_text){
+                if (total_debit > total_payment_text) {
                     $('#alert_debit').show();
-                }else{
+                } else {
                     $('#alert_debit').hide();
                 }
 
-                if(total_debit < total_payment_text){
+                if (total_debit < total_payment_text) {
                     $('#alert_debit2').show();
-                }else{
+                } else {
                     $('#alert_debit2').hide();
                 }
-                if(total_kredit > total_payment_text){
+                if (total_kredit > total_payment_text) {
                     $('#alert_kredit').show();
-                }else{
+                } else {
                     $('#alert_kredit').hide();
                 }
-                if(total_kredit < total_payment_text){
+                if (total_kredit < total_payment_text) {
                     $('#alert_kredit2').show();
-                }else{
+                } else {
                     $('#alert_kredit2').hide();
                 }
                 console.log(total_payment_text);
                 console.log(total_debit);
                 console.log(total_kredit);
             });
-            let dateRange_sales_biaya = $('#date_range').daterangepicker({
-                autoUpdateInput: false,
-                ranges: {
-                    'Hari ini': [moment().subtract('days'), moment()],
-                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month': [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                    'This Year': [moment().startOf('year'), moment().endOf('year')],
-                    'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
-                    'Last 3 Year': [moment().subtract(3, 'year').startOf('year'), moment().endOf('year')],
-                    'Semester 1': [moment().startOf('year'), moment().month(5).endOf('month')],
-                    'Semester 2': [moment().month(6).startOf('month'), moment().endOf('year')] ,
-                    'all data': ['2012-01-01', moment().endOf('year')],
-                },
-                locale: {
-                    format: 'YYYY-MM-DD'
-                }
-            }, function(start, end, label) {
-                if (label === "Pilih Tanggal") {
-                    $('#date_range').val('');
-                    startDate = '';
-                    endDate = '';
-                } else {
-                    $('#date_range').val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-                    startDate = start.format('YYYY-MM-DD');
-                    endDate = end.format('YYYY-MM-DD');
-                }
-            });
-
-            $('#date_range').val('');
         });
     </script>
 @endsection
 @section('content')
-
     <div>
         <div class="lds-roller" id="loader_body">
             <div></div>
@@ -928,19 +851,13 @@
                     <div class="card-body mx-0 p-0">
                         <div class="row px-4 pt-4 div_input">
                             <div class="col-12 col-md-3">
-                                <input type="text" id="date_range" class="form-control form-control-sm" placeholder="Pilih Tanggal" />
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <select class="form-select form-select-sm" aria-label="Large select example" id="select_client">
-                                    <option selected>Client</option>
-                                </select>
+                                <input class="form-control form-control-sm" type="month" id="input_bulan">
                             </div>
                             <div class="col-12 col-md-3">
                                 <select class="form-select form-select-sm" aria-label="Large select example" id="select_cabang">
-                                    <option value="">Cabang</option>
-                                    <option value="0001">HGS-Sentul</option>
-                                    <option value="0002">HGS-Ciherang</option>
-                                    <option value="0003">HGS-Subang</option>
+                                    <option value="">Pilih Lokasi</option>
+                                    <option value="JKT">Cipinang</option>
+                                    <option value="TNG">Tanggerang</option>
                                 </select>
                             </div>
                             <div class="col-12 col-md-3">
@@ -989,7 +906,6 @@
                                         font-weight: 600;
                                         color: #212529;
                                     }
-
                                 </style>
                             </div>
                         </div>
@@ -1015,7 +931,7 @@
                             <div class="col-auto mb-1 border-end div_input">
                                 <button class="btn bg-gradient-primary btn-sm" id="apply_filter">Apply</button>
                             </div>
-                             <div class="col-auto border-end div_input">
+                            <div class="col-auto border-end div_input">
                                 <input type="date" class="form-control form-control-sm" id="payment_date">
                                 <label>Payment date</label>
                             </div>
