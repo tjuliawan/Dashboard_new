@@ -1,8 +1,10 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN Tagih-Dashboard')
+@section('title', 'DN System-Dashboard')
 @section('content')
-
     <div class="row mt-4">
+
+
+
         <div class="col-lg-7 mb-4">
             <div class="card">
                 <div class="card-body p-3">

@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN tagih - Kwitansi')
+@section('title', 'DN System - Kwitansi')
 @section('css')
 @endsection
 @section('script')
@@ -145,7 +145,7 @@
                         zeroRecords: "Tidak ada data yang ditemukan",
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                         infoEmpty: "Tidak ada data",
-                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                     },
                     initComplete: function(settings, json) {
                         $('#loader_save').hide();
@@ -171,7 +171,7 @@
                     if (progress < duration) {
                         requestAnimationFrame(step);
                     } else {
-                        obj.text(end.toLocaleString("id-ID")); 
+                        obj.text(end.toLocaleString("id-ID"));
                     }
                 }
 
@@ -213,30 +213,30 @@
                             plotOptions: {
                                 radialBar: {
                                 hollow: {
-                                    size: '70%', 
+                                    size: '70%',
                                 },
-                                dataLabels: { 
+                                dataLabels: {
                                     show: true,
                                     name: {
                                     offsetY: -10,
                                     show: true,
-                                    color: '#fff', 
+                                    color: '#fff',
                                     fontSize: '13px'
                                     },
                                     value: {
                                     offsetY: 16,
-                                    color: '#ffff', 
+                                    color: '#ffff',
                                     fontSize: '16px',
                                     show: true,
                                     formatter: (val) => {
-                                        return `${val}%`; 
+                                        return `${val}%`;
                                     }
                                     }
                                 }
                                 },
                             },
                             labels: ['Completed'],
-                            colors: ['#00cec9'], 
+                            colors: ['#00cec9'],
                             fill: {
                                 type: 'gradient',
                                 gradient: {
@@ -262,7 +262,7 @@
                                 }
                             }]
                             };
-        
+
                         chart = new ApexCharts(document.querySelector("#chart"), options);
                         chart.render();
                         if (chartBar) {
@@ -332,7 +332,7 @@
                 });
             }
             $("#btn_appy").click(function() {
-                initializeDataTable(); 
+                initializeDataTable();
                 initializeChart();
                 // setTimeout(() => {
                 //     $(this).removeClass("rotate");
@@ -352,7 +352,7 @@
                 if (!(selesaiChecked && belumChecked)) {
                 $('#checkAll').prop('checked', false);
                 }
-                
+
             });
             $('#checkAll, #checkSelesai, #checkBelum').on('change', function () {
                 initializeDataTable();
@@ -454,12 +454,12 @@
             color: rgb(24, 255, 112); /* Warna saat animasi */
             cursor: pointer;
         }
-    
+
         .default-color {
             color: black; /* Warna awal */
             transition: transform 0.3s ease, color 0.3s ease;
         }
-    
+
         hr {
             border: none;
             height: 2px;
@@ -473,7 +473,7 @@
         tr.clickable {
             cursor: pointer;
         }
-    
+
         /* Style for the toast */
         #toast {
             visibility: hidden;
@@ -487,17 +487,17 @@
             border-radius: 5px;
             font-size: 16px;
         }
-    
+
         #toast.show {
             visibility: visible;
             animation: fadein 1s, fadeout 2s 3s;
         }
-    
+
         @keyframes fadein {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-    
+
         @keyframes fadeout {
             from { opacity: 1; }
             to { opacity: 0; }
@@ -508,9 +508,9 @@
         .bg-custom-info{
             background-color: #44bd32;
         }
-    
-    </style> 
-    
+
+    </style>
+
 @endsection
 @section('content')
     <div>
@@ -524,7 +524,7 @@
                         </select>
                         <div class="d-flex gap-3">
                             <button class="btn bg-gradient-primary btn-sm mt-3" id="btn_appy">Apply</button>
-                            <div class="loader_bulat mt-3" id="loader_save"></div> 
+                            <div class="loader_bulat mt-3" id="loader_save"></div>
                         </div>
                     </div>
                     <div style="position: absolute; bottom: 5px; right: 10px; font-size: 12px; color: #888;">
@@ -550,7 +550,7 @@
                             background: #b2bec3;
                             left: 0;
                             top: 0;
-                            animation: 
+                            animation:
                                 l3-1 1.5s  linear infinite alternate,
                                 l3-2 0.75s cubic-bezier(0,200,.8,200) infinite;
                             }
@@ -562,7 +562,7 @@
                             }
                         </style>
                     </div>
-                </div>     
+                </div>
             </div>
             <div class="col-auto">
                 <div class="card mb-3 bg-gradient-secondary" style="height: 175px; width: 250px;">
@@ -673,13 +673,13 @@
                                 height: 30px;
                                 aspect-ratio: 1;
                                 border-radius: 50%;
-                                background: 
+                                background:
                                     radial-gradient(farthest-side,#00cec9 94%,#0000) top/5px 5px no-repeat,
                                     conic-gradient(#0000 30%,#00cec9);
                                 -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 5px),#000 0);
                                 animation: l13 1s infinite linear;
                                 }
-                                @keyframes l13{ 
+                                @keyframes l13{
                                 100%{transform: rotate(1turn)}
                                 }
                             </style>

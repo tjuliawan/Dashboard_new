@@ -98,6 +98,7 @@ Route::get('/add-new-tagih-sales-dn', [DN_Controller::class, 'index'])->name('ad
 Route::get('/list-tr-tagih-sales-dn-d-date', [DN_Controller::class, 'index_list_tr_tagih_sales_DN_d_date'])->name('list-tr-tagih-sales-dn-d-date')->middleware('auth');
 Route::get('/edit-tagih-sales-dn', [DN_Controller::class, 'index_edit_tagih_sales_dn'])->name('list-tr-tagih-sales-dn-d-date')->middleware('auth');
 Route::get('/page-kwitansi', [DN_Controller::class, 'index_kwitansi'])->name('page-kwitansi')->middleware('auth');
+Route::get('/page-kwitansi-japfa', [DN_Controller::class, 'index_kwitansi_japfa'])->name('page-kwitansi-japfa')->middleware('auth');
 
 
 Route::get('/get_client', [DN_Controller::class, 'get_client'])->middleware('auth');
@@ -106,56 +107,74 @@ Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware(
 Route::get('/get_chaimber', [DN_Controller::class, 'get_chaimber'])->middleware('auth');
 Route::get('/data_for_chart_1', [DN_Controller::class, 'data_for_chart_1'])->middleware('auth');
 Route::get('/get_header_dn_tagih', [DN_Controller::class, 'get_header_dn_tagih'])->middleware('auth');
+Route::get('/get_header_dn_tagih_japfa', [DN_Controller::class, 'get_header_dn_tagih_japfa'])->middleware('auth');
+Route::get('/get_header_dn_tagih_japfa2', [DN_Controller::class, 'get_header_dn_tagih_japfa2'])->middleware('auth');
 Route::get('/dn_tagih/get_table_add_tagih_sales_dn', [DN_Controller::class, 'get_table_add_tagih_sales_dn'])->middleware('auth');
 Route::get('/dn_tagih/get_table_for_edit_dn_tgih', [DN_Controller::class, 'get_table_for_edit_dn_tgih'])->middleware('auth');
 Route::get('/dn_tagih/get_table_list_tr_tagih_sales_DN_d_date', [DN_Controller::class, 'get_table_list_tr_tagih_sales_DN_d_date'])->middleware('auth');
 Route::get('/cetak-pdf/dn-tagih-inv', [DN_Controller::class, 'cetakPDF_inv'])->middleware('auth');
 Route::get('/cetak-pdf/dn-tagih-kwitansi', [DN_Controller::class, 'cetakPDF_kwitansi'])->middleware('auth');
+Route::get('/cetak-pdf/kwitansi-japfa', [DN_Controller::class, 'cetakPDF_kwitansi_japfa'])->middleware('auth');
+Route::get('/cetak-pdf/inv-japfa', [DN_Controller::class, 'cetakPDF_inv_japfa'])->middleware('auth');
 Route::get('/cetak-pdf/dn-tagih-inv-wt', [DN_Controller::class, 'cetakPDF_inv_for_water_tanker'])->middleware('auth');
 Route::post('/dn-tagih/store', [DN_Controller::class, 'store_dn_tagih'])->middleware('auth');
 Route::post('/dn-tagih/update/po-code', [DN_Controller::class, 'update_dn_tagih_po_code'])->middleware('auth');
 Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail'])->middleware('auth');
 Route::post('/dn-tagih/store-kwitansi', [DN_Controller::class, 'store_kwitansi'])->middleware('auth');
+Route::post('/dn-tagih/store-kwitansi-japfa', [DN_Controller::class, 'store_kwitansi_japfa'])->middleware('auth');
 Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware('auth');
+Route::get('/get_detail_japfa', [DN_Controller::class, 'get_detail_japfa'])->middleware('auth');
 
-// from ba 
+Route::get('/export-invoice', [DN_Controller::class, 'exportExcel'])->name('export.invoice');
+// from ba
 Route::get('/add-tagih-sales-dn-from-ba', [DN_Controller::class, 'index_edit_tagih_sales_dn_from_ba'])->name('edit-tagih-sales-dn-from-ba')->middleware('auth');
 
-// payment 
+// payment
 
 Route::get('/dn-payment', [DN_payment_Controller::class, 'index_payment'])->name('dn-payment')->middleware('auth');
+Route::get('/dn-payment-japfa', [DN_payment_Controller::class, 'index_payment_japfa'])->name('dn-payment-japfa')->middleware('auth');
 Route::get('/get_header_coa_transaksi', [DN_payment_Controller::class, 'get_header_coa_transaksi'])->middleware('auth');
 Route::get('/get_detail_coa_transaksi', [DN_payment_Controller::class, 'get_detail_coa_transaksi'])->middleware('auth');
 Route::get('/get_data_dn_payment', [DN_payment_Controller::class, 'get_data_dn_payment'])->middleware('auth');
+Route::get('/get_data_dn_payment_japfa', [DN_payment_Controller::class, 'get_data_dn_payment_japfa'])->middleware('auth');
 Route::post('/dn-payment/store-payment', [DN_payment_Controller::class, 'store_payment'])->middleware('auth');
+Route::post('/dn-payment/store-payment-japfa', [DN_payment_Controller::class, 'store_payment_japfa'])->middleware('auth');
 Route::get('/get_cabang', [DN_payment_Controller::class, 'get_cabang'])->middleware('auth');
 Route::get('/cetak-pdf/payment', [DN_payment_Controller::class, 'cetakPDF_payment'])->middleware('auth');
+Route::get('/cetak-pdf/payment-japfa', [DN_payment_Controller::class, 'cetakPDF_payment_japfa'])->middleware('auth');
 
 
 // faktur pajak
 Route::get('/faktur-pajak', [DN_payment_Controller::class, 'index_faktur_pajak'])->name('faktur-pajak')->middleware('auth');
+Route::get('/faktur-pajak-japfa', [DN_payment_Controller::class, 'index_faktur_pajak_japfa'])->name('faktur-pajak')->middleware('auth');
 Route::get('/dn_tagih/get_list_pajak', [DN_payment_Controller::class, 'get_list_pajak'])->middleware('auth');
+Route::get('/dn_tagih/get_list_pajak_japfa', [DN_payment_Controller::class, 'get_list_pajak_japfa'])->middleware('auth');
 Route::post('/update-faktur-pajak', [DN_payment_Controller::class, 'store_faktur_pajak'])->middleware('auth');
+Route::post('/update-faktur-pajak-japfa', [DN_payment_Controller::class, 'store_faktur_pajak_japfa'])->middleware('auth');
 Route::post('/update-faktur-pajak-confirm', [DN_payment_Controller::class, 'store_faktur_pajak_confirm'])->middleware('auth');
+Route::post('/update-faktur-pajak-confirm-japfa', [DN_payment_Controller::class, 'store_faktur_pajak_confirm_japfa'])->middleware('auth');
 // DN_report_Controller
 
 Route::group(['middleware' => 'auth'], function () {
 	Route::get('/report-list-kwitansi', [DN_report_Controller::class, 'index_list_Kwitansi'])->name('/report-list-kwitansi');
 	Route::get('/report-list-dn', [DN_report_Controller::class, 'index_list_dn'])->name('/report-list-dn');
+    Route::get('/report-list-dn-payment', [DN_report_Controller::class, 'index_list_dn_payment'])->name('/report-list-dn-payment');
+    Route::get('/report-list-dn-payment-japfa', [DN_report_Controller::class, 'index_list_dn_payment_japfa'])->name('/report-list-dn-payment-japfa');
 	Route::get('/report/get-list-kwitansi', [DN_report_Controller::class, 'get_list_kwitansi']);
 	Route::get('/report/get/list_kwitansi-chart', [DN_report_Controller::class, 'get_list_kwitansi_chart']);
 	Route::get('/report/get/list_dn-chart', [DN_report_Controller::class, 'get_list_dn_chart']);
 	Route::get('/report/get/list_dn', [DN_report_Controller::class, 'get_list_dn']);
+    Route::get('/report/get/list_dn_payment', [DN_report_Controller::class, 'get_list_dn_payment']);
+    Route::get('/report/get/list_dn_payment_japfa', [DN_report_Controller::class, 'get_list_dn_payment_japfa']);
 });
-// pemotongan kwitansi
+
+
+// import
 
 Route::group(['middleware' => 'auth'], function () {
-	Route::get('/pemotongan-kwitansi', [DN_payment_Controller::class, 'index_pemotongan_kwitansi'])->name('pemotongan-kwitansi');
-	Route::get('/report-list-dn', [DN_report_Controller::class, 'index_list_dn'])->name('/report-list-dn');
-	Route::get('/report/get-list-kwitansi', [DN_report_Controller::class, 'get_list_kwitansi']);
-	Route::get('/report/get/list_kwitansi-chart', [DN_report_Controller::class, 'get_list_kwitansi_chart']);
-	Route::get('/report/get/list_dn-chart', [DN_report_Controller::class, 'get_list_dn_chart']);
-	Route::get('/report/get/list_dn', [DN_report_Controller::class, 'get_list_dn']);
+	Route::get('/import-inv-japfa', [DN_Controller::class, 'index_import_japfa'])->name('/import-inv-japfa');
+    Route::get('/report/get/list_dn_payment_japfa', [DN_report_Controller::class, 'get_list_dn_payment_japfa']);
+    Route::post('/import-excel-japfa', [DN_Controller::class, 'importjapfa'])->name('import.excel.japfa');
 });
 
 Route::group(['middleware' => 'guest'], function () {
@@ -192,3 +211,35 @@ Route::post('change-password-2', [GantipwController::class, 'changePassword'])
     ->name('changePassword2')
     ->middleware('auth');
 
+
+use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
+
+Route::get('/cek-session', function () {
+    $lifetimeInMinutes = config('session.lifetime'); // contoh: 120 menit
+    $lastActivity = Session::get('last_activity_time');
+
+    if (!$lastActivity) {
+        $now = Carbon::now();
+        Session::put('last_activity_time', $now);
+        $remainingSeconds = $lifetimeInMinutes * 60;
+    } else {
+        $lastActivity = Carbon::parse($lastActivity);
+        $now = Carbon::now();
+        $elapsedSeconds = $now->diffInSeconds($lastActivity);
+        $remainingSeconds = max(0, ($lifetimeInMinutes * 60) - $elapsedSeconds);
+        Session::put('last_activity_time', $now);
+    }
+
+    $minutes = floor($remainingSeconds / 60);
+    $seconds = $remainingSeconds % 60;
+    $hours = floor($minutes / 60);
+    $minutes = $minutes % 60;
+
+    dd([
+        'Sisa Jam' => $hours,
+        'Sisa Menit' => $minutes,
+        'Sisa Detik' => $seconds,
+        'Total Detik' => $remainingSeconds,
+    ]);
+});

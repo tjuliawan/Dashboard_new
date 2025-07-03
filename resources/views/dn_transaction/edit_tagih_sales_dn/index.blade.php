@@ -1,16 +1,16 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN tagih - Edit Tgaih Sales DN')
+@section('title', 'DN System - Edit Tgaih Sales DN')
 @section('css')
 @endsection
 @section('script')
     <script>
         $(document).ready(function() {
-        // inisialisasi varibel utama 
+        // inisialisasi varibel utama
             let tampunganData = [];
             let tampunganData_add = [];
             let pruduct_code;
             let allowRowClick = 1;
-            let total_tagihan = 0;            
+            let total_tagihan = 0;
             let client_code = "";
             let is_load_for_tabel_tampungan_add = 0;
             let akses_dari;
@@ -20,7 +20,7 @@
             $('#loader_body').hide();
         // fungsi print
             $('#btn_print_report').click(function() {
-                                    
+
                 if(product === 'Water Tanker'){
                     var url = '/cetak-pdf/dn-tagih-inv-wt?code=' + encodeURIComponent(code_head) +
                     '&client_code=' + encodeURIComponent(client_code);
@@ -55,9 +55,9 @@
                     },
                     success: function (response) {
                         // console.log(response);
-                        total_tagihan = response.salesdntagih_Total_tagihan;   
-                        client_code = response.salesdntagih_client_code; 
-                        code_head = response.salesdntagih_code_h;  
+                        total_tagihan = response.salesdntagih_Total_tagihan;
+                        client_code = response.salesdntagih_client_code;
+                        code_head = response.salesdntagih_code_h;
                         product = response.salesdntagih_product_code;
                         var not_allowed_edit = response.no_kwitansi;
                         if (not_allowed_edit === '1') {
@@ -74,7 +74,7 @@
                                 timeout: 8000,
                                 theme: 'bootstrap-v4',
                                 modal: true,
-                                // killer: true, 
+                                // killer: true,
                             }).show();
 
                             $('#loader_search').hide();
@@ -150,8 +150,8 @@
                 });
             });
             $('#btn_confirm_editing-').on('click', function() {
-                var code_header = $('#header_code').val(); 
-                var code_po = $('#input_po_code').val(); 
+                var code_header = $('#header_code').val();
+                var code_po = $('#input_po_code').val();
                 if (code_po === "") {
                     Swal.fire({
                         icon: 'error',
@@ -165,17 +165,17 @@
                     icon: 'question',
                     title: 'Confirm Transaction',
                     text: 'Are you sure you want to confirm this transaction?',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, Confirm',
                     cancelButtonText: 'No',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '/dn-tagih/update/details-data',  
+                            url: '/dn-tagih/update/details-data',
                             type: 'POST',
                             data: {
                                 tampunganData: tampunganData,
-                                _token: $('meta[name="csrf-token"]').attr('content') 
+                                _token: $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
                                 Swal.fire({
@@ -223,7 +223,7 @@
                     icon: 'question',
                     title: 'Confirm Transaction',
                     text: 'Are you sure you want to confirm this transaction?',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, Confirm',
                     cancelButtonText: 'No',
                 }).then((result) => {
@@ -283,7 +283,7 @@
             function updateTable() {
                 $('#loader_user_confirm').show();
                 $.ajax({
-                    url: '/dn-tagih/update/details-data',  
+                    url: '/dn-tagih/update/details-data',
                     type: 'POST',
                     data: {
                         tampunganData: tampunganData,
@@ -292,7 +292,7 @@
                         akses_dari: akses_dari,
                         username_pemeberi_akses: username_pemeberi_akses,
                         header_code: $('#input_main_code').val(),
-                        _token: $('meta[name="csrf-token"]').attr('content') 
+                        _token: $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
                         $('#loader_user_confirm').hide();
@@ -343,8 +343,8 @@
                     }
                 });
             }
-        // inisialisasi tabel  
-            // table remove    
+        // inisialisasi tabel
+            // table remove
                 function initializeDataTable() {
                     $('#loader_body').show();
                     var client = $('#select_client').val();
@@ -353,7 +353,7 @@
                     var staert_date = $('#start_date').val();
                     var end_date = $('#end_date').val();
                     var input_main_code = $('#input_main_code').val();
-                    
+
                     $('#header_code').val('');
                     $('#date_register_tagihan').val('');
                     if (input_main_code === "") {
@@ -379,7 +379,7 @@
                             type: 'GET',
                             dataSrc: '',
                             data: {
-                                input_main_code: input_main_code   
+                                input_main_code: input_main_code
                             }
                         },
                         columns: [
@@ -485,16 +485,16 @@
                             zeroRecords: "Tidak ada data yang ditemukan",
                             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                             infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                         },
                         drawCallback: function(settings) {
                             $('#loader_body').hide();
                         },
-                        initComplete: function(settings, json) {                   
+                        initComplete: function(settings, json) {
                             $('#loader_search').hide();
                         }
                     });
-                    tableTampungan = $('#table_tampungan').DataTable({        
+                    tableTampungan = $('#table_tampungan').DataTable({
                         columns: [
                             {
                                 data: null,
@@ -587,12 +587,12 @@
                             zeroRecords: "Tidak ada data yang ditemukan",
                             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                             infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                         },
                         scrollX: true,
                         processing: false,
                     });
-                }           
+                }
                 function updateTotalSales() {
                     const total = tampunganData.reduce((sum, item) => {
                         return sum + parseFloat(item.totalsales || 0);
@@ -609,10 +609,10 @@
 
                     if (this.checked) {
                         const modifiedRow = $.extend({}, rowData); // Salin data
-                        modifiedRow.note = ''; 
+                        modifiedRow.note = '';
 
                         tampunganData.push(modifiedRow);
-                        tableTampungan.row.add(modifiedRow).draw(); 
+                        tableTampungan.row.add(modifiedRow).draw();
                         row.remove().draw();
                     } else {
                         // Hapus dari tampunganData
@@ -646,7 +646,7 @@
                         row.remove().draw();
                     }
                     updateTotalSales();
-                });           
+                });
                 $('#table_tampungan tbody').on('input', '.note-input', function () {
                     const code = $(this).data('code');
                     const value = $(this).val();
@@ -701,7 +701,7 @@
                                         data: 'Sales_DN_Productcodeqty',
                                         name: 'Sales_DN_Productcodeqty',
                                         render: function(data, type, row, meta) {
-                                            return parseInt(data, 10) || 0; 
+                                            return parseInt(data, 10) || 0;
                                         }
                                     },
                                     {
@@ -711,7 +711,7 @@
                                     if (data === null || data === undefined || data === '') {
                                         return '';
                                     }
-                                    
+
                                     if (type === 'display') {
                                         return parseFloat(data).toLocaleString('id-ID', {
                                             useGrouping: true,
@@ -719,7 +719,7 @@
                                             maximumFractionDigits: 2
                                         });
                                     }
-                                    
+
                                     return data;
                                 }
                             },
@@ -768,7 +768,7 @@
                         drawCallback: function(settings) {
                         },
                         initComplete: function(settings, json) {
-                            $('#loader_body').hide();                        
+                            $('#loader_body').hide();
                             $('#sales_text').text('0,00');
                         }
                     });
@@ -862,7 +862,7 @@
                             zeroRecords: "Tidak ada data yang ditemukan",
                             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                             infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                         },
                         processing: false,
                     });
@@ -964,7 +964,7 @@
                             <small>Please input your dn tagih code here</small>
                             <div class="d-flex justify-content-center align-items-center mt-2">
                                 <div class="loader" style="display: none" id="loader_search"></div>
-                            </div> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -976,7 +976,7 @@
                             <button class="btn bg-gradient-success btn-sm " id="btn_confirm_editing">Confirm Editing</button>
                             <button class="btn btn-sm bg-gradient-success" id="btn_print_report" style="display: none">Print Report</button>
                         </div>
-                        <button class="btn bg-gradient-warning btn-sm mb-0" id="btn_add_more">+ Add more data</button>                        
+                        <button class="btn bg-gradient-warning btn-sm mb-0" id="btn_add_more">+ Add more data</button>
                         <button class="btn btn-sm bg-gradient-warning" id="new_transaction" style="display: none">New Transaction</button>
                         <button class="btn bg-gradient-warning btn-sm mb-0" id="btn_cancel_add_more" style="display: none">Cancel Add more data</button>
                     </div>
@@ -992,7 +992,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-12" id="div_table_add_tagih_sales_dn" style="display: none;">
                 <div class="card mb-3 ">
                     <div class="card-header pb-0">
@@ -1042,7 +1042,7 @@
                                         <th>CO/SO</th>
                                         <th>Driver</th>
                                         <th>Client</th>
-                                        <th>Cabang</th>                                        
+                                        <th>Cabang</th>
                                         <th>Product</th>
                                         <th>Vehicle</th>
                                         <th>Route</th>
@@ -1058,7 +1058,7 @@
                         </div>
                     </div>
                 </div>
-            </div>  
+            </div>
             <div class="col-12 mb-3" id="div_table_list_tr_tagih_sales_DN_d_date" style="display: none;">
                 <div class="card mb-3">
                     <div class="card-header pb-0">
@@ -1154,7 +1154,7 @@
                     </div>
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="loader" style="display: none" id="loader_user_confirm"></div>
-                    </div>                    
+                    </div>
                     <div class="text-center">
                         <button type="button" class="btn bg-gradient-success btn-lg btn-rounded w-100 mt-4 mb-0" id="confirm_login">Confirm</button>
                     </div>

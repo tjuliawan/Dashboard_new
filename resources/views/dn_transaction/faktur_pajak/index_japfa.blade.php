@@ -25,7 +25,7 @@
                     processing: false,
                     serverSide: false,
                     ajax: {
-                        url: '/dn_tagih/get_list_pajak',
+                        url: '/dn_tagih/get_list_pajak_japfa',
                         type: 'GET',
                         dataSrc: '',
                         data: {
@@ -342,7 +342,7 @@
                     buttons: [
                         Noty.button('Ya, Konfirmasi', 'btn bg-gradient-success btn-sm btn-rounded mt-3', function (notyInstance) {
                             $.ajax({
-                                url: '/update-faktur-pajak',
+                                url: '/update-faktur-pajak-japfa',
                                 method: 'POST',
                                 data: {
                                     potongan: potongan,
@@ -510,7 +510,7 @@
                     buttons: [
                         Noty.button('Ya, Konfirmasi', 'btn bg-gradient-success btn-sm btn-rounded mt-3', function (notyInstance) {
                             $.ajax({
-                                url: '/update-faktur-pajak',
+                                url: '/update-faktur-pajak-japfa',
                                 method: 'POST',
                                 data: {
                                     dataToSave: dataToSave,
@@ -586,7 +586,7 @@
             function storePajak() {
                 $('#loader_save').show();
                 $.ajax({
-                    url: '/update-faktur',
+                    url: '/update-faktur-pajak-japfa',
                     method: 'POST',
                     data: {
                         potongan: potongan,
@@ -628,7 +628,7 @@
             function storePajak_confirm(kode) {
                 $('#loader_save').show();
                 $.ajax({
-                    url: '/update-faktur-pajak-confirm',
+                    url: '/update-faktur-pajak-confirm-japfa',
                     method: 'POST',
                     data: {
                         no_kwitansi: kode,

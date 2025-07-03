@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN Tagih - User Activation')
+@section('title', 'DN System - User Activation')
 @section('css')
 @endsection
 @section('script')
@@ -8,7 +8,7 @@
             initializeDataTable();
             function initializeDataTable() {
                 $('#loader_body').show();
-                
+
                 if ($.fn.DataTable.isDataTable('#table_users')) {
                     $('#table_users').DataTable().clear().destroy();
                 }
@@ -40,9 +40,9 @@
                                 return `
                                     <div class="d-flex px-2 py-1">
                                         <div>
-                                            <img src="${imageJpg}" 
-                                                onerror="this.onerror=null;this.src='${imagePng}';this.onerror=function(){this.src='${defaultAvatar}'};" 
-                                                class="avatar avatar-sm me-3" 
+                                            <img src="${imageJpg}"
+                                                onerror="this.onerror=null;this.src='${imagePng}';this.onerror=function(){this.src='${defaultAvatar}'};"
+                                                class="avatar avatar-sm me-3"
                                                 alt="${name}">
                                         </div>
                                         <div class="d-flex flex-column justify-content-center">
@@ -120,7 +120,7 @@
                         processing: false,
                     },
                     initComplete: function(settings, json) {
-                        $('#loader_body').hide();          
+                        $('#loader_body').hide();
                     }
                 });
             }
@@ -167,7 +167,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <div class="card mb-3"> 
+                <div class="card mb-3">
                     <div class="card-body mx-0 p-0">
                         <table class="table align-items-center mb-0 table-sm" id="table_users">
                             <thead>

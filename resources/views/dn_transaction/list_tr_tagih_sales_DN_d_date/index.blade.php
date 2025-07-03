@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN tagih - List Tgaih Sales DN')
+@section('title', 'DN System - List Tgaih Sales DN')
 @section('css')
 @endsection
 @section('script')
@@ -22,7 +22,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.158); /* soft, modern look */
             transition: box-shadow 0.3s ease;
         }
-    
+
         .div_in_card:hover {
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.281); /* sedikit lebih tajam saat hover */
         }
@@ -40,7 +40,7 @@
                         text: 'Please complete or cancel the transaction first before accessing the bottom section.'
                     });
                     return;
-                } 
+                }
                 initializeDataTable();
             });
             var client_code = "";
@@ -52,8 +52,8 @@
                         text: 'Please complete or cancel the transaction first before accessing the bottom section.'
                     });
                     return;
-                } 
-                $('#input_po_code').val(''); 
+                }
+                $('#input_po_code').val('');
                 $('#div_table_list_tr_tagih_sales_DN_d_date').hide();
                 $('#table_list_tr_tagih_sales_DN_d_date').DataTable().clear().destroy();
             });
@@ -65,7 +65,7 @@
                         text: 'Please complete or cancel the transaction first before selecting a row!',
                     });
                     return;
-                } 
+                }
                 var $this = $(this);
                 var code = $this.find('td:eq(1)').text();
                 var tanggal = $this.find('td:eq(3)').text();
@@ -73,12 +73,12 @@
                 var po_code = $this.find('td:eq(9)').text();
                 if(po_code != ""){
                     $('#btn_add_po_code').text('Edit Po Code');
-                    $('#input_po_code').val(po_code); 
+                    $('#input_po_code').val(po_code);
                 }else{
                     $('#btn_add_po_code').text('+ Add Po Code');
                 }
                 client_code = $this.find('td:eq(4)').text();
-                
+
                 if ($this.hasClass('selected-row')) {
                     $this.removeClass('selected-row');
                     $('#header_code').val('');
@@ -91,7 +91,7 @@
                 }
             });
             $('#btn_print').click(function () {
-                var code = $('#header_code').val(); 
+                var code = $('#header_code').val();
                 // alert(code);
                 // var client_code = $('#select_client').val();
                 if (code === "") {
@@ -101,8 +101,8 @@
                         text: 'Please select a row!',
                     });
                     return;
-                } 
-                                    
+                }
+
                 if(pruduct_code === 'Water Tanker'){
                     var url = '/cetak-pdf/dn-tagih-inv-wt?code=' + encodeURIComponent(code) +
                     '&client_code=' + encodeURIComponent(client_code);
@@ -119,7 +119,7 @@
                 }
             });
             $('#btn_add_po_code').click(function () {
-                var code = $('#header_code').val(); 
+                var code = $('#header_code').val();
                 if (code === "" && client_code === "") {
                     Swal.fire({
                         icon: 'error',
@@ -127,12 +127,12 @@
                         text: 'Please select a row!',
                     });
                     return;
-                } 
+                }
                 Swal.fire({
                     icon: 'question',
                     title: 'Confirm Transaction',
                     text: 'Are you sure you want to confirm this transaction?',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, Confirm',
                     cancelButtonText: 'No',
                 }).then((result) => {
@@ -157,13 +157,13 @@
                     icon: 'question',
                     title: 'Confirm Transaction',
                     text: 'Are you sure you want to confirm this transaction?',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, Confirm',
                     cancelButtonText: 'No',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         allowRowClick = 1;
-                        $('#input_po_code').hide();                            
+                        $('#input_po_code').hide();
                         $('#input_po_code').val('');
                         $('#btn_print').show();
                         $('#btn_add_po_code').show();
@@ -179,8 +179,8 @@
                 });
             });
             $('#btn_confirm_po_code').on('click', function() {
-                var code_header = $('#header_code').val(); 
-                // var code_po = $('#input_po_code').val(); 
+                var code_header = $('#header_code').val();
+                // var code_po = $('#input_po_code').val();
                 alert(code_po);
                 if (code_po === "") {
                     Swal.fire({
@@ -195,18 +195,18 @@
                     icon: 'question',
                     title: 'Confirm Transaction',
                     text: 'Are you sure you want to confirm this transaction?',
-                    showCancelButton: true, 
+                    showCancelButton: true,
                     confirmButtonText: 'Yes, Confirm',
                     cancelButtonText: 'No',
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '/dn-tagih/update/po-code',  
+                            url: '/dn-tagih/update/po-code',
                             type: 'POST',
                             data: {
                                 code_header: code_header,
                                 code_po : code_po,
-                                _token: $('meta[name="csrf-token"]').attr('content') 
+                                _token: $('meta[name="csrf-token"]').attr('content')
                             },
                             success: function(response) {
                                 Swal.fire({
@@ -249,7 +249,7 @@
                 var staert_date = $('#start_date').val();
                 var end_date = $('#end_date').val();
                 var input_main_code = $('#input_main_code').val();
-                
+
                 $('#header_code').val('');
                 $('#date_register_tagihan').val('');
                 // if (client === "") {
@@ -321,15 +321,15 @@
                             business: business,
                             start_date: staert_date,
                             end_date: end_date,
-                            input_main_code: input_main_code,                            
+                            input_main_code: input_main_code,
                             product: $('#select_product').val(),
-                        },                        
+                        },
                         error: function(xhr, status, error) {
                             console.error('Error loading data:', error);
                             $('#loader_body').hide();
 
                             let errorMessage = 'Gagal mengambil data. Silakan coba lagi.';
-                            
+
                             new Noty({
                                 text: `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`,
                                 type: 'error',
@@ -426,7 +426,7 @@
                     lengthMenu: [
                         [10, 25, 50, 100, -1],
                         [10, 25, 50, 100, "Semua"]
-                    ],                    
+                    ],
                     buttons: [
                         {
                             extend: 'excel',
@@ -436,7 +436,7 @@
                                 format: {
                                     body: function (data, row, column, node) {
                                         if (column === 14 | column === 15| column === 13) {
-                                            return data.replace(/[^\d,-]/g, '').replace(',', '.'); 
+                                            return data.replace(/[^\d,-]/g, '').replace(',', '.');
                                         }
                                         return data;
                                     }
@@ -453,7 +453,7 @@
                         zeroRecords: "Tidak ada data yang ditemukan",
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                         infoEmpty: "Tidak ada data",
-                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                     },
                     initComplete: function(settings, json) {
                         $('#loader_body').hide();
@@ -464,7 +464,7 @@
             function get_client(){
                 $.ajax({
                     url: '/get_client',
-                    type: 'GET', 
+                    type: 'GET',
                     headers: {
                         'X-API-KEY': 'hgsjkt205'
                     },
@@ -523,7 +523,7 @@
             $('#select_business').select2({
                 theme: 'custom'
             });
-            
+
             const element = document.getElementById('select_product');
             const choices = new Choices(element, { removeItemButton: true });
 
@@ -550,7 +550,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card mb-4 ">
-              
+
                     <div class="card-body">
                         <div class="row">
                             <div class="col-auto">
@@ -571,7 +571,7 @@
                                         </select>
                                         <small>Code</small>
                                         <input class="form-control form-control-sm" type="text" id="input_main_code" placeholder="Code ex: INV-TSD-202505-0001">
-                                        
+
                                         <small>Product</small>
                                         <select class="form-control form-control-sm" aria-label="Large select example" id="select_product" multiple>
                                             <option value="">Product</option>
@@ -601,7 +601,7 @@
                                         <small>Start Date</small>
                                         <input class="form-control form-control-sm" type="date" id="start_date">
                                         <small>End Date</small>
-                                        <input class="form-control form-control-sm" type="date" id="end_date">                                        
+                                        <input class="form-control form-control-sm" type="date" id="end_date">
                                         <small style="color: #696cff00">.</small>
                                         <div class="col-auto">
                                             <button class="btn bg-gradient-primary btn-sm " id="apply_filter">Apply</button>
@@ -639,7 +639,7 @@
                     <div class="card-header pb-0">
                         <div class="d-flex flex-row justify-content-between">
                             <div>
-                                
+
                             </div>
                         </div>
                     </div>

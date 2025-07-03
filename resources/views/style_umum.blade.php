@@ -114,6 +114,26 @@
         transition: all 0.3s ease;
     }
 
+    .navbar-vertical .navbar-nav>.nav-item .nav-link.active {
+        background: linear-gradient(135deg, #e0f2f1, #c7e4e1);
+        /* gradasi hijau kebiruan yang soft */
+        color: #004d40;
+        /* warna teks gelap agar kontras */
+        border-radius: 8px;
+        /* sedikit rounded untuk kesan modern */
+        font-weight: 500;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.3s ease;
+    }
+
+    .navbar-vertical .navbar-nav>.nav-item .nav-link:hover {
+        background: linear-gradient(135deg, #e0f2f196, #d9ecead3) !important;
+    }
+
+    .navbar-vertical .navbar-nav>.nav-item .nav-link.active:hover {
+        background: linear-gradient(135deg, #e0f2f1, #c7e4e1) !important;
+    }
+
 
     /* .navbar-vertical .navbar-nav>.nav-item .nav-link.active .icon {
     background-image: linear-gradient(310deg, #2ad8cf, #cb0c9f) !important;
@@ -148,6 +168,7 @@
         margin-bottom: 0px;
         font-size: 10px !important;
     }
+
     .page-item.active .page-link {
         background: linear-gradient(135deg, #1ccb0c, #8ee46d);
         border-color: #1ccb0c00;
@@ -289,6 +310,7 @@
         border-radius: 12px;
         padding: 20px;
     }
+
     .noty_type__info {
         background: #ffffff !important;
         color: #212529 !important;
@@ -296,6 +318,7 @@
         border-radius: 12px;
         padding: 20px;
     }
+
     .noty_type__success {
         background: #55efc4 !important;
         color: #f5faff !important;
@@ -303,6 +326,7 @@
         border-radius: 12px;
         padding: 20px;
     }
+
     .noty_type__error {
         background: #eb3b5a !important;
         color: #f5faff !important;

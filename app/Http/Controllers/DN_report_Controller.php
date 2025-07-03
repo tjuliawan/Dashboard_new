@@ -18,7 +18,7 @@ class DN_report_Controller extends Controller
     {
         Session::flash('url','Master Central');
         $user = auth()->user();
-        auth()->user()->tokens()->delete();
+        // auth()->user()->tokens()->delete();
         $email = session('email');
         $user = User::where('email', $email)->firstOrFail();
         // dd($email);
@@ -26,17 +26,41 @@ class DN_report_Controller extends Controller
         // session(['token' => $token]);
         return view ('report.list_kwitansi.index', compact('user') );
     }
-     public function index_list_dn()
+    public function index_list_dn()
     {
         Session::flash('url','Master Central');
         $user = auth()->user();
-        auth()->user()->tokens()->delete();
+        // auth()->user()->tokens()->delete();
         $email = session('email');
         $user = User::where('email', $email)->firstOrFail();
         // dd($email);
         // $token = $user->createToken('auth_token')->plainTextToken;
         // session(['token' => $token]);
         return view ('report.list_dn.index', compact('user') );
+    }
+    public function index_list_dn_payment_japfa()
+    {
+        Session::flash('url', 'Master Central');
+        $user = auth()->user();
+        // auth()->user()->tokens()->delete();
+        $email = session('email');
+        $user = User::where('email', $email)->firstOrFail();
+        // dd($email);
+        // $token = $user->createToken('auth_token')->plainTextToken;
+        // session(['token' => $token]);
+        return view('report.list_dn_payment.index_japfa', compact('user'));
+    }
+    public function index_list_dn_payment()
+    {
+        Session::flash('url', 'Master Central');
+        $user = auth()->user();
+        // auth()->user()->tokens()->delete();
+        $email = session('email');
+        $user = User::where('email', $email)->firstOrFail();
+        // dd($email);
+        // $token = $user->createToken('auth_token')->plainTextToken;
+        // session(['token' => $token]);
+        return view('report.list_dn_payment.index', compact('user'));
     }
     public function get_list_kwitansi(Request $request)
     {
@@ -71,11 +95,11 @@ class DN_report_Controller extends Controller
         }
         $query = "
             SELECT
-                no_kwitansi, 
+                no_kwitansi,
                 salesdntagih_client_code,
                 clien_id2,
                 value_est_pph_4,
-                value_tagihan_dn,
+                total value_tagihan_dn,
                 iif(salesdntagih_code_cabang = '0003' and clien_id2 = 'PT. TIRTA UTAMA ABADI' , 'PT. WENANG PALM SOLUSINDO', clien_id2) clien_desc,
                 kode_faktur_pajak,
                 note_kwitansi,
@@ -87,7 +111,18 @@ class DN_report_Controller extends Controller
                 tr_tagih_sales_DN_h h
                 LEFT JOIN tr_tagih_sales_DN_pph4 p ON h.salesdntagih_code_h = p.no_kwitansi
                 JOIN ms_client c on h.salesdntagih_client_code = c.clien_id
-            WHERE 
+                LEFT JOIN (
+                    SELECT
+                        salesdntagih_code_h kode,
+                        SUM( salesdntagih_Tagih_value ) total
+                    FROM
+                        tr_tagih_sales_DN_d
+                    WHERE
+                        (trash_data is null or trash_data != 1)
+                    GROUP BY
+                        salesdntagih_code_h
+                ) v on v.kode = h.salesdntagih_code_h
+            WHERE
                 no_kwitansi is not null
                 $wherecondition
                 $startDate_condition
@@ -95,7 +130,7 @@ class DN_report_Controller extends Controller
                 $clientCondition
         ";
         // dd($query);
-        $data = DB::connection('ms_sql_hgs')->select($query); 
+        $data = DB::connection('ms_sql_hgs')->select($query);
         return response()->json($data);
     }
     public function get_list_kwitansi_chart(Request $request)
@@ -120,7 +155,7 @@ class DN_report_Controller extends Controller
                 SELECT
                     no_kwitansi,
                     value_est_pph_4,
-                    value_tagihan_dn,
+                    total value_tagihan_dn,
                     kode_faktur_pajak,
                     note_kwitansi,
                     value_ppn,
@@ -130,14 +165,25 @@ class DN_report_Controller extends Controller
                 FROM
                     tr_tagih_sales_DN_h h
                     LEFT JOIN tr_tagih_sales_DN_pph4 p ON h.salesdntagih_code_h = p.no_kwitansi
-                    JOIN ms_client c ON h.salesdntagih_client_code = c.clien_id 
+                    JOIN ms_client c ON h.salesdntagih_client_code = c.clien_id
+                    LEFT JOIN (
+                        SELECT
+                            salesdntagih_code_h kode,
+                            SUM( salesdntagih_Tagih_value ) total
+                        FROM
+                            tr_tagih_sales_DN_d
+                        WHERE
+                            (trash_data is null or trash_data != 1)
+                        GROUP BY
+                            salesdntagih_code_h
+                    ) v on v.kode = h.salesdntagih_code_h
                 WHERE
-                    no_kwitansi IS NOT NULL 
+                    no_kwitansi IS NOT NULL
                     $clientCondition
                     $startDate_condition
                     $endDate_condition
             )
-            SELECT 
+            SELECT
                 SUM(IIF(status = 1, value_tagihan_dn, 0)) AS value_sudah,
                 SUM(IIF(status != 1, value_tagihan_dn, 0)) AS value_belum,
                 SUM(IIF(status = 1, value_est_pph_4, 0)) AS value_pph_sudah,
@@ -146,11 +192,11 @@ class DN_report_Controller extends Controller
                 SUM(IIF(status != 1, 1, 0)) AS belum,
                 CAST(SUM(IIF(status = 1, 1, 0)) AS DECIMAL(10, 2)) * 100 / COUNT(*) AS persen_sudah,
                 CAST(SUM(IIF(status != 1, 1, 0)) AS DECIMAL(10, 2)) * 100 / COUNT(*) AS persen_belum
-            from 
+            from
             tbl
         ";
 
-        $data = DB::connection('ms_sql_hgs')->select($query); 
+        $data = DB::connection('ms_sql_hgs')->select($query);
         return response()->json($data[0]);
     }
     public function get_list_dn(Request $request)
@@ -206,7 +252,7 @@ class DN_report_Controller extends Controller
                         salesdntagih_code_h kode,
                         SUM( salesdntagih_Tagih_value ) total
                     FROM
-                        tr_tagih_sales_DN_d 
+                        tr_tagih_sales_DN_d
                     GROUP BY
                         salesdntagih_code_h
                 ) t on h.salesdntagih_code_h = t.kode
@@ -218,7 +264,112 @@ class DN_report_Controller extends Controller
             ORDER BY h.rec_datecreated desc
         ";
         // dd($query);
-        $data = DB::connection('ms_sql_hgs')->select($query); 
+        $data = DB::connection('ms_sql_hgs')->select($query);
+        return response()->json($data);
+    }
+    public function get_list_dn_payment_japfa(Request $request)
+    {
+        // dd($request->all());
+        $allChecked = $request->input('allChecked');
+        $selesaiChecked = $request->input('selesaiChecked');
+        $belumChecked = $request->input('belumChecked');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $client = $request->input('client');
+        $clientCondition = "";
+        if ($allChecked == 'true') {
+            $wherecondition = "";
+        } else {
+            if ($selesaiChecked == 'true') {
+                $wherecondition = "AND salesdnpay_code_h is not null";
+            } elseif ($belumChecked == 'true') {
+                $wherecondition = "AND salesdnpay_code_h is null";
+            } else {
+                $wherecondition = "AND salesdnpay_code_h = 'dfnjsdbsjdbjs'";
+            }
+        }
+        $startDate_condition = "";
+        $endDate_condition = "";
+        if (($startDate == "" || $startDate == null) && ($endDate == "" || $endDate == null)) {
+            $startDate_condition = " AND tgl >= DATEADD(MONTH, -2, GETDATE())";
+        }
+        if ($startDate != "" || $startDate != null) {
+            $startDate_condition = " AND CONVERT(date, tgl) >= CONVERT(date, '$startDate')";
+        }
+        if ($endDate != "" || $endDate != null) {
+            $endDate_condition = " AND CONVERT(date, tgl) <= CONVERT(date, '$endDate')";
+        }
+        $query = "
+            with tbl as (
+                SELECT
+                    1 status_kwitansi,
+                    iif(status = 1, 1, 0) status_pajak,
+                    iif(d.salesdnpay_code_h is not null, 1, 0) pay,
+                    d.salesdnpay_code_h,
+                    no_kwitansi,
+                    isnull(rec_datecreated, created_at) tgl,
+                    isnull(salesdnpay_Client_code, 'japfa') client,
+                    dd.rec_usercreated operator,
+                    value_tagihan_dn total,
+                    concat(tahun_inv, '-', bulan_inv) tgl2
+                FROM
+                    tr_tagih_sales_DN_kwitansi_japfa h
+                    left join tr_acc_transaksi_sales_DN_payment_d_japfa d on h.no_kwitansi = d.salesdnpay_tagih_code_h
+                    LEFT JOIN tr_acc_transaksi_sales_DN_payment_h_japfa dd on d.salesdnpay_code_h = dd.salesdnpay_code_h
+            )
+            SELECT
+                *
+            FROM
+                tbl
+            WHERE
+                1 = 1
+                $wherecondition
+                $startDate_condition
+                $endDate_condition
+            ORDER BY
+                tgl
+        ";
+        // dd($query);
+        $data = DB::connection('ms_sql_hgs')->select($query);
+        return response()->json($data);
+    }
+    public function get_list_dn_payment(Request $request)
+    {
+        // dd($request->all());
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $client = $request->input('client');
+        $clientCondition = "";
+        if ($client != "" || $client != null) {
+            $clientCondition = "AND salesdnpay_Client_code = '$client'";
+        }
+
+        $startDate_condition = "";
+        $endDate_condition = "";
+        if (($startDate == "" || $startDate == null) && ($endDate == "" || $endDate == null)) {
+            $startDate_condition = " AND salesdnpay_Date >= DATEADD(MONTH, -2, GETDATE())";
+        }
+        if ($startDate != "" || $startDate != null) {
+            $startDate_condition = " AND CONVERT(date, salesdnpay_Date) >= CONVERT(date, '$startDate')";
+        }
+        if ($endDate != "" || $endDate != null) {
+            $endDate_condition = " AND CONVERT(date, salesdnpay_Date) <= CONVERT(date, '$endDate')";
+        }
+        $query = "
+            SELECT
+                *
+            FROM
+                tr_acc_transaksi_sales_DN_payment_h
+            WHERE
+                1 = 1
+                $clientCondition
+                $startDate_condition
+                $endDate_condition
+            ORDER BY
+                rec_datecreated DESC
+        ";
+        // dd($query);
+        $data = DB::connection('ms_sql_hgs')->select($query);
         return response()->json($data);
     }
     public function get_list_dn_chart(Request $request)
@@ -242,7 +393,7 @@ class DN_report_Controller extends Controller
             $endDate_condition = " AND CONVERT(date, salesdntagih_dateregist_tagihan) <= CONVERT(date, '$endDate')";
         }
         $query = "
-            with tbl as 
+            with tbl as
             (
                 SELECT
                     iif(no_kwitansi is not null, 1, 0) status_kwitansi,
@@ -263,7 +414,7 @@ class DN_report_Controller extends Controller
                             salesdntagih_code_h kode,
                             SUM( salesdntagih_Tagih_value ) total
                         FROM
-                            tr_tagih_sales_DN_d 
+                            tr_tagih_sales_DN_d
                         GROUP BY
                             salesdntagih_code_h
                     ) t on h.salesdntagih_code_h = t.kode
@@ -280,13 +431,13 @@ class DN_report_Controller extends Controller
                 SUM( IIF ( status_kwitansi = 1, 1, 0 ) ) AS sudah,
                 SUM( IIF ( status_kwitansi != 1, 1, 0 ) ) AS belum,
                 CAST ( SUM( IIF ( status_kwitansi = 1, 1, 0 ) ) AS DECIMAL ( 10, 2 ) ) * 100 / COUNT( * ) AS persen_sudah,
-                CAST ( SUM( IIF ( status_kwitansi != 1, 1, 0 ) ) AS DECIMAL ( 10, 2 ) ) * 100 / COUNT( * ) AS persen_belum 
+                CAST ( SUM( IIF ( status_kwitansi != 1, 1, 0 ) ) AS DECIMAL ( 10, 2 ) ) * 100 / COUNT( * ) AS persen_belum
             FROM
                 tbl
         ";
 
-        $data = DB::connection('ms_sql_hgs')->select($query); 
+        $data = DB::connection('ms_sql_hgs')->select($query);
         return response()->json($data[0]);
     }
-} 
+}
 

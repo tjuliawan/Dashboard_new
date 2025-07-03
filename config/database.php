@@ -109,19 +109,25 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
         ],
-        'ms_sql_hgs' => [
+       'ms_sql_hgs' => [
             'driver' => env('DB_ms_sql_hgs_CONNECTION', 'sqlsrv'),
             'host' => env('DB_ms_sql_hgs_HOST', 'rcm.hgs.co.id'),
             'port' => env('DB_ms_sql_hgs_PORT', '57403'),
-            'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_DUMMY_HGS_2505'),
-            // 'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_HGS'),
+            'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_HGS'),
+            // 'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_DUMMY_HGS_2505'),
             'username' => env('DB_ms_sql_hgs_USERNAME', 'RCM_SRVWO_HGS'),
             'password' => env('DB_ms_sql_hgs_PASSWORD', 'X4G8tUKurK762J5JWRYX'),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'trust_server_certificate' => true,
+            'options' => [
+                'TrustServerCertificate' => true,
+                'ConnectionTimeout' => 0,
+                'QueryTimeout' => 0, // tidak akan menghentikan eksekusi query
+            ],
         ],
+
     ],
 
     /*

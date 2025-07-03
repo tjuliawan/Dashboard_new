@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN tagih - Kwitansi')
+@section('title', 'DN System - Kwitansi')
 @section('css')
 @endsection
 @section('script')
@@ -171,7 +171,7 @@
                         zeroRecords: "Tidak ada data yang ditemukan",
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                         infoEmpty: "Tidak ada data",
-                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') 
+                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                     },
                     initComplete: function(settings, json) {
                         $('#loader_search').hide();
@@ -210,11 +210,13 @@
                         var sudah_kwitansi = response.no_kwitansi;
                         if (sudah_kwitansi === "1") {
                             $('#btn_confirm').hide();
+                            $('.tgl_kwitansi').hide();
                             $('#btn_print').show();
                             $('#kwitansi_warning_badge').hide();
                             $('#kwiwitansi_info_badge').fadeIn(1000);
                         } else {
                             $('#btn_confirm').show();
+                            $('.tgl_kwitansi').show();
                             $('#btn_print').hide();
                             $('#kwiwitansi_info_badge').hide();
                             $('#kwitansi_warning_badge').fadeIn(1000);
@@ -240,6 +242,7 @@
                     data: {
                         header_code: url_code,
                         note_kwitansi: $('#untuk_pembayaran').val(),
+                        tgl_kwitansi: $('#tgl_kwitansi').val(),
                         _token: $('meta[name="csrf-token"]').attr('content')
                     },
                     success: function(response) {
@@ -291,10 +294,12 @@
                     return "Angka terlalu besar";
                 }
             }
-            
+
             function formatRupiah(angka) {
                 return 'Rp ' + parseFloat(angka).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tgl_kwitansi').value = today;
         });
     </script>
 @endsection
@@ -391,7 +396,17 @@
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
-                                <button type="button" class="btn bg-gradient-success btn-sm btn-rounded" id="btn_confirm" style="display: none">Confirm</button>
+                                <div class="row">
+                                    <div class="col-auto tgl_kwitansi">
+                                        <small>Tgl Kwitansi:</small>
+                                    </div>
+                                    <div class="col-auto tgl_kwitansi">
+                                        <input type="date" class="form-control form-control-sm" id="tgl_kwitansi">
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn bg-gradient-success btn-sm btn-rounded" id="btn_confirm" style="display: none">Confirm</button>
+                                    </div>
+                                </div>
                                 <button type="button" class="btn bg-gradient-info btn-sm btn-rounded" id="btn_print" style="display: none">Print</button>
                                 <div class="row">
                                     <div class="col-12 col-md-6">
@@ -425,7 +440,7 @@
                     <div class="card-header pb-0">
                         <div class="d-flex flex-row justify-content-between">
                             <div>
-                                
+
                             </div>
                         </div>
                     </div>
