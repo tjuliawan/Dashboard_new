@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN System - Kwitansi')
+@section('title', 'DN System - List DN Paymen Japfa')
 @section('css')
 @endsection
 @section('script')

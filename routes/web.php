@@ -120,6 +120,7 @@ Route::get('/cetak-pdf/dn-tagih-inv-wt', [DN_Controller::class, 'cetakPDF_inv_fo
 Route::post('/dn-tagih/store', [DN_Controller::class, 'store_dn_tagih'])->middleware('auth');
 Route::post('/dn-tagih/update/po-code', [DN_Controller::class, 'update_dn_tagih_po_code'])->middleware('auth');
 Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail'])->middleware('auth');
+// Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail']);
 Route::post('/dn-tagih/store-kwitansi', [DN_Controller::class, 'store_kwitansi'])->middleware('auth');
 Route::post('/dn-tagih/store-kwitansi-japfa', [DN_Controller::class, 'store_kwitansi_japfa'])->middleware('auth');
 Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware('auth');

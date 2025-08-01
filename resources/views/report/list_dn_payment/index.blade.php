@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN System - Kwitansi')
+@section('title', 'DN System - List DN Paymen Japfa')
 @section('css')
 @endsection
 @section('script')
@@ -47,13 +47,15 @@
                             data: 'salesdnpay_Date',
                             name: 'salesdnpay_Date',
                             render: function(data, type, row) {
-                                // data = "2025-06-26"
-                                const tanggal = new Date(data);
-                                return tanggal.toLocaleDateString('id-ID', {
-                                    day: 'numeric',
-                                    month: 'long',
-                                    year: 'numeric'
-                                });
+                                if (type === 'display') {
+                                    const tanggal = new Date(data);
+                                    return tanggal.toLocaleDateString('id-ID', {
+                                        day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric'
+                                    });
+                                }
+                                return data;
                             }
                         },
                         {

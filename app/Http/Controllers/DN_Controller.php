@@ -696,12 +696,10 @@ class DN_Controller extends Controller
         ");
         return response()->json($data[0]);
     }
-
     public function exportExcel()
     {
         return Excel::download(new Exportexeljapfa, 'laporan_invoice_jkt_2025.xlsx');
     }
-
     public function get_header_dn_tagih_japfa2(Request $request)
     {
         $tahun = $request->get('tahun');
@@ -1621,6 +1619,7 @@ class DN_Controller extends Controller
         $user = auth()->user()->username;
         $jakartaTime = Carbon::now('Asia/Jakarta');
         $jakartaTime = Carbon::now('Asia/Jakarta');
+        // dd($client_code);
 
         $bulan = [
             1 => 'Januari',
@@ -1787,6 +1786,11 @@ class DN_Controller extends Controller
         }
         $jumlah_terbilang = terbilang_rupiah_koma(round(floatval($data_sumary->total)));
         $periode = ($startDate === $endDate) ? $startDate : $startDate . ' - ' . $endDate;
+        if($client_code == 'SHN'){
+            $clien_desc = 'PT Sarihusada Generasi Mahardhika';
+        }else{
+            $clien_desc = $data_sumary->clien_desc;
+        }
         // dd($total_tagihan_sales);
         // dd($client_code);
         $html =
@@ -1822,7 +1826,7 @@ class DN_Controller extends Controller
                 <tr>
                     <td style=" width:130px;"><strong>Sudah terima dari</strong></td>
                     <td><strong>:</strong></td>
-                    <td><span style="font-weight: bold;">' . $data_sumary->clien_desc . '</span></td>
+                    <td><span style="font-weight: bold;">' . $clien_desc . '</span></td>
                 </tr>
                 <tr>
                     <td><strong>Uang sejumlah</strong></td>
@@ -2539,7 +2543,7 @@ class DN_Controller extends Controller
                     d.*
                 FROM
                     tbl
-                    LEFT JOIN ( SELECT Sales_DN_spkno AS spk_2, d1.* FROM tr_tagih_sales_DN_d d1 JOIN tr_acc_transaksi_sales_DN_d d2 ON d2.Sales_DN_Code_d = d1.salesdntagih_Sales_dn_code ) d ON tbl.spk = d.spk_2
+                    LEFT JOIN ( SELECT Sales_DN_spkno AS spk_2, d1.* FROM tr_tagih_sales_DN_d d1 JOIN tr_acc_transaksi_sales_DN_d d2 ON d2.Sales_DN_Code_d = d1.salesdntagih_Sales_dn_code ) d ON tbl.spk = d.spk_2 and salesdntagih_cocode = surat_jalan
                 WHERE
                     salesdntagih_code_h = '$code'
                     AND ( trash_data IS NULL OR trash_data != 1 )
@@ -3977,13 +3981,25 @@ class DN_Controller extends Controller
                 SELECT
                     h.*,
                     clien_desc,
-                    iif(p.no_kwitansi is null, 0, 1) no_kwitansi
+                    iif ( p.no_kwitansi IS NULL, 0, 1 ) no_kwitansi , total
                 FROM
                     tr_tagih_sales_DN_h h
                     JOIN ms_client c ON h.salesdntagih_client_code = c.clien_id
                     LEFT JOIN tr_tagih_sales_DN_pph4 p ON p.no_kwitansi = h.salesdntagih_code_h
+                    LEFT JOIN (
+                    SELECT
+                    SUM( salesdntagih_Tagih_value ) total,
+                    salesdntagih_code_h kode
+                FROM
+                    tr_tagih_sales_DN_d
                 WHERE
                     salesdntagih_code_h = '$header_code'
+                GROUP BY
+                salesdntagih_code_h
+                    ) n on n.kode = h.salesdntagih_code_h
+                WHERE
+                    salesdntagih_code_h = '$header_code';
+
             ");
             $area_code = $data[0]->salesdntagih_code_cabang;
             $coa_data = DB::connection('ms_sql_hgs')
@@ -4015,13 +4031,13 @@ class DN_Controller extends Controller
                 ->table('tr_tagih_sales_DN_pph4')
                 ->insert([
                     'no_kwitansi' => $data[0]->salesdntagih_code_h,
-                    'value_tagihan_dn' => $data[0]->salesdntagih_Total_tagihan,
-                    'value_est_pph_4' => $data[0]->salesdntagih_Total_tagihan / 50,
+                    'value_tagihan_dn' => $data[0]->total,
+                    'value_est_pph_4' => $data[0]->total / 50,
                     'created_by' => auth()->user()->username,
                     'created_at2' => now('Asia/Jakarta'),
                     'created_at' => $tgl_kwitansi,
-                    'value_ppn' => $data[0]->salesdntagih_Total_tagihan / 11,
-                    'value_pembebasan_ppn' => $data[0]->salesdntagih_Total_tagihan / 11 * -1,
+                    'value_ppn' => $data[0]->total / 11,
+                    'value_pembebasan_ppn' => $data[0]->total / 11 * -1,
                     'note_kwitansi' => $note_kwitansi,
                 ]);
             DB::commit();
@@ -4261,6 +4277,7 @@ class DN_Controller extends Controller
                     DATEPART(MONTH, himp.invoice_date) AS bulan,
                     DATEPART(YEAR, SO_Date) AS tahun_so,
                     DATEPART(MONTH, SO_Date) AS bulan_so,
+                    SO_Date,
                     himp.invoice_number,
                     number invoice_number2,
                     -- himp.retailer_code,
@@ -4298,8 +4315,8 @@ class DN_Controller extends Controller
                     LEFT JOIN (select distinct sale_order, partner_name, number from tgu_tr_invoice_import_for_japfa) imp on imp.sale_order = himp.invoice_number
                 WHERE
                     himp.client = 'Japfa'
-                    AND DATEPART(YEAR, SO_Date) = '$tahun'
-                    AND DATEPART(month, SO_Date) = '$bulan'
+                    AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
+                    AND DATEPART(month, himp.invoice_date) = '$bulan'
             )
             SELECT
                 invoice_number2 invimp_code,
@@ -4309,7 +4326,8 @@ class DN_Controller extends Controller
                 price,
                 qty,
                 price * qty total_price,
-                SKU_description
+                SKU_description,
+                SO_Date
             FROM
                 cte
             WHERE
@@ -4318,7 +4336,7 @@ class DN_Controller extends Controller
                 invoice_date DESC,
                 invoice_number DESC;
         ";
-        dd($query);
+        // dd($query);
         $data = DB::connection('ms_sql_hgs')->select($query);
         return response()->json($data);
     }

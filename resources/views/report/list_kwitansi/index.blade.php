@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN System - Kwitansi')
+@section('title', 'DN System - List Kwitansi')
 @section('css')
 @endsection
 @section('script')
@@ -25,6 +25,7 @@
             gradientStroke1.addColorStop(0, 'rgba(203,12,159,0)');
             initializeDataTable();
             initializeChart();
+
             function initializeDataTable() {
                 const val_allChecked = $('#checkAll').is(':checked');
                 const val_selesaiChecked = $('#checkSelesai').is(':checked');
@@ -60,10 +61,34 @@
                                 return meta.row + 1;
                             }
                         },
-                        { data : 'no_kwitansi', name : 'no_kwitansi'},
-                        { data : 'tgl_kwitansi', name : 'tgl_kwitansi'},
-                        { data : 'salesdntagih_client_code', name : 'salesdntagih_client_code'},
-                        { data : 'note_kwitansi', name : 'note_kwitansi', className:'note-col'},
+                        {
+                            data: 'no_kwitansi',
+                            name: 'no_kwitansi'
+                        },
+                        {
+                            data: 'tgl_kwitansi',
+                            name: 'tgl_kwitansi',
+                            render: function(data, type, row) {
+                                if (type === 'display') {
+                                    const tanggal = new Date(data);
+                                    return tanggal.toLocaleDateString('id-ID', {
+                                        day: 'numeric',
+                                        month: 'long',
+                                        year: 'numeric'
+                                    });
+                                }
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_client_code',
+                            name: 'salesdntagih_client_code'
+                        },
+                        {
+                            data: 'note_kwitansi',
+                            name: 'note_kwitansi',
+                            className: 'note-col'
+                        },
                         {
                             data: 'value_tagihan_dn',
                             name: 'value_tagihan_dn',
@@ -121,9 +146,15 @@
                                 return data;
                             }
                         },
-                        { data : 'kode_faktur_pajak', name : 'kode_faktur_pajak'},
-                        { data : 'bukti_potong_pph_23', name : 'bukti_potong_pph_23'},
-                       {
+                        {
+                            data: 'kode_faktur_pajak',
+                            name: 'kode_faktur_pajak'
+                        },
+                        {
+                            data: 'bukti_potong_pph_23',
+                            name: 'bukti_potong_pph_23'
+                        },
+                        {
                             data: 'status',
                             name: 'status',
                             className: 'text-center',
@@ -165,19 +196,22 @@
                         zeroRecords: "Tidak ada data yang ditemukan",
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
                         infoEmpty: "Tidak ada data",
-                        infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
+                        infoFiltered: "(disaring dari _MAX_ total entri)",
+                        @include('layouts.emptytable')
                     },
                     initComplete: function(settings, json) {
                         $('#loader_save').hide();
                     }
                 });
             }
+
             function formatRupiah(angka) {
                 if (!angka || isNaN(angka)) {
                     return 'Rp 0';
                 }
                 return 'Rp ' + parseFloat(angka).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
+
             function animateValue(id, start, end, duration) {
                 const obj = $(id);
                 let startTime = null;
@@ -198,29 +232,29 @@
                 requestAnimationFrame(step);
             }
 
-            function initializeChart(){
+            function initializeChart() {
                 $.ajax({
                     url: '/report/get/list_kwitansi-chart',
                     type: 'GET',
                     dataType: 'json',
-                    data : {
+                    data: {
                         startDate: startDate,
                         endDate: endDate,
                         client: $('#select_client').val()
                     },
                     success: function(data) {
-                        var data_sudah = parseInt(data.persen_sudah)||0;
+                        var data_sudah = parseInt(data.persen_sudah) || 0;
                         var value_sudah = parseInt(data.value_sudah) || 0;
                         animateValue("#value_sudah", 0, value_sudah, 800);
-                        var value_belum = parseInt(data.value_belum)||0;
+                        var value_belum = parseInt(data.value_belum) || 0;
                         animateValue("#value_belum", 0, value_belum, 800);
-                        var value_pph_sudah = parseInt(data.value_pph_sudah)||0;
+                        var value_pph_sudah = parseInt(data.value_pph_sudah) || 0;
                         animateValue("#value_pph_sudah", 0, value_pph_sudah, 800);
-                        var value_pph_belum = parseInt(data.value_pph_belum)||0;
+                        var value_pph_belum = parseInt(data.value_pph_belum) || 0;
                         animateValue("#value_pph_belum", 0, value_pph_belum, 800);
 
-                        var sudah = parseFloat(data.sudah)||0;
-                        var belum = parseFloat(data.belum)||0;
+                        var sudah = parseFloat(data.sudah) || 0;
+                        var belum = parseFloat(data.belum) || 0;
                         if (chart) {
                             chart.destroy();
                         }
@@ -232,27 +266,27 @@
                             },
                             plotOptions: {
                                 radialBar: {
-                                hollow: {
-                                    size: '70%',
-                                },
-                                dataLabels: {
-                                    show: true,
-                                    name: {
-                                    offsetY: -10,
-                                    show: true,
-                                    color: '#fff',
-                                    fontSize: '13px'
+                                    hollow: {
+                                        size: '70%',
                                     },
-                                    value: {
-                                    offsetY: 16,
-                                    color: '#ffff',
-                                    fontSize: '16px',
-                                    show: true,
-                                    formatter: (val) => {
-                                        return `${val}%`;
+                                    dataLabels: {
+                                        show: true,
+                                        name: {
+                                            offsetY: -10,
+                                            show: true,
+                                            color: '#fff',
+                                            fontSize: '13px'
+                                        },
+                                        value: {
+                                            offsetY: 16,
+                                            color: '#ffff',
+                                            fontSize: '16px',
+                                            show: true,
+                                            formatter: (val) => {
+                                                return `${val}%`;
+                                            }
+                                        }
                                     }
-                                    }
-                                }
                                 },
                             },
                             labels: ['Completed'],
@@ -260,14 +294,14 @@
                             fill: {
                                 type: 'gradient',
                                 gradient: {
-                                shade: 'light',
-                                type: 'horizontal',
-                                shadeIntensity: 0.25,
-                                gradientToColors: ['#81ecec'], // Warna gradasi pastel hijau muda
-                                inverseColors: true,
-                                opacityFrom: 1,
-                                opacityTo: 1,
-                                stops: [0, 100]
+                                    shade: 'light',
+                                    type: 'horizontal',
+                                    shadeIntensity: 0.25,
+                                    gradientToColors: ['#81ecec'], // Warna gradasi pastel hijau muda
+                                    inverseColors: true,
+                                    opacityFrom: 1,
+                                    opacityTo: 1,
+                                    stops: [0, 100]
                                 },
                             },
                             stroke: {
@@ -276,12 +310,12 @@
                             responsive: [{
                                 breakpoint: 480,
                                 options: {
-                                chart: {
-                                    height: 200
-                                }
+                                    chart: {
+                                        height: 200
+                                    }
                                 }
                             }]
-                            };
+                        };
 
                         chart = new ApexCharts(document.querySelector("#chart"), options);
                         chart.render();
@@ -358,23 +392,23 @@
                 //     $(this).removeClass("rotate");
                 // }, 1000);
             });
-            $('#checkAll').change(function () {
+            $('#checkAll').change(function() {
                 checked = $(this).is(':checked');
                 $('#checkSelesai, #checkBelum').prop('checked', checked);
             });
 
-            $('#checkSelesai, #checkBelum').change(function () {
+            $('#checkSelesai, #checkBelum').change(function() {
                 selesaiChecked = $('#checkSelesai').is(':checked');
                 belumChecked = $('#checkBelum').is(':checked');
 
                 $('#checkAll').prop('checked', selesaiChecked && belumChecked);
 
                 if (!(selesaiChecked && belumChecked)) {
-                $('#checkAll').prop('checked', false);
+                    $('#checkAll').prop('checked', false);
                 }
 
             });
-            $('#checkAll, #checkSelesai, #checkBelum').on('change', function () {
+            $('#checkAll, #checkSelesai, #checkBelum').on('change', function() {
                 initializeDataTable();
             });
             let dateRange = $('#date_range').daterangepicker({
@@ -407,9 +441,10 @@
 
             $('#date_range').val('');
             get_client();
-            function get_client(){
+
+            function get_client() {
                 $.ajax({
-                url: '/get_client',
+                    url: '/get_client',
                     type: 'GET',
                     dataType: 'json',
                     success: function(data) {
@@ -423,7 +458,7 @@
                         }
 
                         data.forEach(function(item) {
-                            branchSelect.append('<option value="' + item.clien_id + '">' + item.clien_id +' | '+ item.clien_desc + '</option>');
+                            branchSelect.append('<option value="' + item.clien_id + '">' + item.clien_id + ' | ' + item.clien_desc + '</option>');
                         });
                     },
                     error: function(xhr, status, error) {
@@ -459,24 +494,26 @@
             background-color: transparent;
             color: #707070f6;
         }
+
         #list_kwitansi_table .note-col,
         #list_kwitansi_table td.note-col {
-        max-width: 350px;
-        white-space: normal;
-        /* word-break: break-word; */
+            max-width: 350px;
+            white-space: normal;
+            /* word-break: break-word; */
         }
-
     </style>
     <style>
         .rotate {
             transition: transform 1s ease-in-out, color 1s ease-in-out;
             transform: rotate(360deg);
-            color: rgb(24, 255, 112); /* Warna saat animasi */
+            color: rgb(24, 255, 112);
+            /* Warna saat animasi */
             cursor: pointer;
         }
 
         .default-color {
-            color: black; /* Warna awal */
+            color: black;
+            /* Warna awal */
             transition: transform 0.3s ease, color 0.3s ease;
         }
 
@@ -489,6 +526,7 @@
             width: 100%;
             border-radius: 5px;
         }
+
         /* Add pointer cursor on hover */
         tr.clickable {
             cursor: pointer;
@@ -514,21 +552,32 @@
         }
 
         @keyframes fadein {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes fadeout {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        .bg-custom-danger{
-            background-color: #ff4757;
-        }
-        .bg-custom-info{
-            background-color: #44bd32;
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
         }
 
+        .bg-custom-danger {
+            background-color: #ff4757;
+        }
+
+        .bg-custom-info {
+            background-color: #44bd32;
+        }
     </style>
 
 @endsection
@@ -538,7 +587,7 @@
             <div class="col-12 col-md-3 mb-3" id="div_table_list_kwitansi">
                 <div class="card" style="height: 175px">
                     <div class="card-body p-3">
-                        <input type="text" id="date_range" class="form-control form-control-sm mb-3" style="width: 75%" placeholder="Pilih Tanggal"  />
+                        <input type="text" id="date_range" class="form-control form-control-sm mb-3" style="width: 75%" placeholder="Pilih Tanggal" />
                         <select class="form-select form-select-sm " aria-label="Large select example " id="select_client" style="width: 75%">
                             <option value="">Client</option>
                         </select>
@@ -551,34 +600,41 @@
                         <div class="loader_add"></div>
                         <style>
                             .loader_add {
-                            width: 40px;
-                            height: 26px;
-                            --c:no-repeat linear-gradient(#b2bec3 0 0);
-                            background:
-                                var(--c) 0    100%,
-                                var(--c) 50%  100%,
-                                var(--c) 100% 100%;
-                            background-size:8px calc(100% - 4px);
-                            position: relative;
+                                width: 40px;
+                                height: 26px;
+                                --c: no-repeat linear-gradient(#b2bec3 0 0);
+                                background:
+                                    var(--c) 0 100%,
+                                    var(--c) 50% 100%,
+                                    var(--c) 100% 100%;
+                                background-size: 8px calc(100% - 4px);
+                                position: relative;
                             }
+
                             .loader_add:before {
-                            content: "";
-                            position: absolute;
-                            width: 8px;
-                            height: 8px;
-                            border-radius: 50%;
-                            background: #b2bec3;
-                            left: 0;
-                            top: 0;
-                            animation:
-                                l3-1 1.5s  linear infinite alternate,
-                                l3-2 0.75s cubic-bezier(0,200,.8,200) infinite;
+                                content: "";
+                                position: absolute;
+                                width: 8px;
+                                height: 8px;
+                                border-radius: 50%;
+                                background: #b2bec3;
+                                left: 0;
+                                top: 0;
+                                animation:
+                                    l3-1 1.5s linear infinite alternate,
+                                    l3-2 0.75s cubic-bezier(0, 200, .8, 200) infinite;
                             }
+
                             @keyframes l3-1 {
-                            100% {left:calc(100% - 8px)}
+                                100% {
+                                    left: calc(100% - 8px)
+                                }
                             }
+
                             @keyframes l3-2 {
-                            100% {top:-0.1px}
+                                100% {
+                                    top: -0.1px
+                                }
                             }
                         </style>
                     </div>
@@ -592,7 +648,7 @@
                 </div>
             </div>
             <div class="col-auto">
-                 <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
                     <div class="chart">
                         <canvas id="chart-bars" class="chart-canvas" height="144px"></canvas>
                     </div>
@@ -685,22 +741,26 @@
                     <div class="card-header pb-0">
                         <div class="d-flex gap-3">
                             <style>
-                                .fa-rotate-right:hover{
+                                .fa-rotate-right:hover {
                                     color: #00cec9;
                                 }
+
                                 .loader_bulat {
-                                width: 30px;
-                                height: 30px;
-                                aspect-ratio: 1;
-                                border-radius: 50%;
-                                background:
-                                    radial-gradient(farthest-side,#00cec9 94%,#0000) top/5px 5px no-repeat,
-                                    conic-gradient(#0000 30%,#00cec9);
-                                -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 5px),#000 0);
-                                animation: l13 1s infinite linear;
+                                    width: 30px;
+                                    height: 30px;
+                                    aspect-ratio: 1;
+                                    border-radius: 50%;
+                                    background:
+                                        radial-gradient(farthest-side, #00cec9 94%, #0000) top/5px 5px no-repeat,
+                                        conic-gradient(#0000 30%, #00cec9);
+                                    -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 5px), #000 0);
+                                    animation: l13 1s infinite linear;
                                 }
-                                @keyframes l13{
-                                100%{transform: rotate(1turn)}
+
+                                @keyframes l13 {
+                                    100% {
+                                        transform: rotate(1turn)
+                                    }
                                 }
                             </style>
                         </div>
@@ -709,16 +769,16 @@
                         <div class="container d-flex justify-content-center align-items-center mb-0">
                             <div class="d-flex align-items-center">
                                 <div class="form-check me-3">
-                                <input class="form-check-input" type="checkbox" id="checkAll" checked>
-                                <label class="form-check-label" for="checkAll">All</label>
+                                    <input class="form-check-input" type="checkbox" id="checkAll" checked>
+                                    <label class="form-check-label" for="checkAll">All</label>
                                 </div>
                                 <div class="form-check me-3">
-                                <input class="form-check-input" type="checkbox" id="checkSelesai" checked>
-                                <label class="form-check-label" for="checkSelesai">Selesai</label>
+                                    <input class="form-check-input" type="checkbox" id="checkSelesai" checked>
+                                    <label class="form-check-label" for="checkSelesai">Selesai</label>
                                 </div>
                                 <div class="form-check me-3">
-                                <input class="form-check-input" type="checkbox" id="checkBelum" checked>
-                                <label class="form-check-label" for="checkBelum">Belum</label>
+                                    <input class="form-check-input" type="checkbox" id="checkBelum" checked>
+                                    <label class="form-check-label" for="checkBelum">Belum</label>
                                 </div>
                             </div>
                         </div>

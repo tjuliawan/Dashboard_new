@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN System - Kwitansi')
+@section('title', 'DN System - Faktur Pajak')
 @section('css')
 @endsection
 @section('script')

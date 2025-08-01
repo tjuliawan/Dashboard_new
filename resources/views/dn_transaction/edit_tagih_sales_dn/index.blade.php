@@ -1,11 +1,28 @@
 @extends('layouts.user_type.auth')
 @section('title', 'DN System - Edit Tgaih Sales DN')
 @section('css')
+
+    <style>
+        .loader {
+            width: 120px;
+            height: 20px;
+            border-radius: 20px;
+            background:
+                radial-gradient(farthest-side, orange 94%, #0000) left/20px 20px no-repeat lightblue;
+            animation: l2 1s infinite linear;
+        }
+
+        @keyframes l2 {
+            50% {
+                background-position: right
+            }
+        }
+    </style>
 @endsection
 @section('script')
     <script>
         $(document).ready(function() {
-        // inisialisasi varibel utama
+            // inisialisasi varibel utama
             let tampunganData = [];
             let tampunganData_add = [];
             let pruduct_code;
@@ -18,27 +35,27 @@
             let product = "";
             let code_head = "";
             $('#loader_body').hide();
-        // fungsi print
+            // fungsi print
             $('#btn_print_report').click(function() {
 
-                if(product === 'Water Tanker'){
+                if (product === 'Water Tanker') {
                     var url = '/cetak-pdf/dn-tagih-inv-wt?code=' + encodeURIComponent(code_head) +
-                    '&client_code=' + encodeURIComponent(client_code);
+                        '&client_code=' + encodeURIComponent(client_code);
                     window.open(url, '_blank');
-                }else{
+                } else {
                     var url = '/cetak-pdf/dn-tagih-inv?code=' + encodeURIComponent(code_head) +
                         '&client_code=' + encodeURIComponent(client_code);
                     window.open(url, '_blank');
-                    if(client_code === 'TUA'){
+                    if (client_code === 'TUA') {
                         // var url2 = '/cetak-pdf/dn-tagih-kwitansi?code=' + encodeURIComponent(code_head) +
                         //     '&client_code=' + encodeURIComponent(client_code);
                         // window.open(url2, '_blank');
                     }
                 }
             });
-        // fungsi Pencarian kode dn
+            // fungsi Pencarian kode dn
             $('#btn_search').click(function() {
-                if($('#input_main_code').val() === "") {
+                if ($('#input_main_code').val() === "") {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -53,7 +70,7 @@
                     data: {
                         code: $('#input_main_code').val()
                     },
-                    success: function (response) {
+                    success: function(response) {
                         // console.log(response);
                         total_tagihan = response.salesdntagih_Total_tagihan;
                         client_code = response.salesdntagih_client_code;
@@ -83,7 +100,7 @@
                             $('.div_confirmation').show();
                         }
                     },
-                    error: function () {
+                    error: function() {
                         $('.div_confirmation').hide();
                         $('#div_table_list_tr_tagih_sales_DN_d_date').hide();
                         if ($.fn.DataTable.isDataTable('#table_list_tr_tagih_sales_DN_d_date')) {
@@ -102,8 +119,8 @@
                     $('#btn_search').click();
                 }
             });
-        // auth checking untuk konfirmasi
-            $('#confirm_login').on('click', function () {
+            // auth checking untuk konfirmasi
+            $('#confirm_login').on('click', function() {
                 var email = $('input[placeholder="Email/Username"]').val();
                 var password = $('input[placeholder="Password"]').val();
                 $('#loader_user_confirm').show();
@@ -115,7 +132,7 @@
                         password: password,
                         _token: '{{ csrf_token() }}'
                     },
-                    success: function (response) {
+                    success: function(response) {
                         if (response.success) {
                             $('#loader_user_confirm').hide();
                             var bolehAkses = false;
@@ -144,7 +161,7 @@
                         }
 
                     },
-                    error: function () {
+                    error: function() {
                         alert('Terjadi kesalahan. Coba lagi nanti.');
                     }
                 });
@@ -238,7 +255,7 @@
                     }
                 });
             });
-        // fungsi store data
+            // fungsi store data
             $('#btn_add_more').on('click', function() {
                 $('.div_add_more_data').show();
                 $('#btn_cancel_add_more').show();
@@ -265,7 +282,7 @@
                 $('#div_table_add_tagih_sales_dn').hide();
             });
             $('#btn_search_for_add_more').on('click', function() {
-                if($('#input_add_search_dn').val() === "") {
+                if ($('#input_add_search_dn').val() === "") {
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
@@ -275,11 +292,12 @@
                 }
                 $('#div_table_add_tagih_sales_dn').show();
                 initializeDataTable_add();
-                if(is_load_for_tabel_tampungan_add === 0){
+                if (is_load_for_tabel_tampungan_add === 0) {
                     is_load_for_tabel_tampungan_add = 1;
                     initializeDataTable_add_tampungan();
                 }
             });
+
             function updateTable() {
                 $('#loader_user_confirm').show();
                 $.ajax({
@@ -343,586 +361,700 @@
                     }
                 });
             }
-        // inisialisasi tabel
+            // inisialisasi tabel
             // table remove
-                function initializeDataTable() {
-                    $('#loader_body').show();
-                    var client = $('#select_client').val();
-                    var vehicle = $('#select_vehicle').val();
-                    var business = $('#select_business').val();
-                    var staert_date = $('#start_date').val();
-                    var end_date = $('#end_date').val();
-                    var input_main_code = $('#input_main_code').val();
+            function initializeDataTable() {
+                $('#loader_body').show();
+                var client = $('#select_client').val();
+                var vehicle = $('#select_vehicle').val();
+                var business = $('#select_business').val();
+                var staert_date = $('#start_date').val();
+                var end_date = $('#end_date').val();
+                var input_main_code = $('#input_main_code').val();
 
-                    $('#header_code').val('');
-                    $('#date_register_tagihan').val('');
-                    if (input_main_code === "") {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Please Intert the code!',
-                        });
+                $('#header_code').val('');
+                $('#date_register_tagihan').val('');
+                if (input_main_code === "") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Please Intert the code!',
+                    });
+                    $('#loader_body').hide();
+                    return;
+                }
+                if ($.fn.DataTable.isDataTable('#table_list_tr_tagih_sales_DN_d_date')) {
+                    $('#table_list_tr_tagih_sales_DN_d_date').DataTable().clear().destroy();
+                }
+                if ($.fn.DataTable.isDataTable('#table_tampungan')) {
+                    $('#table_tampungan').DataTable().clear().destroy();
+                }
+                $('#div_table_list_tr_tagih_sales_DN_d_date').show();
+                tableMain = $('#table_list_tr_tagih_sales_DN_d_date').DataTable({
+                    serverSide: false,
+                    ajax: {
+                        url: '/dn_tagih/get_table_for_edit_dn_tgih',
+                        type: 'GET',
+                        dataSrc: '',
+                        data: {
+                            input_main_code: input_main_code
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function(data, type, row, meta) {
+                                return `<input type="checkbox" class="form-check-input row-checkbox">`;
+                            }
+                        },
+                        // { data : 'rec_comcode', name : 'rec_comcode'},
+                        // { data : 'rec_areacode', name : 'rec_areacode'},
+                        {
+                            data: 'salesdntagih_code_h',
+                            name: 'salesdntagih_code_h'
+                        },
+                        {
+                            data: 'salesdntagih_Sales_dn_code',
+                            name: 'salesdntagih_Sales_dn_code'
+                        },
+                        {
+                            data: 'salesdntagih_Sales_dn_date',
+                            name: 'salesdntagih_Sales_dn_date'
+                        },
+                        {
+                            data: 'salesdntagih_client_code',
+                            name: 'salesdntagih_client_code'
+                        },
+                        {
+                            data: 'sales_dn_productcode',
+                            name: 'sales_dn_productcode'
+                        },
+                        {
+                            data: 'salesdntagih_Sales_dn_codeheader',
+                            name: 'salesdntagih_Sales_dn_codeheader'
+                        },
+                        {
+                            data: 'salesdntagih_cocode_header',
+                            name: 'salesdntagih_cocode_header'
+                        },
+                        {
+                            data: 'salesdntagih_cocode',
+                            name: 'salesdntagih_cocode'
+                        },
+                        {
+                            data: 'salesdntagih_no_po',
+                            name: 'salesdntagih_no_po'
+                        },
+                        {
+                            data: 'salesdntagih_drivercode',
+                            name: 'salesdntagih_drivercode'
+                        },
+                        {
+                            data: 'salesdntagih_routevhcode',
+                            name: 'salesdntagih_routevhcode'
+                        },
+                        {
+                            data: 'salesdntagih_vhcode',
+                            name: 'salesdntagih_vhcode'
+                        },
+                        {
+                            data: 'salesdntagih_qty',
+                            name: 'salesdntagih_qty',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_salesbotol',
+                            name: 'salesdntagih_salesbotol',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_Tagih_value',
+                            name: 'salesdntagih_Tagih_value',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_note',
+                            name: 'salesdntagih_note'
+                        },
+                    ],
+                    // responsive: true,
+                    searching: true,
+                    paging: true,
+                    autoWidth: false,
+                    // dom: '<"d-flex justify-content-between align-items-start"<"d-flex"Bl><"d-flex justify-content-end"f>><"table-responsive"t><"d-flex justify-content-between align-items-center"ip>',
+                    scrollX: true,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    buttons: [{
+                        extend: 'excel',
+                        text: 'Download Excel',
+                    }],
+                    language: {
+                        lengthMenu: "_MENU_",
+                        search: "Pencarian:",
+                        zeroRecords: "Tidak ada data yang ditemukan",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                        infoEmpty: "Tidak ada data",
+                        infoFiltered: "(disaring dari _MAX_ total entri)",
+                        @include('layouts.emptytable')
+                    },
+                    drawCallback: function(settings) {
                         $('#loader_body').hide();
-                        return;
+                    },
+                    initComplete: function(settings, json) {
+                        $('#loader_search').hide();
                     }
-                    if ($.fn.DataTable.isDataTable('#table_list_tr_tagih_sales_DN_d_date')) {
-                        $('#table_list_tr_tagih_sales_DN_d_date').DataTable().clear().destroy();
-                    }
-                    if ($.fn.DataTable.isDataTable('#table_tampungan')) {
-                        $('#table_tampungan').DataTable().clear().destroy();
-                    }
-                    $('#div_table_list_tr_tagih_sales_DN_d_date').show();
-                    tableMain  = $('#table_list_tr_tagih_sales_DN_d_date').DataTable({
-                        serverSide: false,
-                        ajax: {
-                            url: '/dn_tagih/get_table_for_edit_dn_tgih',
-                            type: 'GET',
-                            dataSrc: '',
-                            data: {
-                                input_main_code: input_main_code
+                });
+                tableTampungan = $('#table_tampungan').DataTable({
+                    columns: [{
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function(data, type, row, meta) {
+                                return `<input type="checkbox" class="form-check-input tampungan-checkbox" checked>`;
                             }
                         },
-                        columns: [
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: 'text-center',
-                                render: function(data, type, row, meta) {
-                                    return `<input type="checkbox" class="form-check-input row-checkbox">`;
-                                }
-                            },
-                            // { data : 'rec_comcode', name : 'rec_comcode'},
-                            // { data : 'rec_areacode', name : 'rec_areacode'},
-                            { data : 'salesdntagih_code_h', name : 'salesdntagih_code_h'},
-                            { data : 'salesdntagih_Sales_dn_code', name : 'salesdntagih_Sales_dn_code'},
-                            { data : 'salesdntagih_Sales_dn_date', name : 'salesdntagih_Sales_dn_date'},
-                            { data : 'salesdntagih_client_code', name : 'salesdntagih_client_code'},
-                            { data : 'sales_dn_productcode', name : 'sales_dn_productcode'},
-                            { data : 'salesdntagih_Sales_dn_codeheader', name : 'salesdntagih_Sales_dn_codeheader'},
-                            { data : 'salesdntagih_cocode_header', name : 'salesdntagih_cocode_header'},
-                            { data : 'salesdntagih_cocode', name : 'salesdntagih_cocode'},
-                            { data : 'salesdntagih_no_po', name : 'salesdntagih_no_po' },
-                            { data : 'salesdntagih_drivercode', name : 'salesdntagih_drivercode'},
-                            { data : 'salesdntagih_routevhcode', name : 'salesdntagih_routevhcode'},
-                            { data : 'salesdntagih_vhcode', name : 'salesdntagih_vhcode'},
-                            {
-                                data: 'salesdntagih_qty',
-                                name: 'salesdntagih_qty',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_salesbotol',
-                                name: 'salesdntagih_salesbotol',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_Tagih_value',
-                                name: 'salesdntagih_Tagih_value',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            { data : 'salesdntagih_note', name : 'salesdntagih_note'},
-                        ],
-                        // responsive: true,
-                        searching: true,
-                        paging: true,
-                        autoWidth: false,
-                        dom: '<"d-flex justify-content-between align-items-start"<"d-flex"Bl><"d-flex justify-content-end"f>><"table-responsive"t><"d-flex justify-content-between align-items-center"ip>',
-                        scrollX: true,
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            [10, 25, 50, 100, "Semua"]
-                        ],
-                        buttons: [{
-                            extend: 'excel',
-                            text: 'Download Excel',
-                        }],
-                        language: {
-                            lengthMenu: "_MENU_",
-                            search: "Pencarian:",
-                            zeroRecords: "Tidak ada data yang ditemukan",
-                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
+                        {
+                            data: 'salesdntagih_code_h'
                         },
-                        drawCallback: function(settings) {
-                            $('#loader_body').hide();
+                        {
+                            data: 'salesdntagih_Sales_dn_code'
                         },
-                        initComplete: function(settings, json) {
-                            $('#loader_search').hide();
-                        }
-                    });
-                    tableTampungan = $('#table_tampungan').DataTable({
-                        columns: [
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: 'text-center',
-                                render: function(data, type, row, meta) {
-                                    return `<input type="checkbox" class="form-check-input tampungan-checkbox" checked>`;
-                                }
-                            },
-                            { data : 'salesdntagih_code_h' },
-                            { data : 'salesdntagih_Sales_dn_code' },
-                            { data : 'salesdntagih_Sales_dn_date' },
-                            { data : 'salesdntagih_client_code' },
-                            { data : 'sales_dn_productcode' },
-                            { data : 'salesdntagih_Sales_dn_codeheader' },
-                            { data : 'salesdntagih_cocode_header' },
-                            { data : 'salesdntagih_cocode' },
-                            { data : 'salesdntagih_no_po' },
-                            { data : 'salesdntagih_drivercode' },
-                            { data : 'salesdntagih_routevhcode' },
-                            { data : 'salesdntagih_vhcode' },
-                            {
-                                data: 'salesdntagih_qty',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_salesbotol',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'salesdntagih_Tagih_value',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            { data : 'salesdntagih_note' },
-                        ],
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            [10, 25, 50, 100, "Semua"]
-                        ],
-                        buttons: [{
-                            extend: 'excel',
-                            text: 'Download Excel',
-                        }],
-                        language: {
-                            lengthMenu: "_MENU_",
-                            search: "Pencarian:",
-                            zeroRecords: "Tidak ada data yang ditemukan",
-                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
+                        {
+                            data: 'salesdntagih_Sales_dn_date'
                         },
-                        scrollX: true,
-                        processing: false,
-                    });
+                        {
+                            data: 'salesdntagih_client_code'
+                        },
+                        {
+                            data: 'sales_dn_productcode'
+                        },
+                        {
+                            data: 'salesdntagih_Sales_dn_codeheader'
+                        },
+                        {
+                            data: 'salesdntagih_cocode_header'
+                        },
+                        {
+                            data: 'salesdntagih_cocode'
+                        },
+                        {
+                            data: 'salesdntagih_no_po'
+                        },
+                        {
+                            data: 'salesdntagih_drivercode'
+                        },
+                        {
+                            data: 'salesdntagih_routevhcode'
+                        },
+                        {
+                            data: 'salesdntagih_vhcode'
+                        },
+                        {
+                            data: 'salesdntagih_qty',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_salesbotol',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_Tagih_value',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'salesdntagih_note'
+                        },
+                    ],
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    buttons: [{
+                        extend: 'excel',
+                        text: 'Download Excel',
+                    }],
+                    language: {
+                        lengthMenu: "_MENU_",
+                        search: "Pencarian:",
+                        zeroRecords: "Tidak ada data yang ditemukan",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                        infoEmpty: "Tidak ada data",
+                        infoFiltered: "(disaring dari _MAX_ total entri)",
+                        @include('layouts.emptytable')
+                    },
+                    scrollX: true,
+                    processing: false,
+                });
+            }
+
+            function updateTotalSales() {
+                const total = tampunganData.reduce((sum, item) => {
+                    return sum + parseFloat(item.totalsales || 0);
+                }, 0);
+                $('#sales_text').text(
+                    total.toLocaleString('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR'
+                    })
+                );
+            }
+            $('#table_list_tr_tagih_sales_DN_d_date tbody').on('change', '.row-checkbox', function() {
+                const tr = $(this).closest('tr');
+                const row = tableMain.row(tr);
+                product = tr.find('td:eq(5)').text();
+                const rowData = row.data();
+
+                if (this.checked) {
+                    const modifiedRow = $.extend({}, rowData); // Salin data
+                    modifiedRow.note = '';
+
+                    tampunganData.push(modifiedRow);
+                    tableTampungan.row.add(modifiedRow).draw();
+                    row.remove().draw();
+                } else {
+                    // Hapus dari tampunganData
+                    const index = tampunganData.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
+                    if (index > -1) {
+                        tampunganData.splice(index, 1);
+                    }
+
+                    // Kembalikan ke tableMain
+                    tableMain.row.add(rowData).draw();
+                    row.remove().draw();
                 }
-                function updateTotalSales() {
-                    const total = tampunganData.reduce((sum, item) => {
-                        return sum + parseFloat(item.totalsales || 0);
-                    }, 0);
-                    $('#sales_text').text(
-                        total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })
-                    );
+                // console.log(tampunganData);
+                updateTotalSales();
+            });
+            $('#table_tampungan tbody').on('change', '.tampungan-checkbox', function() {
+                const tr = $(this).closest('tr');
+                const row = tableTampungan.row(tr);
+                const rowData = row.data();
+
+                if (!this.checked) {
+                    const index = tampunganData.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
+                    if (index > -1) {
+                        tampunganData.splice(index, 1);
+                    }
+                    tableMain.row.add(rowData).draw();
+                    row.remove().draw();
+                } else {
+                    tampunganData.push(rowData);
+                    tableTampungan.row.add(rowData).draw();
+                    row.remove().draw();
                 }
-                $('#table_list_tr_tagih_sales_DN_d_date tbody').on('change', '.row-checkbox', function () {
-                    const tr = $(this).closest('tr');
-                    const row = tableMain.row(tr);
-                    product = tr.find('td:eq(5)').text();
-                    const rowData = row.data();
-
-                    if (this.checked) {
-                        const modifiedRow = $.extend({}, rowData); // Salin data
-                        modifiedRow.note = '';
-
-                        tampunganData.push(modifiedRow);
-                        tableTampungan.row.add(modifiedRow).draw();
-                        row.remove().draw();
-                    } else {
-                        // Hapus dari tampunganData
-                        const index = tampunganData.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
-                        if (index > -1) {
-                            tampunganData.splice(index, 1);
-                        }
-
-                        // Kembalikan ke tableMain
-                        tableMain.row.add(rowData).draw();
-                        row.remove().draw();
-                    }
-                    // console.log(tampunganData);
-                    updateTotalSales();
-                });
-                $('#table_tampungan tbody').on('change', '.tampungan-checkbox', function () {
-                    const tr = $(this).closest('tr');
-                    const row = tableTampungan.row(tr);
-                    const rowData = row.data();
-
-                    if (!this.checked) {
-                        const index = tampunganData.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
-                        if (index > -1) {
-                            tampunganData.splice(index, 1);
-                        }
-                        tableMain.row.add(rowData).draw();
-                        row.remove().draw();
-                    } else {
-                        tampunganData.push(rowData);
-                        tableTampungan.row.add(rowData).draw();
-                        row.remove().draw();
-                    }
-                    updateTotalSales();
-                });
-                $('#table_tampungan tbody').on('input', '.note-input', function () {
-                    const code = $(this).data('code');
-                    const value = $(this).val();
-                    const item = tampunganData.find(item => String(item.Sales_DN_Code_d) === String(code));
-                    if (item) {
-                        item.note = value;
-                    }
-                });
+                updateTotalSales();
+            });
+            $('#table_tampungan tbody').on('input', '.note-input', function() {
+                const code = $(this).data('code');
+                const value = $(this).val();
+                const item = tampunganData.find(item => String(item.Sales_DN_Code_d) === String(code));
+                if (item) {
+                    item.note = value;
+                }
+            });
             // tabel add
-                function initializeDataTable_add() {
-                    $('#loader_body').show();
-                    if ($.fn.DataTable.isDataTable('#table_add_tagih_sales_dn')) {
-                        $('#table_add_tagih_sales_dn').DataTable().clear().destroy();
-                    }
-                    $('#div_table_add_tagih_sales_dn').show();
-                    add_tableMain = $('#table_add_tagih_sales_dn').DataTable({
-                        serverSide: false,
-                        ajax: {
-                            url: '/dn_tagih/get_table_add_tagih_sales_dn',
-                            type: 'GET',
-                            dataSrc: '',
-                            data: {
-                                dn_code: $('#input_add_search_dn').val(),
-                            }
-                        },
-                        columns: [
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: 'text-center',
-                                render: function(data, type, row, meta) {
-                                    return `<input type="checkbox" class="form-check-input row-checkbox">`;
-                                }
-                            },
-                            // {
-                                //     data: null,
-                                //     render: function(data, type, row, meta) {
-                                    //         return meta.row + 1;
-                                    //     }
-                                    // },
-                                    { data : 'Sales_DN_Code_d' , name : 'Sales_DN_Code_d' },
-                                    { data : 'Sales_DN_date' , name : 'Sales_DN_date' },
-                                    { data : 'Sales_DN_COno' , name : 'Sales_DN_COno' },
-                                    { data : 'Sales_DN_Driver' , name : 'Sales_DN_Driver' },
-                                    { data : 'client_code' , name : 'client_code' },
-                                    { data : 'cab_desc' , name : 'cab_desc' },
-                                    { data : 'sales_dn_productcode' , name : 'sales_dn_productcode' },
-                                    { data : 'Sales_DN_vehicle' , name : 'Sales_DN_vehicle' },
-                                    { data : 'Sales_DN_route_product_client_vehicle' , name : 'Sales_DN_route_product_client_vehicle' },
-                                    {
-                                        data: 'Sales_DN_Productcodeqty',
-                                        name: 'Sales_DN_Productcodeqty',
-                                        render: function(data, type, row, meta) {
-                                            return parseInt(data, 10) || 0;
-                                        }
-                                    },
-                                    {
-                                        data: 'routveh_salesbotol',
-                                name: 'routveh_salesbotol',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'totalsales',
-                                name: 'totalsales',
-                                render: function(data, type, row) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                        ],
-                        // responsive: true,
-                        searching: true,
-                        paging: true,
-                        autoWidth: false,
-                        scrollX: true,
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            [10, 25, 50, 100, "Semua"]
-                        ],
-                        buttons: [{
-                            extend: 'excel',
-                            text: 'Download Excel',
-                        }],
-                        language: {
-                            lengthMenu: "_MENU_",
-                            search: "Pencarian:",
-                            zeroRecords: "Tidak ada data yang ditemukan",
-                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable') ,
-                            processing: false,
-                        },
-                        drawCallback: function(settings) {
-                        },
-                        initComplete: function(settings, json) {
-                            $('#loader_body').hide();
-                            $('#sales_text').text('0,00');
-                        }
-                    });
+            function initializeDataTable_add() {
+                $('#loader_body').show();
+                if ($.fn.DataTable.isDataTable('#table_add_tagih_sales_dn')) {
+                    $('#table_add_tagih_sales_dn').DataTable().clear().destroy();
                 }
-                function initializeDataTable_add_tampungan() {
-                    $('#loader_body').show();
-                    if ($.fn.DataTable.isDataTable('#table_tampungan_add')) {
-                        $('#table_tampungan_add').DataTable().clear().destroy();
-                    }
-                    add_tableTampungan = $('#table_tampungan_add').DataTable({
-                        columns: [
-                            {
-                                data: null,
-                                orderable: false,
-                                searchable: false,
-                                className: 'text-center',
-                                render: function(data, type, row, meta) {
-                                    return `<input type="checkbox" class="form-check-input tampungan-checkbox" checked>`;
-                                }
-                            },
-                            { data: 'Sales_DN_Code_d' },
-                            { data: 'Sales_DN_date' },
-                            { data: 'Sales_DN_COno' },
-                            { data: 'Sales_DN_Driver' },
-                            { data: 'client_code' },
-                            { data: 'cab_desc' },
-                            { data: 'sales_dn_productcode' },
-                            { data: 'Sales_DN_vehicle' },
-                            { data: 'Sales_DN_route_product_client_vehicle' },
-                            {
-                                data: 'Sales_DN_Productcodeqty',
-                                render: function (data) {
-                                    return parseInt(data, 10) || 0;
-                                }
-                            },
-                            {
-                                data: 'routveh_salesbotol',
-                                render: function (data, type) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'totalsales',
-                                render: function (data, type) {
-                                    if (data === null || data === undefined || data === '') {
-                                        return '';
-                                    }
-
-                                    if (type === 'display') {
-                                        return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
-                                            useGrouping: true,
-                                            minimumFractionDigits: 0,
-                                            maximumFractionDigits: 2
-                                        });
-                                    }
-
-                                    return data;
-                                }
-                            },
-                            {
-                                data: 'note',
-                                render: function (data, type, row) {
-                                    return `<input type="text" class="form-control form-control-sm note-input" data-code="${row.Sales_DN_Code_d}" value="${data || ''}" />`;
-                                }
+                $('#div_table_add_tagih_sales_dn').show();
+                add_tableMain = $('#table_add_tagih_sales_dn').DataTable({
+                    serverSide: false,
+                    ajax: {
+                        url: '/dn_tagih/get_table_add_tagih_sales_dn',
+                        type: 'GET',
+                        dataSrc: '',
+                        data: {
+                            dn_code: $('#input_add_search_dn').val(),
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function(data, type, row, meta) {
+                                return `<input type="checkbox" class="form-check-input row-checkbox">`;
                             }
-                        ],
-                        scrollX: true,
-                        lengthMenu: [
-                            [10, 25, 50, 100, -1],
-                            [10, 25, 50, 100, "Semua"]
-                        ],
-                        buttons: [{
-                            extend: 'excel',
-                            text: 'Download Excel',
-                        }],
-                        language: {
-                            lengthMenu: "_MENU_",
-                            search: "Pencarian:",
-                            zeroRecords: "Tidak ada data yang ditemukan",
-                            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            infoEmpty: "Tidak ada data",
-                            infoFiltered: "(disaring dari _MAX_ total entri)", @include('layouts.emptytable')
                         },
+                        // {
+                        //     data: null,
+                        //     render: function(data, type, row, meta) {
+                        //         return meta.row + 1;
+                        //     }
+                        // },
+                        {
+                            data: 'Sales_DN_Code_d',
+                            name: 'Sales_DN_Code_d'
+                        },
+                        {
+                            data: 'Sales_DN_date',
+                            name: 'Sales_DN_date'
+                        },
+                        {
+                            data: 'Sales_DN_COno',
+                            name: 'Sales_DN_COno'
+                        },
+                        {
+                            data: 'Sales_DN_Driver',
+                            name: 'Sales_DN_Driver'
+                        },
+                        {
+                            data: 'client_code',
+                            name: 'client_code'
+                        },
+                        {
+                            data: 'cab_desc',
+                            name: 'cab_desc'
+                        },
+                        {
+                            data: 'sales_dn_productcode',
+                            name: 'sales_dn_productcode'
+                        },
+                        {
+                            data: 'Sales_DN_vehicle',
+                            name: 'Sales_DN_vehicle'
+                        },
+                        {
+                            data: 'Sales_DN_route_product_client_vehicle',
+                            name: 'Sales_DN_route_product_client_vehicle'
+                        },
+                        {
+                            data: 'Sales_DN_Productcodeqty',
+                            name: 'Sales_DN_Productcodeqty',
+                            render: function(data, type, row, meta) {
+                                return parseInt(data, 10) || 0;
+                            }
+                        },
+                        {
+                            data: 'routveh_salesbotol',
+                            name: 'routveh_salesbotol',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'totalsales',
+                            name: 'totalsales',
+                            render: function(data, type, row) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                    ],
+                    // responsive: true,
+                    searching: true,
+                    paging: true,
+                    autoWidth: false,
+                    scrollX: true,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    buttons: [{
+                        extend: 'excel',
+                        text: 'Download Excel',
+                    }],
+                    language: {
+                        lengthMenu: "_MENU_",
+                        search: "Pencarian:",
+                        zeroRecords: "Tidak ada data yang ditemukan",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                        infoEmpty: "Tidak ada data",
+                        infoFiltered: "(disaring dari _MAX_ total entri)",
+                        @include('layouts.emptytable'),
                         processing: false,
-                    });
+                    },
+                    drawCallback: function(settings) {},
+                    initComplete: function(settings, json) {
+                        $('#loader_body').hide();
+                        $('#sales_text').text('0,00');
+                    }
+                });
+            }
+
+            function initializeDataTable_add_tampungan() {
+                $('#loader_body').show();
+                if ($.fn.DataTable.isDataTable('#table_tampungan_add')) {
+                    $('#table_tampungan_add').DataTable().clear().destroy();
                 }
-                $('#table_add_tagih_sales_dn tbody').on('change', '.row-checkbox', function () {
-                    const tr = $(this).closest('tr');
-                    const row = add_tableMain.row(tr);
-                    const rowData = row.data();
+                add_tableTampungan = $('#table_tampungan_add').DataTable({
+                    columns: [{
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            className: 'text-center',
+                            render: function(data, type, row, meta) {
+                                return `<input type="checkbox" class="form-check-input tampungan-checkbox" checked>`;
+                            }
+                        },
+                        {
+                            data: 'Sales_DN_Code_d'
+                        },
+                        {
+                            data: 'Sales_DN_date'
+                        },
+                        {
+                            data: 'Sales_DN_COno'
+                        },
+                        {
+                            data: 'Sales_DN_Driver'
+                        },
+                        {
+                            data: 'client_code'
+                        },
+                        {
+                            data: 'cab_desc'
+                        },
+                        {
+                            data: 'sales_dn_productcode'
+                        },
+                        {
+                            data: 'Sales_DN_vehicle'
+                        },
+                        {
+                            data: 'Sales_DN_route_product_client_vehicle'
+                        },
+                        {
+                            data: 'Sales_DN_Productcodeqty',
+                            render: function(data) {
+                                return parseInt(data, 10) || 0;
+                            }
+                        },
+                        {
+                            data: 'routveh_salesbotol',
+                            render: function(data, type) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
 
-                    if (this.checked) {
-                        const modifiedRow = $.extend({}, rowData); // Salin data
-                        modifiedRow.note = ''; // kosongkan dulu nilai note-nya
+                                if (type === 'display') {
+                                    return parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
 
-                        // Simpan referensi data ke tampunganData
-                        tampunganData_add.push(modifiedRow);
-                        add_tableTampungan.row.add(modifiedRow).draw(); // tambahkan ke tabel tampungan
-                        row.remove().draw();
-                    } else {
-                        // Hapus dari tampunganData
-                        const index = tampunganData_add.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
-                        if (index > -1) {
-                            tampunganData_add.splice(index, 1);
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'totalsales',
+                            render: function(data, type) {
+                                if (data === null || data === undefined || data === '') {
+                                    return '';
+                                }
+
+                                if (type === 'display') {
+                                    return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
+                                        useGrouping: true,
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 2
+                                    });
+                                }
+
+                                return data;
+                            }
+                        },
+                        {
+                            data: 'note',
+                            render: function(data, type, row) {
+                                return `<input type="text" class="form-control form-control-sm note-input" data-code="${row.Sales_DN_Code_d}" value="${data || ''}" />`;
+                            }
                         }
+                    ],
+                    scrollX: true,
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "Semua"]
+                    ],
+                    buttons: [{
+                        extend: 'excel',
+                        text: 'Download Excel',
+                    }],
+                    language: {
+                        lengthMenu: "_MENU_",
+                        search: "Pencarian:",
+                        zeroRecords: "Tidak ada data yang ditemukan",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                        infoEmpty: "Tidak ada data",
+                        infoFiltered: "(disaring dari _MAX_ total entri)",
+                        @include('layouts.emptytable')
+                    },
+                    processing: false,
+                });
+            }
+            $('#table_add_tagih_sales_dn tbody').on('change', '.row-checkbox', function() {
+                const tr = $(this).closest('tr');
+                const row = add_tableMain.row(tr);
+                const rowData = row.data();
 
-                        // Kembalikan ke tableMain
-                        add_tableMain.row.add(rowData).draw();
-                        row.remove().draw();
-                    }
-                    console.log(tampunganData_add);
-                    updateTotalSales();
-                });
-                $('#table_tampungan_add tbody').on('change', '.tampungan-checkbox', function () {
-                    const tr = $(this).closest('tr');
-                    const row = add_tableTampungan.row(tr);
-                    const rowData = row.data();
+                if (this.checked) {
+                    const modifiedRow = $.extend({}, rowData); // Salin data
+                    modifiedRow.note = ''; // kosongkan dulu nilai note-nya
 
-                    if (!this.checked) {
-                        const index = tampunganData_add.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
-                        if (index > -1) {
-                            tampunganData_add.splice(index, 1);
-                        }
-                        add_tableMain.row.add(rowData).draw();
-                        row.remove().draw();
-                    } else {
-                        tampunganData_add.push(rowData);
-                        add_tableTampungan.row.add(rowData).draw();
-                        row.remove().draw();
+                    // Simpan referensi data ke tampunganData
+                    tampunganData_add.push(modifiedRow);
+                    add_tableTampungan.row.add(modifiedRow).draw(); // tambahkan ke tabel tampungan
+                    row.remove().draw();
+                } else {
+                    // Hapus dari tampunganData
+                    const index = tampunganData_add.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
+                    if (index > -1) {
+                        tampunganData_add.splice(index, 1);
                     }
-                    updateTotalSales();
-                });
-                $('#table_tampungan_add tbody').on('input', '.note-input', function () {
-                    const code = $(this).data('code');
-                    const value = $(this).val();
-                    const item = tampunganData_add.find(item => String(item.Sales_DN_Code_d) === String(code));
-                    if (item) {
-                        item.note = value;
+
+                    // Kembalikan ke tableMain
+                    add_tableMain.row.add(rowData).draw();
+                    row.remove().draw();
+                }
+                console.log(tampunganData_add);
+                updateTotalSales();
+            });
+            $('#table_tampungan_add tbody').on('change', '.tampungan-checkbox', function() {
+                const tr = $(this).closest('tr');
+                const row = add_tableTampungan.row(tr);
+                const rowData = row.data();
+
+                if (!this.checked) {
+                    const index = tampunganData_add.findIndex(item => item.Sales_DN_Code_d === rowData.Sales_DN_Code_d);
+                    if (index > -1) {
+                        tampunganData_add.splice(index, 1);
                     }
-                });
-        // fungsi get data untuk dropdown
-        // fprm selsect
+                    add_tableMain.row.add(rowData).draw();
+                    row.remove().draw();
+                } else {
+                    tampunganData_add.push(rowData);
+                    add_tableTampungan.row.add(rowData).draw();
+                    row.remove().draw();
+                }
+                updateTotalSales();
+            });
+            $('#table_tampungan_add tbody').on('input', '.note-input', function() {
+                const code = $(this).data('code');
+                const value = $(this).val();
+                const item = tampunganData_add.find(item => String(item.Sales_DN_Code_d) === String(code));
+                if (item) {
+                    item.note = value;
+                }
+            });
+            // fungsi get data untuk dropdown
+            // fprm selsect
             $('#select_client').select2({
                 theme: 'custom'
             });
@@ -932,7 +1064,7 @@
             $('#select_business').select2({
                 theme: 'custom'
             });
-        // load tanggal
+            // load tanggal
             let today = new Date().toISOString().split('T')[0];
             $('#start_date').val(today);
             $('#end_date').val(today);
@@ -959,7 +1091,7 @@
                         <div class="form-group">
                             <div class="input-group">
                                 <input class="form-control form-control-sm" autocomplete="off" placeholder="Search DN Tagih Code" type="text" id="input_main_code" data-bs-toggle="tooltip" data-bs-placement="top" title="ex : INV-TSD-202505-xxxx">
-                                <span class="input-group-text"  id="btn_search" style="cursor: pointer"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <span class="input-group-text" id="btn_search" style="cursor: pointer"><i class="fa-solid fa-magnifying-glass"></i></span>
                             </div>
                             <small>Please input your dn tagih code here</small>
                             <div class="d-flex justify-content-center align-items-center mt-2">
@@ -1100,7 +1232,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card"  id="div_tabel_tampungan">
+                <div class="card" id="div_tabel_tampungan">
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0" id="table_tampungan">
@@ -1139,51 +1271,37 @@
     <div id="modalButton"></div>
     <div class="modal fade" id="Modal_validate" tabindex="-1" role="dialog" aria-labelledby="exampleModalSignTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
-          <div class="modal-content">
-            <div class="modal-body p-0">
-              <div class="card card-plain">
-                <div class="card-header pb-0 text-left">
-                    <p class="mb-0">Enter your email and password to confirm this transaction</p>
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card card-plain">
+                        <div class="card-header pb-0 text-left">
+                            <p class="mb-0">Enter your email and password to confirm this transaction</p>
+                        </div>
+                        <div class="card-body pb-3">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Email/Username" aria-label="Email/Username" data-bs-toggle="tooltip" data-bs-placement="left" title="Email or Username" aria-describedby="email-addon">
+                            </div>
+                            <div class="input-group mb-3">
+                                <input type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" data-bs-toggle="tooltip" data-bs-placement="left" title="Password">
+                            </div>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <div class="loader" style="display: none" id="loader_user_confirm"></div>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn bg-gradient-success btn-lg btn-rounded w-100 mt-4 mb-0" id="confirm_login">Confirm</button>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn bg-gradient-danger btn-lg btn-rounded w-100 mt-4 mb-0" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                        <div class="card-footer text-center pt-0 px-sm-4 px-1">
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body pb-3">
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Email/Username" aria-label="Email/Username" data-bs-toggle="tooltip" data-bs-placement="left" title="Email or Username" aria-describedby="email-addon">
-                    </div>
-                    <div class="input-group mb-3">
-                        <input type="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" data-bs-toggle="tooltip" data-bs-placement="left" title="Password">
-                    </div>
-                    <div class="d-flex justify-content-center align-items-center">
-                        <div class="loader" style="display: none" id="loader_user_confirm"></div>
-                    </div>
-                    <div class="text-center">
-                        <button type="button" class="btn bg-gradient-success btn-lg btn-rounded w-100 mt-4 mb-0" id="confirm_login">Confirm</button>
-                    </div>
-                    <div class="text-center">
-                        <button type="button" class="btn bg-gradient-danger btn-lg btn-rounded w-100 mt-4 mb-0" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </div>
-                <div class="card-footer text-center pt-0 px-sm-4 px-1">
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-  <style>
-        .loader {
-            width: 120px;
-            height: 20px;
-            border-radius: 20px;
-            background:
-            radial-gradient(farthest-side,orange 94%,#0000) left/20px 20px no-repeat
-            lightblue;
-            animation: l2 1s infinite linear;
-        }
-        @keyframes l2 {
-            50% {background-position:right }
-        }
-  </style>
+    </div>
+    </div>
 @endsection
 @include('harus_ada')

@@ -12,6 +12,7 @@ class AuthController extends Controller
     {
         $login = $request->input('email');
         $password = $request->input('password');
+        // dd('');
 
         // Cek login pakai email atau username
         $fieldType = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';

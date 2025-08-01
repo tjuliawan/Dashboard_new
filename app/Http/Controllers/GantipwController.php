@@ -90,33 +90,33 @@ class GantipwController extends Controller
                     $userAgentString = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
     
                     // Pastikan Parser class tersedia
-                    if (!class_exists(\UAParser\Parser::class)) {
-                        throw new \Exception('Parser class not found. Make sure ua-parser is installed.');
-                    }
+                    // if (!class_exists(\UAParser\Parser::class)) {
+                    //     throw new \Exception('Parser class not found. Make sure ua-parser is installed.');
+                    // }
     
-                    $parser = \UAParser\Parser::create();
-                    $result = $parser->parse($userAgentString);
+                    // $parser = \UAParser\Parser::create();
+                    // $result = $parser->parse($userAgentString);
     
-                    $deviceInfo = [
-                        'userAgent' => $userAgentString,
-                        'platform' => $this->getPlatform($result),
-                        'browser' => $this->getBrowser($result),
-                        'deviceType' => $this->getDeviceType($result),
-                        'model' => $this->getDeviceModel($result),
-                        'isBot' => $result->device->isBot ?? false,
-                        'language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'Unknown',
-                        'cookieEnabled' => isset($_COOKIE) ? 'Yes' : 'No',
-                        'online' => $this->isOnline(),
-                        'ipAddress' => $this->getClientIP()
-                    ];
+                    // $deviceInfo = [
+                    //     'userAgent' => $userAgentString,
+                    //     'platform' => $this->getPlatform($result),
+                    //     'browser' => $this->getBrowser($result),
+                    //     'deviceType' => $this->getDeviceType($result),
+                    //     'model' => $this->getDeviceModel($result),
+                    //     'isBot' => $result->device->isBot ?? false,
+                    //     'language' => $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'Unknown',
+                    //     'cookieEnabled' => isset($_COOKIE) ? 'Yes' : 'No',
+                    //     'online' => $this->isOnline(),
+                    //     'ipAddress' => $this->getClientIP()
+                    // ];
     
-                    $details = [
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'tanggal' => $tanggal,
-                        'ip' => $ip,
-                        'deviceInfo' => $deviceInfo
-                    ];
+                    // $details = [
+                    //     'name' => $user->name,
+                    //     'email' => $user->email,
+                    //     'tanggal' => $tanggal,
+                    //     'ip' => $ip,
+                    //     'deviceInfo' => $deviceInfo
+                    // ];
                     
                     // Mail::send('emails.mailresetpassword', ['details' => $details], function ($message) use ($user) {
                     //     $message->to($user->email)
@@ -145,7 +145,6 @@ class GantipwController extends Controller
         }
     }
     
-
     private function getPlatform($result)
     {
         return $result->device->family ?? 'Unknown';

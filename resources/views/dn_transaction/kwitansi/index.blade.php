@@ -191,9 +191,15 @@
                         url_code = response.salesdntagih_code_h;
                         code_head = response.salesdntagih_code_h;
                         product = response.salesdntagih_product_code;
+
+                        if(response.salesdntagih_client_code === 'SHN'){
+                            client_text = 'PT Sarihusada Generasi Mahardhika';
+                        }else{
+                            client_text = response.clien_desc;
+                        }
                         let total = parseFloat(response.total);
                         $('#dn_tagih_code').text(response.salesdntagih_code_h);
-                        $('#client_code').text(response.clien_desc);
+                        $('#client_code').text(client_text);
                         $('#loader_search').hide();
                         $('#card_main').show();
                         let dalamHuruf = terbilang(total).trim() + " Rupiah";

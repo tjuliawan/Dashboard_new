@@ -12,7 +12,9 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        //  '/dn-tagih/store'
-        '/cek-session',
+        // '/dn-tagih/store',
+        // '/cek-session',  
+        // '/check-login',
+        // '/dn-tagih/update/details-data'
     ];
 }

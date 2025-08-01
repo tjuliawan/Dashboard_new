@@ -1,5 +1,5 @@
 @extends('layouts.user_type.auth')
-@section('title', 'DN System - Kwitansi')
+@section('title', 'DN System - Kwitansi Japfa')
 @section('css')
     <style>
         #table_info .note-col,
@@ -846,6 +846,10 @@
                             data: 'qty',
                             name: 'qty'
                         },
+                        {
+                            data: 'SO_Date',
+                            name: 'SO_Date'
+                        },
                         // {
                         //     data: 'value_tagihan_dn',
                         //     name: 'value_tagihan_dn',
@@ -1282,17 +1286,20 @@
                             <th>Sale Order</th>
                             <th>Total Signed</th>
                             <th>Product </th>
-                            <th>Qty </th>
+                            <th>Qty</th>
+                            <th>SO Date</th>
                         </thead>
                         <tbody></tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="7" class="text-end">Total:</th>
                                 <th id="totalqtycur"></th>
+                                <th colspan="1" class="text-end"></th>
                             </tr>
                             <tr>
                                 <th colspan="7" class="text-end">Grand Total:</th>
                                 <th id="totalqty"></th>
+                                <th colspan="1" class="text-end"></th>
                             </tr>
                         </tfoot>
                     </table>
