@@ -2574,6 +2574,7 @@ class DN_Controller extends Controller
             $total_tagihan_sales_header += $row->total_price_value;
             $total_qty += $row->salesdntagih_qty;
         }
+        // dd($total_tagihan_sales_header);
         $total_tagihan_sales = 'Rp ' . number_format($total_tagihan_sales, 3, ',', '.');
         // dd('');
         $total_tagihan_sales_header = 'Rp ' . number_format($total_tagihan_sales_header, 0, ',', '.');

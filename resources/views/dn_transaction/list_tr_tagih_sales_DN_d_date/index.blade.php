@@ -408,7 +408,7 @@
                                     return 'Rp ' + parseFloat(data).toLocaleString('id-ID', {
                                         useGrouping: true,
                                         minimumFractionDigits: 0,
-                                        maximumFractionDigits: 2
+                                        maximumFractionDigits: 3
                                     });
                                 }
 
