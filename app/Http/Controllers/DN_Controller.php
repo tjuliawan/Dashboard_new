@@ -647,8 +647,10 @@ class DN_Controller extends Controller
                     LEFT JOIN (select distinct sale_order, partner_name, number from tgu_tr_invoice_import_for_japfa) imp on imp.sale_order = himp.invoice_number
                 WHERE
                     himp.client = 'Japfa'
-                    AND DATEPART(YEAR, SO_Date) = '$tahun'
-                    AND DATEPART(month, SO_Date) = '$bulan'
+                    AND DATEPART(YEAR, Dptch_Est_Delivery_date) = '$tahun'
+                    AND DATEPART(month, Dptch_Est_Delivery_date) = '07'
+                    -- AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
+                    -- AND DATEPART(month, himp.invoice_date) = '$bulan'
             ),
 
             operasi AS (
@@ -671,7 +673,7 @@ class DN_Controller extends Controller
                 wilayah,
                 berat,
                 CASE
-                    WHEN wilayah = 'TNG' AND berat < 250000 THEN 105000000
+                    WHEN wilayah = 'TNG' AND berat < 250000 THEN 105500000
                     WHEN wilayah = 'TNG' AND berat >= 400000 THEN berat * 350
                     WHEN wilayah = 'TNG' AND berat >= 350000 THEN berat * 367
                     WHEN wilayah = 'TNG' AND berat >= 300000 THEN berat * 406
@@ -4315,8 +4317,10 @@ class DN_Controller extends Controller
                     LEFT JOIN (select distinct sale_order, partner_name, number from tgu_tr_invoice_import_for_japfa) imp on imp.sale_order = himp.invoice_number
                 WHERE
                     himp.client = 'Japfa'
-                    AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
-                    AND DATEPART(month, himp.invoice_date) = '$bulan'
+                    AND DATEPART(YEAR, Dptch_Est_Delivery_date) = '$tahun'
+                    AND DATEPART(month, Dptch_Est_Delivery_date) = '07'
+                    -- AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
+                    -- AND DATEPART(month, himp.invoice_date) = '$bulan'
             )
             SELECT
                 invoice_number2 invimp_code,
