@@ -647,10 +647,11 @@ class DN_Controller extends Controller
                     LEFT JOIN (select distinct sale_order, partner_name, number from tgu_tr_invoice_import_for_japfa) imp on imp.sale_order = himp.invoice_number
                 WHERE
                     himp.client = 'Japfa'
-                    AND DATEPART(YEAR, Dptch_Est_Delivery_date) = '$tahun'
-                    AND DATEPART(month, Dptch_Est_Delivery_date) = '07'
-                    -- AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
-                    -- AND DATEPART(month, himp.invoice_date) = '$bulan'
+                    -- and Dpch_status = 'delivered'
+                    -- AND DATEPART(YEAR, Dptch_Est_Delivery_date) = '$tahun'
+                    -- AND DATEPART(month, Dptch_Est_Delivery_date) = '07'
+                    AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
+                    AND DATEPART(month, himp.invoice_date) = '$bulan'
             ),
 
             operasi AS (
@@ -2767,7 +2768,7 @@ class DN_Controller extends Controller
                     <tr>
                         <td colspan="4" style="text-align: center; font-size: 9px;">Total</td>
                         <td style="text-align: center; font-size: 9px;">' . $rotal_rit . '</td>
-                        <td colspan="5" style="text-align: right; font-size: 9px;">' . $total_tagihan_sales . '</td>
+                        <td colspan="5" style="text-align: right; font-size: 9px;">' . $total_tagihan_sales_header . '</td>
                         <td colspan="2" style="text-align: right; font-size: 9px;">' . $total_qty . '</td>
                         <td colspan="5" style="text-align: center; font-size: 9px;"></td>
                     </tr>
@@ -4317,10 +4318,11 @@ class DN_Controller extends Controller
                     LEFT JOIN (select distinct sale_order, partner_name, number from tgu_tr_invoice_import_for_japfa) imp on imp.sale_order = himp.invoice_number
                 WHERE
                     himp.client = 'Japfa'
-                    AND DATEPART(YEAR, Dptch_Est_Delivery_date) = '$tahun'
-                    AND DATEPART(month, Dptch_Est_Delivery_date) = '07'
-                    -- AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
-                    -- AND DATEPART(month, himp.invoice_date) = '$bulan'
+                    -- and Dpch_status = 'delivered'
+                    -- AND DATEPART(YEAR, Dptch_Est_Delivery_date) = '$tahun'
+                    -- AND DATEPART(month, Dptch_Est_Delivery_date) = '07'
+                    AND DATEPART(YEAR, himp.invoice_date) = '$tahun'
+                    AND DATEPART(month, himp.invoice_date) = '$bulan'
             )
             SELECT
                 invoice_number2 invimp_code,
