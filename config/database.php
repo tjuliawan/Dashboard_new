@@ -112,7 +112,8 @@ return [
        'ms_sql_hgs' => [
             'driver' => env('DB_ms_sql_hgs_CONNECTION', 'sqlsrv'),
             'host' => env('DB_ms_sql_hgs_HOST', 'rcm.hgs.co.id'),
-            'port' => env('DB_ms_sql_hgs_PORT', '57403'),
+            // 'port' => env('DB_ms_sql_hgs_PORT', '57403'),
+            'port' => env('DB_ms_sql_hgs_PORT', '57257'),
             'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_HGS'),
             // 'database' => env('DB_ms_sql_hgs_DATABASE', 'RCM_DUMMY_HGS_2505'),
             'username' => env('DB_ms_sql_hgs_USERNAME', 'WEB_SRVWO_HGS'),
