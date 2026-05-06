@@ -129,6 +129,42 @@ return [
             ],
         ],
 
+        'rcm_hgs' => [
+            'driver' => env('DB_rcm_hgs_CONNECTION', 'sqlsrv'),
+            'host' => env('DB_rcm_hgs_HOST', 'rcm.hgs.co.id'),
+            'port' => env('DB_rcm_hgs_PORT', '57257'),
+            'database' => env('DB_rcm_hgs_DATABASE', 'RCM_HGS'),
+            'username' => env('DB_rcm_hgs_USERNAME', 'tegar_dev_hgs'),
+            'password' => env('DB_rcm_hgs_PASSWORD', 'sql@PfindS3rv3r2026!'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => true,
+            'options' => [
+                'TrustServerCertificate' => true,
+                'ConnectionTimeout' => 0,
+                'QueryTimeout' => 0, // tidak akan menghentikan eksekusi query
+            ],
+        ],
+
+        'rcm_hgs_dummy' => [
+            'driver' => env('DB_rcm_hgs_dummy_CONNECTION', 'sqlsrv'),
+            'host' => env('DB_rcm_hgs_dummy_HOST', 'rcm.hgs.co.id'),
+            'port' => env('DB_rcm_hgs_dummy_PORT', '57257'),
+            'database' => env('DB_rcm_hgs_dummy_DATABASE', 'RCM_HGS_DUMMY'),
+            'username' => env('DB_rcm_hgs_dummy_USERNAME', 'tegar_dev_hgs'),
+            'password' => env('DB_rcm_hgs_dummy_PASSWORD', 'sql@PfindS3rv3r2026!'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => true,
+            'options' => [
+                'TrustServerCertificate' => true,
+                'ConnectionTimeout' => 0,
+                'QueryTimeout' => 0, // tidak akan menghentikan eksekusi query
+            ],
+        ],
+
     ],
 
     /*

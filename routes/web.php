@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DN_Controller;
 use App\Http\Controllers\DN_payment_Controller;
 use App\Http\Controllers\DN_report_Controller;
+use App\Http\Controllers\PodDetController;
+use App\Http\Controllers\PodSummController;
+use App\Http\Controllers\LastMileController;
+use App\Http\Controllers\DispatchTrackController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +79,23 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/login', function () {
 		return view('dashboard');
 	})->name('sign-up');
+
+    // POD (Proof of Delivery) — read-only report
+    Route::prefix('pod')->name('pod.')->group(function () {
+        Route::get('/summary',          [PodSummController::class, 'index'])->name('summary.index');
+        Route::get('/detail',           [PodDetController::class,  'index'])->name('detail.index');
+        Route::get('/detail/calculate', [PodDetController::class,  'calculate'])->name('detail.calculate');
+        Route::get('/detail/export',    [PodDetController::class,  'export'])->name('detail.export');
+    });
+
+    // Last Mile
+    Route::get('/lastmile', [LastMileController::class, 'index'])->name('lastmile.index');
+    Route::get('/lastmile/invoices', [LastMileController::class, 'invoices'])->name('lastmile.invoices');
+    Route::get('/lastmile/cancel-detail', [LastMileController::class, 'cancelDetail'])->name('lastmile.cancel-detail');
+
+    // Dispatch Track
+    Route::get('/dispatch-track', [DispatchTrackController::class, 'index'])->name('dispatch-track.index');
+    Route::get('/dispatch-track/detail', [DispatchTrackController::class, 'detail'])->name('dispatch-track.detail');
 });
 
 Route::get('/Employee-management', [userController::class, 'index'])->name('Employee-management')->middleware('auth');

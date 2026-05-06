@@ -13,6 +13,15 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * The database connection that should be used by the model.
+     *
+     * Login uses the `users` table from the RCM_HGS_DUMMY database.
+     *
+     * @var string
+     */
+    protected $connection = 'rcm_hgs_dummy';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var string[]

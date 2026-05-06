@@ -5,6 +5,32 @@
         "url": "/dashboard"
     },
     {
+        "title": "Report",
+        "type": "section"
+    },
+    {
+        "title": "Last Mile",
+        "icon": "fas fa-truck",
+        "submenu": [
+            {
+                "title": "POD Summary",
+                "url": "/pod/summary"
+            },
+            {
+                "title": "POD Detail",
+                "url": "/pod/detail"
+            },
+            {
+                "title": "Last Mile",
+                "url": "/lastmile"
+            },
+            {
+                "title": "Dispatch Track",
+                "url": "/dispatch-track"
+            }
+        ]
+    },
+    {
         "title": "Tagih",
         "type": "section"
     },

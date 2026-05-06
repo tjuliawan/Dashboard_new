@@ -30,8 +30,8 @@
       <x-demo-metas></x-demo-metas>
   @endif
 
-  <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-  <link rel="icon" type="image/png" href="../assets/img/favicon.ico">
+  <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('assets/dashboard.png') }}">
+  <link rel="icon" type="image/png" href="{{ asset('assets/dashboard.png') }}">
   <title>
     @yield('title', 'Default Title')
   </title>
