@@ -219,10 +219,24 @@
         <div class="dt-left-col">
         <div class="dt-card">
             <div class="dt-card-head">
-                <span>Dispatch List <span style="font-weight:500;color:#9ca3af;font-size:.78rem;">• {{ \Carbon\Carbon::parse($today)->format('d M Y') }}</span></span>
-                <span style="font-weight:500;font-size:.75rem;color:#9ca3af;">{{ count($dispatches) }} entri</span>
+                <span>Dispatch List <span style="font-weight:500;color:#9ca3af;font-size:.78rem;">• Status Open</span></span>
+                <span style="font-weight:500;font-size:.75rem;color:#9ca3af;" id="dt-count-label">{{ count($dispatches) }} entri</span>
             </div>
-            <div style="padding:10px 14px;border-bottom:1px solid #eef0f3;">
+            <div style="padding:10px 14px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:8px;">
+                <select id="dt-date-filter" class="dt-search" data-default="{{ $today }}">
+                    <option value="">Semua Tanggal</option>
+                    @php $hasToday = $dispatchesGrouped->has($today); @endphp
+                    @if (!$hasToday)
+                        <option value="{{ $today }}" selected>
+                            {{ \Carbon\Carbon::parse($today)->format('d M Y') }} (0)
+                        </option>
+                    @endif
+                    @foreach ($dispatchesGrouped as $dateKey => $items)
+                        <option value="{{ $dateKey }}" {{ $dateKey === $today ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::parse($dateKey)->format('d M Y') }} ({{ count($items) }})
+                        </option>
+                    @endforeach
+                </select>
                 <input type="text" id="dt-search" class="dt-search" placeholder="Cari dispatch / driver...">
             </div>
             <div class="dt-list">
@@ -236,30 +250,53 @@
                     </thead>
                     <tbody>
                         @forelse ($dispatches as $d)
+                            @php $dateKey = \Carbon\Carbon::parse($d->dispatch_date)->format('Y-m-d'); @endphp
                             <tr class="dt-row"
                                 data-code="{{ $d->dispatch_code }}"
                                 data-driver="{{ $d->driver_name }}"
                                 data-vhcl="{{ $d->vhcl_code }}"
+                                data-date="{{ $dateKey }}"
                                 onclick="dtSelect(this)">
                                 <td class="dt-code">{{ $d->vhcl_code ?: '-' }}</td>
                                 <td class="dt-code">{{ $d->dispatch_code }}</td>
                                 <td class="dt-driver">{{ $d->driver_name }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada data.</td></tr>
+                            <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada dispatch dengan status Open.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
 
-        {{-- Penggunaan Handheld (placeholder) --}}
         <div class="dt-card" style="margin-top:16px;">
             <div class="dt-card-head">
                 <span><i class="fas fa-mobile-screen-button" style="margin-right:8px;color:#2563eb;"></i>Penggunaan Handheld</span>
+                <span style="font-weight:500;font-size:.75rem;color:#9ca3af;">Hari Ini</span>
             </div>
-            <div style="padding:18px 22px;color:#9ca3af;font-size:.85rem;">
-                Belum ada data penggunaan handheld.
+            <div style="overflow:auto;">
+                <table class="dt-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Driver</th>
+                            <th style="text-align:right;">Scan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($handheld ?? [] as $h)
+                            <tr>
+                                <td class="dt-driver">{{ $h->driver_name }}</td>
+                                <td class="dt-code" style="text-align:right;">{{ (int) $h->scan_count }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2" style="text-align:center;color:#9ca3af;padding:18px;font-size:.82rem;">
+                                    Tidak ada data scan hari ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
         </div>
@@ -357,7 +394,7 @@ function dtSelect(rowEl) {
                          +     '<span class="dt-tl-so">' + (r.dpcth_so ?? '-') + '</span>'
                          +     '<span class="dt-status-badge dt-status-' + cls + '"><i class="fas fa-circle"></i>' + ((r.dpch_status ?? '') || '-') + '</span>'
                          +   '</div>'
-                         +   '<div class="dt-tl-time"><i class="far fa-clock"></i>' + dtFmtDate(r.rec_dateupdate) + '</div>'
+                         +   '<div class="dt-tl-time"><i class="far fa-clock"></i>Delivered: ' + (r.delivered_time ? dtFmtDate(r.delivered_time) : '-') + '</div>'
                          + '</div>';
                 }).join('')
               + '</div>';
@@ -371,14 +408,27 @@ function dtSelect(rowEl) {
 
 (function(){
     const input = document.getElementById('dt-search');
-    if (!input) return;
-    input.addEventListener('input', function(){
-        const q = this.value.toLowerCase().trim();
+    const dateSel = document.getElementById('dt-date-filter');
+    const countLabel = document.getElementById('dt-count-label');
+
+    function applyFilter() {
+        const q = (input?.value || '').toLowerCase().trim();
+        const d = dateSel?.value || '';
+        let visible = 0;
         document.querySelectorAll('#dt-table tbody tr.dt-row').forEach(function(tr){
             const text = tr.innerText.toLowerCase();
-            tr.style.display = text.indexOf(q) >= 0 ? '' : 'none';
+            const matchText = !q || text.indexOf(q) >= 0;
+            const matchDate = !d || tr.dataset.date === d;
+            const show = matchText && matchDate;
+            tr.style.display = show ? '' : 'none';
+            if (show) visible++;
         });
-    });
+        if (countLabel) countLabel.textContent = visible + ' entri';
+    }
+
+    if (input)   input.addEventListener('input', applyFilter);
+    if (dateSel) dateSel.addEventListener('change', applyFilter);
+    applyFilter();
 })();
 </script>
 @endsection

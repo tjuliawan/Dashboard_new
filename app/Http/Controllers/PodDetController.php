@@ -57,6 +57,16 @@ class PodDetController extends Controller
                     FROM TGU_dispatch_main
                     GROUP BY Dpcth_code_h
                 ) m ON h.Dpcth_code_h = m.Dpcth_code_h
+                LEFT JOIN (
+                    SELECT
+                        Dpcth_code_h,
+                        COUNT(DISTINCT dpcth_SO) AS so_count,
+                        COUNT(DISTINCT CASE
+                            WHEN UPPER(LTRIM(RTRIM(dpch_status))) = '."'DELIVERED'".'
+                            THEN dpcth_SO END) AS so_delivered
+                    FROM TGU_dispatch_h
+                    GROUP BY Dpcth_code_h
+                ) ms ON ms.Dpcth_code_h = h.Dpcth_code_h
                 OUTER APPLY (
                     SELECT TOP 1 dptch_SO
                     FROM TGU_dispatch_d d2
@@ -131,8 +141,8 @@ class PodDetController extends Controller
                         DB::raw('d.dptch_SO                     as dptch_SO'),
                         DB::raw('h.dpch_type                    as dpch_type'),
                         DB::raw('h.dpch_status                  as dpch_status'),
-                        DB::raw('m.dpch_dispach_inv_total       as dpch_dispach_inv_total'),
-                        DB::raw('m.dpch_dispach_inv_cash        as dpch_dispach_inv_cash'),
+                        DB::raw('ISNULL(ms.so_count, 0)         as dpch_dispach_inv_total'),
+                        DB::raw('ISNULL(ms.so_delivered, 0)     as dpch_dispach_inv_cash'),
                         DB::raw('m.dpch_dispach_inv_cancel      as dpch_dispach_inv_cancel'),
                         DB::raw('m.dpch_dispach_inv_reschedule  as dpch_dispach_inv_reschedule'),
                         DB::raw('h.dpch_resaon                  as dpch_resaon'),

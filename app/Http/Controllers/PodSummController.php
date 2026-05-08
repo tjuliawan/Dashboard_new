@@ -48,13 +48,16 @@ class PodSummController extends Controller
 
         // ===== Chart 1: Total Invoice — COUNT row dari TGU_dispatch_h per status =====
         // Kolom dpch_status berisi: "Open", "Delivered", "Cancel".
-        // TOTAL = jumlah seluruh row di TGU_dispatch_h dalam range tanggal.
+        // TOTAL = jumlah dispatch UNIK (Dpcth_code_h) di TGU_dispatch_h dalam range tanggal.
         $invNormExpr = "LOWER(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(COALESCE(h.dpch_status, ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), ''))))";
 
         $invRows = DB::connection('rcm_hgs')
             ->table('TGU_dispatch_h as h')
-            ->whereBetween('h.Dptch_date', [$dateFrom, $dateTo])
-            ->selectRaw("$invNormExpr as status, COUNT(*) as c")
+            ->whereRaw('CAST(h.Dptch_date AS DATE) BETWEEN ? AND ?', [
+                $dateFrom->format('Y-m-d'),
+                $dateTo->format('Y-m-d'),
+            ])
+            ->selectRaw("$invNormExpr as status, COUNT(DISTINCT h.Dpcth_code_h) as c")
             ->groupBy(DB::raw($invNormExpr))
             ->get();
 
@@ -71,12 +74,20 @@ class PodSummController extends Controller
 
         $invCounts = ['open' => 0, 'delivered' => 0, 'cancel' => 0, 'total' => 0];
         foreach ($invRows as $r) {
-            $invCounts['total'] += (int) $r->c; // Total = semua row apa pun statusnya
             $bucket = $invAliasMap[$r->status] ?? null;
             if ($bucket !== null && isset($invCounts[$bucket])) {
                 $invCounts[$bucket] += (int) $r->c;
             }
         }
+        // Total dispatch UNIK dalam range (tanpa di-double-count antar status).
+        $invCounts['total'] = (int) DB::connection('rcm_hgs')
+            ->table('TGU_dispatch_h as h')
+            ->whereRaw('CAST(h.Dptch_date AS DATE) BETWEEN ? AND ?', [
+                $dateFrom->format('Y-m-d'),
+                $dateTo->format('Y-m-d'),
+            ])
+            ->distinct()
+            ->count('h.Dpcth_code_h');
 
         $summary = [
             'total_dispatch' => $invCounts['total'],
@@ -87,17 +98,22 @@ class PodSummController extends Controller
         ];
 
         // ===== Status counts =====
-        // Hitung jumlah row di TGU_dispatch_main per status (open/close/planning/...)
-        // berdasarkan tanggal di m.dptch_date. dpch_status & dptch_date sama-sama
-        // ada di TGU_dispatch_main, jadi tidak perlu join ke header.
-        // Normalisasi: trim spasi/tab/CR/LF lalu lowercase.
+        // Hitung dispatch UNIK (Dpcth_code_h) per status di TGU_dispatch_main.
+        // Kolom: m.dptch_date (tanggal), m.Dpcth_code_h (code), m.dpch_status (status).
+        // Satu dispatch bisa punya banyak baris dengan status berbeda — dipetakan ke
+        // SATU bucket dengan prioritas: open > planning > reschedule > delivered > close > cancel.
+        // Range memakai CAST(... AS DATE) BETWEEN supaya "Hari Ini" tidak miss.
         $normExpr = "LOWER(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(COALESCE(m.dpch_status, ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), ''))))";
 
-        $statusRows = DB::connection('rcm_hgs')
+        $rawStatusRows = DB::connection('rcm_hgs')
             ->table('TGU_dispatch_main as m')
-            ->whereBetween('m.dptch_date', [$dateFromS, $dateToS])
-            ->selectRaw("$normExpr as status, COUNT(*) as c")
-            ->groupBy(DB::raw($normExpr))
+            ->whereRaw('CAST(m.dptch_date AS DATE) BETWEEN ? AND ?', [
+                $dateFromS->format('Y-m-d'),
+                $dateToS->format('Y-m-d'),
+            ])
+            ->select('m.Dpcth_code_h')
+            ->selectRaw("$normExpr as status")
+            ->distinct()
             ->get();
 
         $statusMap = [
@@ -148,21 +164,44 @@ class PodSummController extends Controller
             'reschedulle' => 'reschedule',
         ];
 
-        foreach ($statusRows as $r) {
-            $key = $aliasMap[$r->status] ?? null;
-            if ($key !== null && isset($statusMap[$key])) {
-                $statusMap[$key] += (int) $r->c;
+        // Prioritas penentuan bucket per dispatch unik.
+        $priority = [
+            'open'       => 1,
+            'planning'   => 2,
+            'reschedule' => 3,
+            'delivered'  => 4,
+            'close'      => 5,
+            'cancel'     => 6,
+        ];
+
+        $bucketPerDispatch = []; // Dpcth_code_h => bucket
+        foreach ($rawStatusRows as $r) {
+            $code = $r->Dpcth_code_h;
+            if ($code === null || $code === '') {
+                continue;
+            }
+            $bucket = $aliasMap[$r->status] ?? null;
+            if ($bucket === null) {
+                continue;
+            }
+            $cur = $bucketPerDispatch[$code] ?? null;
+            if ($cur === null || ($priority[$bucket] ?? 99) < ($priority[$cur] ?? 99)) {
+                $bucketPerDispatch[$code] = $bucket;
+            }
+        }
+
+        foreach ($bucketPerDispatch as $bucket) {
+            if (isset($statusMap[$bucket])) {
+                $statusMap[$bucket]++;
             }
         }
         $statusMap['total'] = array_sum($statusMap);
 
-        // ===== Chart 2: Total Dispatch per tanggal — pengiriman SELESAI saja =====
-        // Dari TGU_dispatch_main, COUNT(DISTINCT Dpcth_code_h) supaya 1 dispatch
-        // dihitung 1× walau header punya banyak invoice.
+        // ===== Chart 2: COUNT(Dpcth_code_h) per tanggal — langsung dari TGU_dispatch_main =====
         $perDay = DB::connection('rcm_hgs')
             ->table('TGU_dispatch_main as m')
             ->whereBetween('m.dptch_date', [$dateFrom2, $dateTo2])
-            ->selectRaw('CAST(m.dptch_date AS DATE) as d, COUNT(DISTINCT m.Dpcth_code_h) as c')
+            ->selectRaw('CAST(m.dptch_date AS DATE) as d, COUNT(m.Dpcth_code_h) as c')
             ->groupBy(DB::raw('CAST(m.dptch_date AS DATE)'))
             ->orderBy('d')
             ->get();

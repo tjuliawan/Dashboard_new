@@ -11,30 +11,61 @@ class DispatchTrackController extends Controller
     {
         $today = now()->format('Y-m-d');
 
+        // Semua dispatch yang BELUM SELESAI (masih ada baris dpch_status = 'Open').
+        // Sumber: TGU_dispatch_main (kolom: dptch_date, Dpcth_code_h, Dpcth_drv_code).
+        // Di-group per tanggal di sisi view.
         $dispatches = DB::connection('rcm_hgs')
-            ->table('TGU_dispatch_h as h')
-            ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'h.Dpcth_drv_code')
+            ->table('TGU_dispatch_main as m')
+            ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'm.Dpcth_drv_code')
             ->select([
-                'h.Dpcth_code_h as dispatch_code',
-                'h.Dptch_date   as dispatch_date',
-                'h.Dpcth_drv_code as driver_code',
-                'h.Dpcth_vhcl_code as vhcl_code',
-                DB::raw("ISNULL(NULLIF(LTRIM(RTRIM(drv.Drv_FistName)),''), h.Dpcth_drv_code) as driver_name"),
+                'm.Dpcth_code_h as dispatch_code',
+                DB::raw('CAST(m.dptch_date AS DATE) as dispatch_date'),
+                'm.Dpcth_drv_code as driver_code',
+                'm.Dpcth_vhcl_code as vhcl_code',
+                DB::raw("ISNULL(NULLIF(LTRIM(RTRIM(drv.Drv_FistName)),''), m.Dpcth_drv_code) as driver_name"),
             ])
-            ->whereNotNull('h.Dpcth_code_h')
-            ->where('h.Dpcth_code_h', '<>', '')
-            ->whereRaw('CAST(h.Dptch_date AS DATE) = ?', [$today])
+            ->whereNotNull('m.Dpcth_code_h')
+            ->where('m.Dpcth_code_h', '<>', '')
+            ->where('m.dpch_status', 'Open')
             ->groupBy(
-                'h.Dpcth_code_h',
-                'h.Dptch_date',
-                'h.Dpcth_drv_code',
-                'h.Dpcth_vhcl_code',
+                'm.Dpcth_code_h',
+                DB::raw('CAST(m.dptch_date AS DATE)'),
+                'm.Dpcth_drv_code',
+                'm.Dpcth_vhcl_code',
                 'drv.Drv_FistName'
             )
-            ->orderBy('h.Dpcth_code_h')
+            ->orderByRaw('CAST(m.dptch_date AS DATE) DESC')
+            ->orderBy('m.Dpcth_code_h')
             ->get();
 
-        return view('otherreport.dispatch_track', compact('dispatches', 'today'));
+        // Group berdasarkan tanggal (Y-m-d) — terbaru dulu.
+        $grouped = $dispatches->groupBy(function ($row) {
+            return \Carbon\Carbon::parse($row->dispatch_date)->format('Y-m-d');
+        });
+
+        // Penggunaan Handheld — sumber: TGU_dispatch_main (hari ini).
+        // driver: m.Dpcth_drv_code, scan: m.dpch_pod_android.
+        $handheld = DB::connection('rcm_hgs')
+            ->table('TGU_dispatch_main as m')
+            ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'm.Dpcth_drv_code')
+            ->whereRaw('CAST(m.dptch_date AS DATE) = ?', [$today])
+            ->whereNotNull('m.Dpcth_drv_code')
+            ->where('m.Dpcth_drv_code', '<>', '')
+            ->select([
+                'm.Dpcth_drv_code as driver_code',
+                DB::raw("ISNULL(NULLIF(LTRIM(RTRIM(drv.Drv_FistName)),''), m.Dpcth_drv_code) as driver_name"),
+                DB::raw('SUM(CASE WHEN m.dpch_pod_android IS NULL OR LTRIM(RTRIM(CAST(m.dpch_pod_android AS NVARCHAR(50)))) = \'\' THEN 0 ELSE 1 END) as scan_count'),
+            ])
+            ->groupBy('m.Dpcth_drv_code', 'drv.Drv_FistName')
+            ->orderBy('driver_name')
+            ->get();
+
+        return view('otherreport.dispatch_track', [
+            'dispatches'        => $dispatches,
+            'dispatchesGrouped' => $grouped,
+            'handheld'          => $handheld,
+            'today'             => $today,
+        ]);
     }
 
     public function detail(Request $request)
@@ -51,6 +82,7 @@ class DispatchTrackController extends Controller
                 DB::raw('h.dpcth_SO       AS dpcth_so'),
                 DB::raw('h.dpch_status    AS dpch_status'),
                 DB::raw('h.REC_DATEUPDATE AS rec_dateupdate'),
+                DB::raw('h.Dptch_mobile_pod_delivery_time AS delivered_time'),
             ])
             ->orderBy('h.REC_DATEUPDATE')
             ->get();
