@@ -35,37 +35,62 @@
 @endphp
 
 <div class="container-fluid py-4">
+
+    {{-- ── Global filter: Start Date / End Date / Client ── --}}
+    <div class="card mb-3">
+        <div class="card-body py-3 px-4">
+            <form method="GET" action="{{ route('pod.summary.index') }}"
+                  class="row g-2 align-items-end">
+                <div class="col-sm-3 col-md-2">
+                    <label class="form-label small text-muted mb-1">Dari Tanggal</label>
+                    <input type="date" name="date_from" class="form-control form-control-sm"
+                           value="{{ \Carbon\Carbon::parse($dateFrom)->format('Y-m-d') }}">
+                </div>
+                <div class="col-sm-3 col-md-2">
+                    <label class="form-label small text-muted mb-1">Sampai Tanggal</label>
+                    <input type="date" name="date_to" class="form-control form-control-sm"
+                           value="{{ \Carbon\Carbon::parse($dateTo)->format('Y-m-d') }}">
+                </div>
+                <div class="col-sm-4 col-md-3">
+                    <label class="form-label small text-muted mb-1">Client / Type</label>
+                    <select name="dpch_type" class="form-select form-select-sm">
+                        <option value="">— Semua —</option>
+                        @foreach($dpchTypes as $t)
+                            <option value="{{ $t }}" @selected($selectedType === $t)>{{ $t }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm mb-0">
+                        <i class="fas fa-filter me-1"></i> Terapkan
+                    </button>
+                    <a href="{{ route('pod.summary.index') }}" class="btn btn-outline-secondary btn-sm mb-0">
+                        Reset
+                    </a>
+                </div>
+                @if($selectedType !== '')
+                <div class="col-12 pt-1">
+                    <span class="badge bg-info text-dark" style="font-size:.75rem;">
+                        Client: {{ $selectedType }}
+                    </span>
+                </div>
+                @endif
+            </form>
+        </div>
+    </div>
+
+    @php $periodLabel = \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') . ' s/d ' . \Carbon\Carbon::parse($dateTo)->format('d/m/Y'); @endphp
+
     <div class="row mt-2 g-3">
-        {{-- Kolom kiri: Dispatch Status (kecil) di atas, Summary Dispatch di bawah --}}
+        {{-- Kolom kiri: Dispatch Status + Summary Dispatch --}}
         <div class="col-md-6 col-lg-5 col-xl-4 d-flex flex-column gap-3">
 
-            {{-- Dispatch Status (filter sendiri) --}}
+            {{-- Dispatch Status --}}
             <div class="card">
                 <div class="card-body py-3">
                     <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
                         <h6 class="mb-0">Dispatch Status</h6>
-                        <form method="GET" action="{{ route('pod.summary.index') }}" class="m-0">
-                            {{-- Pertahankan filter lain saat submit --}}
-                            <input type="hidden" name="range" value="{{ $range }}">
-                            <input type="hidden" name="date_from2"
-                                   value="{{ \Carbon\Carbon::parse($dateFrom2)->format('Y-m-d') }}">
-                            <input type="hidden" name="date_to2"
-                                   value="{{ \Carbon\Carbon::parse($dateTo2)->format('Y-m-d') }}">
-                            <input type="hidden" name="date_from3"
-                                   value="{{ \Carbon\Carbon::parse($dateFrom3)->format('Y-m-d') }}">
-                            <input type="hidden" name="date_to3"
-                                   value="{{ \Carbon\Carbon::parse($dateTo3)->format('Y-m-d') }}">
-
-                            <select name="range_status" class="form-select form-select-sm"
-                                    style="width:auto;font-size:.75rem;padding:.2rem 1.5rem .2rem .5rem;"
-                                    onchange="this.form.submit()">
-                                <option value="today"      @selected($rangeStatus === 'today')>Hari Ini</option>
-                                <option value="last3"      @selected($rangeStatus === 'last3')>3 Hari Terakhir</option>
-                                <option value="last7"      @selected($rangeStatus === 'last7')>7 Hari Terakhir</option>
-                                <option value="this_month" @selected($rangeStatus === 'this_month')>Bulan Ini</option>
-                                <option value="this_year"  @selected($rangeStatus === 'this_year')>Tahun Ini</option>
-                            </select>
-                        </form>
+                        <span class="text-xs text-muted">{{ $periodLabel }}</span>
                     </div>
                     @php
                         $statusItems = [
@@ -100,51 +125,7 @@
             <div class="card flex-grow-1">
                 <div class="card-header pb-0">
                     <h6 class="mb-1">Total Invoice</h6>
-                    <p class="text-xs text-muted mb-2">
-                        Periode:
-                        <strong>{{ \Carbon\Carbon::parse($dateFrom)->format('d/m/Y') }}</strong>
-                        s/d
-                        <strong>{{ \Carbon\Carbon::parse($dateTo)->format('d/m/Y') }}</strong>
-                    </p>
-
-                    <form method="GET" action="{{ route('pod.summary.index') }}"
-                          class="row g-2 align-items-end mb-2">
-                        {{-- Pertahankan filter chart 2 & 3 + status saat submit chart 1 --}}
-                        <input type="hidden" name="range_status" value="{{ $rangeStatus }}">
-                        <input type="hidden" name="date_from2"
-                               value="{{ \Carbon\Carbon::parse($dateFrom2)->format('Y-m-d') }}">
-                        <input type="hidden" name="date_to2"
-                               value="{{ \Carbon\Carbon::parse($dateTo2)->format('Y-m-d') }}">
-                        <input type="hidden" name="date_from3"
-                               value="{{ \Carbon\Carbon::parse($dateFrom3)->format('Y-m-d') }}">
-                        <input type="hidden" name="date_to3"
-                               value="{{ \Carbon\Carbon::parse($dateTo3)->format('Y-m-d') }}">
-
-                        <div class="col-12">
-                            <label class="form-label small text-muted mb-1">Periode</label>
-                            <select name="range" class="form-select form-select-sm"
-                                    onchange="this.form.submit()">
-                                <option value="today"      @selected($range === 'today')>Hari Ini</option>
-                                <option value="last3"      @selected($range === 'last3')>3 Hari Terakhir</option>
-                                <option value="last7"      @selected($range === 'last7')>7 Hari Terakhir</option>
-                                <option value="this_week"  @selected($range === 'this_week')>Minggu Ini</option>
-                                <option value="this_month" @selected($range === 'this_month')>Bulan Ini</option>
-                                <option value="this_year"  @selected($range === 'this_year')>Tahun Ini</option>
-                            </select>
-                        </div>
-                        <div class="col-12 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary btn-sm mb-0">
-                                <i class="fas fa-filter me-1"></i> Terapkan
-                            </button>
-                            <a href="{{ route('pod.summary.index', [
-                                    'date_from2' => \Carbon\Carbon::parse($dateFrom2)->format('Y-m-d'),
-                                    'date_to2'   => \Carbon\Carbon::parse($dateTo2)->format('Y-m-d'),
-                               ]) }}"
-                               class="btn btn-outline-secondary btn-sm mb-0">
-                                Reset
-                            </a>
-                        </div>
-                    </form>
+                    <p class="text-xs text-muted mb-2">Periode: <strong>{{ $periodLabel }}</strong></p>
                 </div>
                 <div class="card-body pt-1 pb-3">
                     @php
@@ -191,48 +172,12 @@
             </div>
         </div>
 
-        {{-- Chart 2: Total Dispatch per Tanggal + filter sendiri --}}
+        {{-- Chart 2: Total Dispatch per Tanggal --}}
         <div class="col-md-6 col-lg-7 col-xl-8">
             <div class="card h-100">
                 <div class="card-header pb-0">
                     <h6 class="mb-1">Total Dispatch</h6>
-                    <p class="text-xs text-muted mb-2">
-                        Periode:
-                        <strong>{{ \Carbon\Carbon::parse($dateFrom2)->format('d/m/Y') }}</strong>
-                        s/d
-                        <strong>{{ \Carbon\Carbon::parse($dateTo2)->format('d/m/Y') }}</strong>
-                    </p>
-
-                    <form method="GET" action="{{ route('pod.summary.index') }}"
-                          class="row g-2 align-items-end mb-2">
-                        {{-- Pertahankan filter chart 1 (range) & chart 3 + status saat submit chart 2 --}}
-                        <input type="hidden" name="range" value="{{ $range }}">
-                        <input type="hidden" name="range_status" value="{{ $rangeStatus }}">
-                        <input type="hidden" name="date_from3"
-                               value="{{ \Carbon\Carbon::parse($dateFrom3)->format('Y-m-d') }}">
-                        <input type="hidden" name="date_to3"
-                               value="{{ \Carbon\Carbon::parse($dateTo3)->format('Y-m-d') }}">
-
-                        <div class="col-sm-4">
-                            <label class="form-label small text-muted mb-1">Dari Tanggal</label>
-                            <input type="date" name="date_from2" class="form-control form-control-sm"
-                                   value="{{ \Carbon\Carbon::parse($dateFrom2)->format('Y-m-d') }}">
-                        </div>
-                        <div class="col-sm-4">
-                            <label class="form-label small text-muted mb-1">Sampai Tanggal</label>
-                            <input type="date" name="date_to2" class="form-control form-control-sm"
-                                   value="{{ \Carbon\Carbon::parse($dateTo2)->format('Y-m-d') }}">
-                        </div>
-                        <div class="col-sm-4 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary btn-sm mb-0">
-                                <i class="fas fa-filter me-1"></i> Terapkan
-                            </button>
-                            <a href="{{ route('pod.summary.index', ['range' => $range]) }}"
-                               class="btn btn-outline-secondary btn-sm mb-0">
-                                Reset
-                            </a>
-                        </div>
-                    </form>
+                    <p class="text-xs text-muted mb-2">Periode: <strong>{{ $periodLabel }}</strong></p>
                 </div>
                 <div class="card-body pt-1 pb-3">
                     <div style="position:relative;height:340px;">
@@ -249,40 +194,7 @@
             <div class="card">
                 <div class="card-header pb-0">
                     <h6 class="mb-1">Dispatch Value</h6>
-                    <form method="GET" action="{{ route('pod.summary.index') }}"
-                          class="row g-2 align-items-end mb-2">
-                        {{-- Pertahankan filter chart 1 & 2 + status saat submit chart 3 --}}
-                        <input type="hidden" name="range" value="{{ $range }}">
-                        <input type="hidden" name="range_status" value="{{ $rangeStatus }}">
-                        <input type="hidden" name="date_from2"
-                               value="{{ \Carbon\Carbon::parse($dateFrom2)->format('Y-m-d') }}">
-                        <input type="hidden" name="date_to2"
-                               value="{{ \Carbon\Carbon::parse($dateTo2)->format('Y-m-d') }}">
-
-                        <div class="col-sm-3 col-md-2">
-                            <label class="form-label small text-muted mb-1">Dari Tanggal</label>
-                            <input type="date" name="date_from3" class="form-control form-control-sm"
-                                   value="{{ \Carbon\Carbon::parse($dateFrom3)->format('Y-m-d') }}">
-                        </div>
-                        <div class="col-sm-3 col-md-2">
-                            <label class="form-label small text-muted mb-1">Sampai Tanggal</label>
-                            <input type="date" name="date_to3" class="form-control form-control-sm"
-                                   value="{{ \Carbon\Carbon::parse($dateTo3)->format('Y-m-d') }}">
-                        </div>
-                        <div class="col-sm-6 col-md-8 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary btn-sm mb-0">
-                                <i class="fas fa-filter me-1"></i> Terapkan
-                            </button>
-                            <a href="{{ route('pod.summary.index', [
-                                    'range'      => $range,
-                                    'date_from2' => \Carbon\Carbon::parse($dateFrom2)->format('Y-m-d'),
-                                    'date_to2'   => \Carbon\Carbon::parse($dateTo2)->format('Y-m-d'),
-                               ]) }}"
-                               class="btn btn-outline-secondary btn-sm mb-0">
-                                Reset
-                            </a>
-                        </div>
-                    </form>
+                    <p class="text-xs text-muted mb-2">Periode: <strong>{{ $periodLabel }}</strong></p>
                 </div>
                 <div class="card-body pt-1 pb-3">
                     <div style="position:relative;height:340px;">

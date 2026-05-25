@@ -9,65 +9,51 @@ use Carbon\Carbon;
 class PodSummController extends Controller
 {
     /**
-     * POD Summary — dua chart, masing-masing filter tanggal sendiri.
-     *  - Chart 1 (Summary Dispatch)        : range (today/last3/this_week/this_month/this_year)
-     *  - Chart 2 (Total Dispatch per Tgl)  : date_from2 / date_to2 (date pickers)
+     * POD Summary — single global date filter applies to all charts.
      */
     public function index(Request $request)
     {
-        // ===== Range chart 1 (Summary) — pakai dropdown =====
-        $allowedRanges = ['today', 'last3', 'last7', 'this_week', 'this_month', 'this_year'];
-        $range = $request->input('range', 'this_week');
-        if (!in_array($range, $allowedRanges, true)) {
-            $range = 'this_week';
-        }
-        [$dateFrom, $dateTo] = $this->resolveRange($range);
-
-        // ===== Range Dispatch Status — dropdown sendiri =====
-        $rangeStatus = $request->input('range_status', 'today');
-        if (!in_array($rangeStatus, $allowedRanges, true)) {
-            $rangeStatus = 'today';
-        }
-        [$dateFromS, $dateToS] = $this->resolveRange($rangeStatus);
-
-        // ===== Range chart 2 (Per Tanggal) — date pickers, default 7 hari terakhir =====
-        $dateFrom2 = $request->filled('date_from2')
-            ? Carbon::parse($request->date_from2)->startOfDay()
+        // ===== Single global date range =====
+        $dateFrom = $request->filled('date_from')
+            ? Carbon::parse($request->date_from)->startOfDay()
             : Carbon::today()->subDays(6)->startOfDay();
-        $dateTo2 = $request->filled('date_to2')
-            ? Carbon::parse($request->date_to2)->endOfDay()
+        $dateTo = $request->filled('date_to')
+            ? Carbon::parse($request->date_to)->endOfDay()
             : Carbon::today()->endOfDay();
 
-        // ===== Range chart 3 (Dispatch Value) — date pickers, default 7 hari terakhir =====
-        $dateFrom3 = $request->filled('date_from3')
-            ? Carbon::parse($request->date_from3)->startOfDay()
-            : Carbon::today()->subDays(6)->startOfDay();
-        $dateTo3 = $request->filled('date_to3')
-            ? Carbon::parse($request->date_to3)->endOfDay()
-            : Carbon::today()->endOfDay();
+        // ===== Koneksi DB: HGS atau TGU dari session =====
+        $dbConn = session('report_db', 'hgs') === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
 
-        // ===== Chart 1: Total Invoice — COUNT row dari TGU_dispatch_h per status =====
-        // Kolom dpch_status berisi: "Open", "Delivered", "Cancel".
-        // TOTAL = jumlah dispatch UNIK (Dpcth_code_h) di TGU_dispatch_h dalam range tanggal.
+        // ===== Filter dpch_type (global, berlaku untuk semua chart) =====
+        $selectedType = trim((string) $request->input('dpch_type', ''));
+
+        // Ambil list dpch_type unik untuk dropdown
+        $dpchTypes = DB::connection($dbConn)
+            ->table('TGU_dispatch_h')
+            ->whereNotNull('dpch_type')
+            ->where('dpch_type', '<>', '')
+            ->distinct()
+            ->orderBy('dpch_type')
+            ->pluck('dpch_type');
+
+        // ===== Chart 1: Total Invoice — COUNT dispatch UNIK dari TGU_dispatch_h =====
         $invNormExpr = "LOWER(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(COALESCE(h.dpch_status, ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), ''))))";
 
-        $invRows = DB::connection('rcm_hgs')
+        $invRows = DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->whereRaw('CAST(h.Dptch_date AS DATE) BETWEEN ? AND ?', [
                 $dateFrom->format('Y-m-d'),
                 $dateTo->format('Y-m-d'),
             ])
+            ->when($selectedType !== '', fn($q) => $q->where('h.dpch_type', $selectedType))
             ->selectRaw("$invNormExpr as status, COUNT(DISTINCT h.Dpcth_code_h) as c")
             ->groupBy(DB::raw($invNormExpr))
             ->get();
 
         $invAliasMap = [
-            // OPEN
             'open' => 'open', 'opend' => 'open', 'opened' => 'open', 'buka' => 'open',
-            // DELIVERED
             'delivered' => 'delivered', 'delivery' => 'delivered',
             'deliver'   => 'delivered', 'terkirim'  => 'delivered',
-            // CANCEL
             'cancel' => 'cancel', 'canceled' => 'cancel',
             'cancelled' => 'cancel', 'batal' => 'cancel',
         ];
@@ -79,13 +65,13 @@ class PodSummController extends Controller
                 $invCounts[$bucket] += (int) $r->c;
             }
         }
-        // Total dispatch UNIK dalam range (tanpa di-double-count antar status).
-        $invCounts['total'] = (int) DB::connection('rcm_hgs')
+        $invCounts['total'] = (int) DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->whereRaw('CAST(h.Dptch_date AS DATE) BETWEEN ? AND ?', [
                 $dateFrom->format('Y-m-d'),
                 $dateTo->format('Y-m-d'),
             ])
+            ->when($selectedType !== '', fn($q) => $q->where('h.dpch_type', $selectedType))
             ->distinct()
             ->count('h.Dpcth_code_h');
 
@@ -97,20 +83,16 @@ class PodSummController extends Controller
             'sum_cancel'     => $invCounts['cancel'],
         ];
 
-        // ===== Status counts =====
-        // Hitung dispatch UNIK (Dpcth_code_h) per status di TGU_dispatch_main.
-        // Kolom: m.dptch_date (tanggal), m.Dpcth_code_h (code), m.dpch_status (status).
-        // Satu dispatch bisa punya banyak baris dengan status berbeda — dipetakan ke
-        // SATU bucket dengan prioritas: open > planning > reschedule > delivered > close > cancel.
-        // Range memakai CAST(... AS DATE) BETWEEN supaya "Hari Ini" tidak miss.
+        // ===== Dispatch Status counts — dari TGU_dispatch_main, range sama =====
         $normExpr = "LOWER(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(COALESCE(m.dpch_status, ''), CHAR(9), ''), CHAR(10), ''), CHAR(13), ''))))";
 
-        $rawStatusRows = DB::connection('rcm_hgs')
+        $rawStatusRows = DB::connection($dbConn)
             ->table('TGU_dispatch_main as m')
             ->whereRaw('CAST(m.dptch_date AS DATE) BETWEEN ? AND ?', [
-                $dateFromS->format('Y-m-d'),
-                $dateToS->format('Y-m-d'),
+                $dateFrom->format('Y-m-d'),
+                $dateTo->format('Y-m-d'),
             ])
+            ->when($selectedType !== '', fn($q) => $q->where('m.dpch_type', $selectedType))
             ->select('m.Dpcth_code_h')
             ->selectRaw("$normExpr as status")
             ->distinct()
@@ -125,82 +107,45 @@ class PodSummController extends Controller
             'reschedule' => 0,
         ];
 
-        // Map alias -> bucket utama
         $aliasMap = [
-            // OPEN
-            'open'        => 'open',
-            'opend'       => 'open',
-            'opened'      => 'open',
-            'buka'        => 'open',
-            // CLOSE
-            'close'       => 'close',
-            'closed'      => 'close',
-            'tutup'       => 'close',
-            'selesai'     => 'close',
-            'finish'      => 'close',
-            'finished'    => 'close',
-            'done'        => 'close',
-            // PLANNING
-            'planning'    => 'planning',
-            'plan'        => 'planning',
-            'planed'      => 'planning',
-            'planing'     => 'planning',
-            'planned'     => 'planning',
-            'rencana'     => 'planning',
-            // DELIVERED
-            'delivered'   => 'delivered',
-            'delivery'    => 'delivered',
-            'deliver'     => 'delivered',
-            'terkirim'    => 'delivered',
-            // CANCEL
-            'cancel'      => 'cancel',
-            'canceled'    => 'cancel',
-            'cancelled'   => 'cancel',
-            'batal'       => 'cancel',
-            // RESCHEDULE
-            'reschedule'  => 'reschedule',
-            'rescheduled' => 'reschedule',
-            'reschedul'   => 'reschedule',
-            'reschedulle' => 'reschedule',
+            'open' => 'open', 'opend' => 'open', 'opened' => 'open', 'buka' => 'open',
+            'close' => 'close', 'closed' => 'close', 'tutup' => 'close',
+            'selesai' => 'close', 'finish' => 'close', 'finished' => 'close', 'done' => 'close',
+            'planning' => 'planning', 'plan' => 'planning', 'planed' => 'planning',
+            'planing' => 'planning', 'planned' => 'planning', 'rencana' => 'planning',
+            'delivered' => 'delivered', 'delivery' => 'delivered',
+            'deliver' => 'delivered', 'terkirim' => 'delivered',
+            'cancel' => 'cancel', 'canceled' => 'cancel', 'cancelled' => 'cancel', 'batal' => 'cancel',
+            'reschedule' => 'reschedule', 'rescheduled' => 'reschedule',
+            'reschedul' => 'reschedule', 'reschedulle' => 'reschedule',
         ];
 
-        // Prioritas penentuan bucket per dispatch unik.
         $priority = [
-            'open'       => 1,
-            'planning'   => 2,
-            'reschedule' => 3,
-            'delivered'  => 4,
-            'close'      => 5,
-            'cancel'     => 6,
+            'open' => 1, 'planning' => 2, 'reschedule' => 3,
+            'delivered' => 4, 'close' => 5, 'cancel' => 6,
         ];
 
-        $bucketPerDispatch = []; // Dpcth_code_h => bucket
+        $bucketPerDispatch = [];
         foreach ($rawStatusRows as $r) {
             $code = $r->Dpcth_code_h;
-            if ($code === null || $code === '') {
-                continue;
-            }
+            if ($code === null || $code === '') continue;
             $bucket = $aliasMap[$r->status] ?? null;
-            if ($bucket === null) {
-                continue;
-            }
+            if ($bucket === null) continue;
             $cur = $bucketPerDispatch[$code] ?? null;
             if ($cur === null || ($priority[$bucket] ?? 99) < ($priority[$cur] ?? 99)) {
                 $bucketPerDispatch[$code] = $bucket;
             }
         }
-
         foreach ($bucketPerDispatch as $bucket) {
-            if (isset($statusMap[$bucket])) {
-                $statusMap[$bucket]++;
-            }
+            if (isset($statusMap[$bucket])) $statusMap[$bucket]++;
         }
         $statusMap['total'] = array_sum($statusMap);
 
-        // ===== Chart 2: COUNT(Dpcth_code_h) per tanggal — langsung dari TGU_dispatch_main =====
-        $perDay = DB::connection('rcm_hgs')
+        // ===== Chart 2: COUNT dispatch per tanggal =====
+        $perDay = DB::connection($dbConn)
             ->table('TGU_dispatch_main as m')
-            ->whereBetween('m.dptch_date', [$dateFrom2, $dateTo2])
+            ->whereBetween('m.dptch_date', [$dateFrom, $dateTo])
+            ->when($selectedType !== '', fn($q) => $q->where('m.dpch_type', $selectedType))
             ->selectRaw('CAST(m.dptch_date AS DATE) as d, COUNT(m.Dpcth_code_h) as c')
             ->groupBy(DB::raw('CAST(m.dptch_date AS DATE)'))
             ->orderBy('d')
@@ -212,8 +157,8 @@ class PodSummController extends Controller
         }
         $perDateLabels = [];
         $perDateCounts = [];
-        $cursor = $dateFrom2->copy()->startOfDay();
-        $end    = $dateTo2->copy()->startOfDay();
+        $cursor = $dateFrom->copy()->startOfDay();
+        $end    = $dateTo->copy()->startOfDay();
         while ($cursor->lte($end)) {
             $key = $cursor->format('Y-m-d');
             $perDateLabels[] = $cursor->format('d/m/Y');
@@ -221,11 +166,11 @@ class PodSummController extends Controller
             $cursor->addDay();
         }
 
-        // ===== Chart 3: SUM(dpch_value) per tanggal — langsung dari TGU_dispatch_main =====
-        // Tanpa join ke TGU_dispatch_h supaya tidak terjadi fan-out / row hilang.
-        $perDayValue = DB::connection('rcm_hgs')
+        // ===== Chart 3: SUM dispatch value per tanggal =====
+        $perDayValue = DB::connection($dbConn)
             ->table('TGU_dispatch_main as m')
-            ->whereBetween('m.dptch_date', [$dateFrom3, $dateTo3])
+            ->whereBetween('m.dptch_date', [$dateFrom, $dateTo])
+            ->when($selectedType !== '', fn($q) => $q->where('m.dpch_type', $selectedType))
             ->selectRaw('CAST(m.dptch_date AS DATE) as d, COALESCE(SUM(m.dpch_value), 0) as v')
             ->groupBy(DB::raw('CAST(m.dptch_date AS DATE)'))
             ->orderBy('d')
@@ -237,8 +182,8 @@ class PodSummController extends Controller
         }
         $valueLabels = [];
         $valueData   = [];
-        $cursor = $dateFrom3->copy()->startOfDay();
-        $end    = $dateTo3->copy()->startOfDay();
+        $cursor = $dateFrom->copy()->startOfDay();
+        $end    = $dateTo->copy()->startOfDay();
         while ($cursor->lte($end)) {
             $key = $cursor->format('Y-m-d');
             $valueLabels[] = $cursor->format('d/m/Y');
@@ -246,16 +191,16 @@ class PodSummController extends Controller
             $cursor->addDay();
         }
 
+        $reportDb = session('report_db', 'hgs');
+
         return view('otherreport.pod_summary', compact(
             'summary',
             'statusMap',
-            'range', 'rangeStatus',
-            'dateFrom',  'dateTo',
-            'dateFromS', 'dateToS',
-            'dateFrom2', 'dateTo2',
-            'dateFrom3', 'dateTo3',
+            'dateFrom', 'dateTo',
             'perDateLabels', 'perDateCounts',
-            'valueLabels', 'valueData'
+            'valueLabels', 'valueData',
+            'dpchTypes', 'selectedType',
+            'reportDb'
         ));
     }
 

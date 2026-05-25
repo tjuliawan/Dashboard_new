@@ -10,6 +10,15 @@ class LastMileController extends Controller
 {
     public function index(Request $request)
     {
+        // Database: URL param 'db' override session; session persists global switch
+        if ($request->has('db') && in_array($request->input('db'), ['hgs', 'tgu'], true)) {
+            $db = $request->input('db');
+            session(['report_db' => $db]);
+        } else {
+            $db = session('report_db', 'hgs');
+        }
+        $dbConn = $db === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
+
         // Data Per Driver: default = 7 hari terakhir (today-7 s/d today)
         $dateFrom = $request->filled('date_from')
             ? Carbon::parse($request->date_from)->startOfDay()
@@ -42,7 +51,7 @@ class LastMileController extends Controller
         // Data Per (Tanggal, Driver, Kendaraan, Dispatch Code) — 1 baris per dispatch.
         // Catatan: 1 driver bisa punya >1 Dpcth_code_h di tanggal & kendaraan yg sama,
         // jadi kita pisah per Dpcth_code_h supaya hitungan invoice akurat per dispatch.
-        $drivers = DB::connection('rcm_hgs')
+        $drivers = DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'h.Dpcth_drv_code')
             ->whereBetween('h.Dptch_date', [$dateFrom, $dateTo])
@@ -74,7 +83,7 @@ class LastMileController extends Controller
 
         // ── SPK & CANCEL ──
         // Periode SPK & Cancel pakai range terpisah (default: Senin minggu ini s/d kemarin).
-        $spkBase = DB::connection('rcm_hgs')
+        $spkBase = DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->whereBetween('h.Dptch_date', [$spkFrom, $spkTo]);
 
@@ -119,8 +128,8 @@ class LastMileController extends Controller
         $thisYearFrom = Carbon::now()->startOfYear()->startOfDay();
         $thisYearTo   = Carbon::now()->endOfYear()->endOfDay();
 
-        $slaPerDriver = function ($from, $to) {
-            return DB::connection('rcm_hgs')
+        $slaPerDriver = function ($from, $to) use ($dbConn) {
+            return DB::connection($dbConn)
                 ->table('TGU_dispatch_h as h')
                 ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'h.Dpcth_drv_code')
                 ->whereBetween('h.Dptch_date', [$from, $to])
@@ -156,7 +165,8 @@ class LastMileController extends Controller
             'cancelRate', 'successRate', 'slaFinalized', 'slaTotalOngoing',
             'slaThisWeek', 'slaLastWeek', 'slaThisYear',
             'thisWeekFrom', 'thisWeekTo', 'lastWeekFrom', 'lastWeekTo',
-            'thisYearFrom', 'thisYearTo'
+            'thisYearFrom', 'thisYearTo',
+            'db'
         ));
     }
 
@@ -171,12 +181,14 @@ class LastMileController extends Controller
         $driver   = $request->input('driver_code');
         $vehicle  = $request->input('vhcl_code');
         $dispatch = $request->input('dispatch_code');
+        $db       = in_array($request->input('db'), ['hgs', 'tgu'], true) ? $request->input('db') : session('report_db', 'hgs');
+        $dbConn   = $db === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
 
         if (!$date || !$driver) {
             return response()->json(['error' => 'Parameter date & driver_code wajib diisi.'], 400);
         }
 
-        $q = DB::connection('rcm_hgs')
+        $q = DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->whereRaw('CAST(h.Dptch_date AS DATE) = ?', [$date])
             ->where('h.Dpcth_drv_code', '=', $driver);
@@ -212,11 +224,13 @@ class LastMileController extends Controller
         if (!in_array($range, [3, 7, 30], true)) {
             $range = 7;
         }
+        $db     = in_array($request->input('db'), ['hgs', 'tgu'], true) ? $request->input('db') : session('report_db', 'hgs');
+        $dbConn = $db === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
 
         $from = Carbon::today()->subDays($range - 1)->startOfDay();
         $to   = Carbon::today()->endOfDay();
 
-        $q = DB::connection('rcm_hgs')
+        $q = DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'h.Dpcth_drv_code')
             ->whereBetween('h.Dptch_date', [$from, $to])

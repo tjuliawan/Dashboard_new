@@ -1,0 +1,928 @@
+/**
+ * ==========================================
+ * RESPONSIVE FIXES FOR DN-SYSTEM DASHBOARD
+ * ==========================================
+ * Comprehensive responsive improvements for all devices
+ */
+
+/* ================================================
+   MOBILE FIRST (Extra Small - XS: < 576px)
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    /* ── Layout & Container ─────────────────── */
+    body {
+        font-size: 13px;
+    }
+    
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .py-4 { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+    .px-3 { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+    
+    /* ── Navbar & Sidebar ─────────────────── */
+    .navbar-vertical.fixed-start {
+        width: 100%;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        position: fixed;
+    }
+    
+    .navbar-vertical.fixed-start.show {
+        transform: translateX(0);
+    }
+    
+    .sidenav-toggler-inner {
+        width: 24px;
+        height: 18px;
+    }
+    
+    .sidenav-toggler-line {
+        height: 2px;
+        width: 100%;
+    }
+    
+    /* ── Cards & Spacing ─────────────────── */
+    .card {
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem 0.75rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    /* ── Banner (Dashboard) ─────────────────── */
+    .db-banner {
+        padding: 1rem 1rem 0.9rem;
+        border-radius: 12px;
+    }
+    
+    .db-banner h3 {
+        font-size: 1.1rem;
+        margin: 0.4rem 0 0.2rem;
+    }
+    
+    .db-banner p {
+        font-size: 0.75rem;
+    }
+    
+    .db-banner .row {
+        flex-direction: column;
+    }
+    
+    .db-banner .col-md-8,
+    .db-banner .col-md-4 {
+        width: 100%;
+    }
+    
+    .db-banner .clock-box {
+        padding: 0.6rem 1rem;
+    }
+    
+    .db-banner .clock-box #db-time {
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+    }
+    
+    /* ── Stat Cards ─────────────────── */
+    .stat-card {
+        padding: 0.9rem 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stat-card .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .stat-card .stat-label {
+        font-size: 0.65rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.2rem;
+    }
+    
+    .stat-card .stat-change {
+        font-size: 0.65rem;
+    }
+    
+    /* Force 2x2 grid for stat cards (2 per row) */
+    .col-6 .stat-card {
+        width: 100%;
+    }
+    
+    /* ── Quick Access Cards ─────────────────── */
+    .qa-card {
+        padding: 0.9rem 0.7rem;
+        border-radius: 10px;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .qa-card .qa-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+        margin: 0 auto 0.5rem;
+    }
+    
+    .qa-card .qa-title {
+        font-size: 0.72rem;
+    }
+    
+    .qa-card .qa-sub {
+        font-size: 0.62rem;
+    }
+    
+    /* Force 2x2 grid for quick access (2 per row) */
+    .col-6 .qa-card {
+        width: 100%;
+    }
+    
+    /* ── Headings ─────────────────── */
+    h1 { font-size: 1.3rem; }
+    h2 { font-size: 1.15rem; }
+    h3 { font-size: 1rem; }
+    h4 { font-size: 0.95rem; }
+    h5 { font-size: 0.9rem; }
+    h6 { font-size: 0.85rem; }
+    
+    /* ── Table ─────────────────── */
+    .table {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        padding: 0.5rem 0.4rem;
+        font-size: 0.65rem;
+    }
+    
+    .table tbody td {
+        padding: 0.5rem 0.4rem;
+    }
+    
+    .table-responsive {
+        border-radius: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* ── Buttons ─────────────────── */
+    .btn {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        border-radius: 6px;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+    }
+    
+    /* ── Forms ─────────────────── */
+    .form-control,
+    .form-select {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+    
+    .form-label {
+        font-size: 0.75rem;
+        margin-bottom: 0.3rem;
+    }
+    
+    /* ── Breadcrumb ─────────────────── */
+    .breadcrumb {
+        padding: 0.5rem 0;
+        font-size: 0.7rem;
+        gap: 0.3rem;
+    }
+    
+    .breadcrumb-item {
+        padding: 0;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "/";
+        padding: 0 0.25rem;
+    }
+    
+    /* ── Navbar Top ─────────────────── */
+    .navbar-main {
+        padding: 0.5rem 0.75rem !important;
+        margin: 0.75rem 0.75rem 0 !important;
+    }
+    
+    .navbar-main .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 0.5rem;
+    }
+    
+    .nav-link i {
+        margin-right: 0.3rem;
+    }
+    
+    /* Hide span in navbar-main (top navigation) only */
+    .navbar-main .nav-link span {
+        display: none;
+    }
+    
+    /* Keep sidebar nav-link-text visible */
+    .navbar-vertical.fixed-start .nav-link-text {
+        display: inline !important;
+    }
+    
+    /* ── Badges ─────────────────── */
+    .badge {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.65rem;
+    }
+    
+    /* ── Modal ─────────────────── */
+    .modal-content {
+        border-radius: 10px;
+    }
+    
+    .modal-header,
+    .modal-footer {
+        padding: 0.75rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-xl {
+        max-width: 95vw !important;
+    }
+    
+    /* ── Alert ─────────────────── */
+    .alert {
+        padding: 0.75rem 0.9rem;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+    
+    /* ── Visibility ─────────────────── */
+    .d-sm-none { display: none !important; }
+    
+    /* Ensure sidebar text remains visible */
+    .navbar-vertical.fixed-start .nav-link-text {
+        display: inline !important;
+        font-size: 0.7rem;
+    }
+    
+    /* ── CRITICAL: Force col-6 to be exactly 50% width for 2-column layout ─── */
+    .col-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        width: 50% !important;
+    }
+    
+}
+
+/* ================================================
+   SMALL DEVICES (SM: 576px - 767px)
+   ================================================ */
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-4 { padding-top: 1.25rem !important; padding-bottom: 1.25rem !important; }
+    
+    .db-banner {
+        padding: 1.2rem 1.2rem 1rem;
+    }
+    
+    .db-banner h3 {
+        font-size: 1.3rem;
+    }
+    
+    .stat-card {
+        padding: 1rem 1.1rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.3rem;
+    }
+    
+    .card-body {
+        padding: 1.2rem 1rem;
+    }
+    
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.3rem; }
+    h3 { font-size: 1.15rem; }
+    h6 { font-size: 0.9rem; }
+    
+    .table {
+        font-size: 0.8rem;
+    }
+    
+    /* Ensure sidebar text remains visible */
+    .navbar-vertical.fixed-start .nav-link-text {
+        display: inline !important;
+        font-size: 0.75rem;
+    }
+    
+    /* Force col-sm-6 to be exactly 50% width for 2-column layout */
+    .col-sm-6 {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+    }
+}
+
+/* ================================================
+   MEDIUM DEVICES (MD: 768px - 991px)
+   ================================================ */
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .db-banner {
+        padding: 1.5rem 1.5rem 1.3rem;
+    }
+    
+    .db-banner .row {
+        flex-direction: row;
+    }
+    
+    .db-banner h3 {
+        font-size: 1.45rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.35rem;
+    }
+    
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.45rem; }
+    h3 { font-size: 1.25rem; }
+    
+    .table {
+        font-size: 0.85rem;
+    }
+    
+    /* Ensure sidebar text remains visible */
+    .navbar-vertical.fixed-start .nav-link-text {
+        display: inline !important;
+        font-size: 0.85rem;
+    }
+}
+
+/* ================================================
+   LARGE DEVICES (LG: 992px - 1199px)
+   ================================================ */
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .container-fluid {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+    
+    .db-banner h3 {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 1.4rem;
+    }
+    
+    /* Ensure sidebar text visible */
+    .navbar-vertical.fixed-start .nav-link-text {
+        display: inline !important;
+        font-size: 0.9rem;
+    }
+}
+
+/* ================================================
+   EXTRA LARGE DEVICES (XL: 1200px+)
+   ================================================ */
+
+@media (min-width: 1200px) {
+    .container-fluid {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+    
+    /* Normal sizes - already set in base */
+    
+    /* Ensure sidebar text visible */
+    .navbar-vertical.fixed-start .nav-link-text {
+        display: inline !important;
+        font-size: 1rem;
+    }
+}
+
+/* ================================================
+   UTILITY: Touch-Friendly Spacing
+   ================================================ */
+
+@media (max-height: 800px) and (max-width: 767px) {
+    /* Reduce spacing for small-height devices */
+    .py-4 { padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+    
+    .card {
+        margin-bottom: 0.75rem;
+    }
+    
+    .gap-3 {
+        gap: 0.75rem !important;
+    }
+}
+
+/* ================================================
+   LANDSCAPE ORIENTATION FIX (Mobile Landscape)
+   ================================================ */
+
+@media (max-width: 991px) and (orientation: landscape) {
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .py-4 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+    
+    .db-banner {
+        padding: 0.75rem;
+    }
+    
+    .db-banner h3 {
+        font-size: 1rem;
+    }
+    
+    .stat-card {
+        padding: 0.8rem 0.9rem;
+    }
+    
+    .card {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ================================================
+   PRINT STYLES
+   ================================================ */
+
+@media print {
+    .navbar,
+    .sidenav,
+    .navbar-vertical,
+    .navbar-main,
+    .btn,
+    .modal {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    body {
+        font-size: 11pt;
+    }
+    
+    .container-fluid {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .card {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .table {
+        border-collapse: collapse;
+    }
+}
+
+/* ================================================
+   ACCESSIBILITY: Reduced Motion
+   ================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ================================================
+   DARK MODE SUPPORT
+   ================================================ */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bs-body-color: #e4e6eb;
+        --bs-body-bg: #121212;
+        --bs-border-color: #303030;
+    }
+    
+    .table {
+        color: #e4e6eb;
+    }
+    
+    .table > :not(caption) > * > * {
+        background-color: #1a1a1a;
+        border-bottom-color: #303030;
+    }
+}
+
+/* ================================================
+   HIGH DPI SCREENS (Retina)
+   ================================================ */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* No special CSS needed - already optimized */
+}
+
+/* ================================================
+   SPECIFIC COMPONENT FIXES
+   ================================================ */
+
+/* Sidebar collapse on mobile */
+@media (max-width: 1200px) {
+    .sidenav-mini:not(.show) .navbar-brand img {
+        max-width: 30px;
+    }
+    
+    .sidenav-mini:not(.show) .navbar-brand span {
+        display: none;
+    }
+}
+
+/* Table overflow fix */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive > .table {
+    margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+    .table-responsive .table thead th,
+    .table-responsive .table tbody td {
+        white-space: nowrap;
+        padding: 0.4rem;
+    }
+}
+
+/* Toast/Alert positioning */
+@media (max-width: 575.98px) {
+    .position-fixed {
+        right: 0.5rem !important;
+        bottom: 0.5rem !important;
+        left: 0.5rem !important;
+        width: auto;
+    }
+}
+
+/* ================================================
+   MOBILE SIDEBAR OVERLAY & BACKDROP
+   ================================================ */
+
+body.sidenav-open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (min-width: 1200px) {
+    body.sidenav-open::before {
+        display: none;
+    }
+}
+
+/* ================================================
+   RESPONSIVE GRID IMPROVEMENTS
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .row > [class*="col-"] {
+        margin-bottom: 0.5rem;
+    }
+    
+    .g-3 {
+        gap: 0.75rem !important;
+    }
+    
+    .g-2 {
+        gap: 0.5rem !important;
+    }
+}
+
+/* =========================================================
+   QUICK ACCESS 2x4 ONLY FOR 608x686 VIEWPORT
+   ========================================================= */
+
+/* Exact viewport target */
+@media (width: 608px) and (height: 686px) {
+    .qa-grid > .col-6.col-sm-4.col-md-3.col-lg-2 {
+        flex: 0 0 50% !important;
+        flex-basis: 50% !important;
+        max-width: 50% !important;
+        width: 50% !important;
+    }
+}
+
+/* Fallback for browser chrome/devtools rounding */
+@media (min-width: 607px) and (max-width: 609px) and (min-height: 684px) and (max-height: 688px) {
+    .qa-grid > .col-6.col-sm-4.col-md-3.col-lg-2 {
+        flex: 0 0 50% !important;
+        flex-basis: 50% !important;
+        max-width: 50% !important;
+        width: 50% !important;
+    }
+}
+
+/* JS-assisted fallback for exact target viewport */
+body.qa-608x686 .qa-grid > .col-6.col-sm-4.col-md-3.col-lg-2 {
+    flex: 0 0 50% !important;
+    flex-basis: 50% !important;
+    max-width: 50% !important;
+    width: 50% !important;
+}
+
+/* ================================================
+   IMAGE & MEDIA RESPONSIVE
+   ================================================ */
+
+img, picture, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+@media (max-width: 767px) {
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* ================================================
+   CARD GROUP RESPONSIVE
+   ================================================ */
+
+.card-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 576px) {
+    .card-group {
+        flex-direction: row;
+    }
+    
+    .card-group .card {
+        flex: 1;
+        margin-right: -1px;
+    }
+}
+
+/* ================================================
+   FLEX UTILITY RESPONSIVE
+   ================================================ */
+
+@media (max-width: 767px) {
+    .flex-sm-column {
+        flex-direction: column;
+    }
+    
+    .flex-sm-row {
+        flex-direction: row;
+    }
+    
+    .justify-content-sm-center {
+        justify-content: center;
+    }
+    
+    .justify-content-sm-between {
+        justify-content: space-between;
+    }
+}
+
+/* ================================================
+   MARGIN & PADDING RESPONSIVE
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .mx-md-auto { margin-left: auto; margin-right: auto; }
+    .mt-0 { margin-top: 0 !important; }
+    .mb-2 { margin-bottom: 0.5rem !important; }
+    .mb-3 { margin-bottom: 0.75rem !important; }
+    .mt-3 { margin-top: 0.75rem !important; }
+    .p-0 { padding: 0 !important; }
+    .p-2 { padding: 0.5rem !important; }
+    .p-3 { padding: 0.75rem !important; }
+}
+
+/* ================================================
+   SCROLLBAR STYLING (WebKit browsers)
+   ================================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ================================================
+   DROPDOWN RESPONSIVE
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .dropdown-menu {
+        position: fixed !important;
+        top: auto !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        transform: translateY(100%) !important;
+        border-radius: 20px 20px 0 0 !important;
+        max-height: 50vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease-in-out;
+    }
+    
+    .dropdown-menu.show {
+        transform: translateY(0) !important;
+    }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* ================================================
+   FORM RESPONSIVE
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-inline {
+        flex-direction: column;
+    }
+    
+    .form-inline .form-control,
+    .form-inline .form-select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* ================================================
+   BREADCRUMB RESPONSIVE
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .breadcrumb {
+        flex-wrap: wrap;
+    }
+    
+    .breadcrumb-item {
+        display: inline-block;
+        font-size: 0.65rem;
+    }
+}
+
+/* ================================================
+   SPINNER & LOADER RESPONSIVE
+   ================================================ */
+
+.spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+@media (max-width: 575.98px) {
+    .spinner-border {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+/* ================================================
+   CAROUSEL RESPONSIVE
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 25%;
+    }
+}
+
+/* ================================================
+   PROGRESS BAR RESPONSIVE
+   ================================================ */
+
+@media (max-width: 575.98px) {
+    .progress {
+        height: 0.75rem;
+    }
+}
+
+/* ================================================
+   HORIZONTAL SCROLL INDICATION
+   ================================================ */
+
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+
+/* ================================================
+   FOCUS STATES FOR ACCESSIBILITY
+   ================================================ */
+
+@media (max-width: 767px) {
+    input:focus,
+    textarea:focus,
+    select:focus,
+    button:focus,
+    a:focus {
+        outline: 2px solid #007bff;
+        outline-offset: 2px;
+    }
+}
+
+/* ================================================
+   RESPONSIVE UTILITY END ================================================ */
+

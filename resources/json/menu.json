@@ -17,11 +17,11 @@
                 "url": "/pod/summary"
             },
             {
-                "title": "POD Detail",
+                "title": "POD Report",
                 "url": "/pod/detail"
             },
             {
-                "title": "Last Mile",
+                "title": "Report Last Mile",
                 "url": "/lastmile"
             },
             {
@@ -31,99 +31,28 @@
         ]
     },
     {
-        "title": "Tagih",
+        "title": "Gudang",
         "type": "section"
     },
     {
-        "title": "Transaksi DN",
-        "icon": "fas fa-box",
+        "title": "Warehouse",
+        "icon": "fas fa-warehouse",
         "submenu": [
             {
-                "title": "Add New Tagih Sales DN",
-                "url": "/add-new-tagih-sales-dn"
+                "title": "Rekap Stock Rack",
+                "url": "/gudang/rekap-stock-rack"
             },
             {
-                "title": "List Tagih Sales DN",
-                "url": "/list-tr-tagih-sales-dn-d-date"
+                "title": "Price List",
+                "url": "/gudang/price-list"
             },
             {
-                "title": "Edit Tagih Sales DN",
-                "url": "/edit-tagih-sales-dn"
+                "title": "Track In/Out",
+                "url": "/gudang/track-in-out"
             },
             {
-                "title": "Add DN From BA",
-                "url": "/add-tagih-sales-dn-from-ba"
-            }
-        ]
-    },
-    {
-        "title": "Kwitansi",
-        "icon": "fas fa-money-bills",
-        "submenu": [
-            {
-                "title": "Kwitansi DN",
-                "url": "/page-kwitansi"
-            },
-            {
-                "title": "Kwitansi Japfa",
-                "url": "/page-kwitansi-japfa"
-            }
-        ]
-    },
-    {
-        "title": "Import Inv Japfa",
-        "icon": "fas fa-file-import",
-        "url": "/import-inv-japfa"
-    },
-    {
-        "title": "Payment",
-        "type": "section"
-    },
-    {
-        "title": "DN Payment",
-        "icon": "fas fa-money-bills",
-        "submenu": [
-            {
-                "title": "DN Payment",
-                "url": "/dn-payment"
-            },
-            {
-                "title": "DN Payment Japfa",
-                "url": "/dn-payment-japfa"
-            },
-            {
-                "title": "Faktur Pajak",
-                "url": "/faktur-pajak"
-            },
-            {
-                "title": "Faktur Pajak Japfa",
-                "url": "/faktur-pajak-japfa"
-            }
-        ]
-    },
-    {
-        "title": "Report",
-        "type": "section"
-    },
-    {
-        "title": "Report DN",
-        "icon": "fas fa-file-invoice",
-        "submenu": [
-            {
-                "title": "List DN",
-                "url": "/report-list-dn"
-            },
-            {
-                "title": "List Kwitansi",
-                "url": "report-list-kwitansi"
-            },
-            {
-                "title": "List DN Payment",
-                "url": "/report-list-dn-payment"
-            },
-            {
-                "title": "List DN Payment Japfa",
-                "url": "/report-list-dn-payment-japfa"
+                "title": "Kartu Stock",
+                "url": "/gudang/kartu-stock"
             }
         ]
     },

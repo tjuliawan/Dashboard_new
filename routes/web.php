@@ -14,13 +14,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\DN_Controller;
-use App\Http\Controllers\DN_payment_Controller;
-use App\Http\Controllers\DN_report_Controller;
 use App\Http\Controllers\PodDetController;
 use App\Http\Controllers\PodSummController;
 use App\Http\Controllers\LastMileController;
 use App\Http\Controllers\DispatchTrackController;
+use App\Http\Controllers\GudangController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,9 +81,10 @@ Route::group(['middleware' => 'auth'], function () {
     // POD (Proof of Delivery) — read-only report
     Route::prefix('pod')->name('pod.')->group(function () {
         Route::get('/summary',          [PodSummController::class, 'index'])->name('summary.index');
-        Route::get('/detail',           [PodDetController::class,  'index'])->name('detail.index');
-        Route::get('/detail/calculate', [PodDetController::class,  'calculate'])->name('detail.calculate');
-        Route::get('/detail/export',    [PodDetController::class,  'export'])->name('detail.export');
+        Route::get('/detail',            [PodDetController::class,  'index'])->name('detail.index');
+        Route::get('/detail/calculate',  [PodDetController::class,  'calculate'])->name('detail.calculate');
+        Route::get('/detail/export',     [PodDetController::class,  'export'])->name('detail.export');
+        Route::get('/detail/row-detail', [PodDetController::class,  'rowDetail'])->name('detail.row-detail');
     });
 
     // Last Mile
@@ -96,6 +95,46 @@ Route::group(['middleware' => 'auth'], function () {
     // Dispatch Track
     Route::get('/dispatch-track', [DispatchTrackController::class, 'index'])->name('dispatch-track.index');
     Route::get('/dispatch-track/detail', [DispatchTrackController::class, 'detail'])->name('dispatch-track.detail');
+
+    // Global DB switch (POD / Last Mile / Dispatch Track)
+    Route::get('/set-report-db/{db}', function ($db) {
+        if (in_array($db, ['hgs', 'tgu'], true)) {
+            session(['report_db' => $db]);
+        }
+        return redirect()->back();
+    })->name('set-report-db')->where('db', 'hgs|tgu');
+
+    // Gudang
+    Route::get('/gudang/rekap-stock-rack', [GudangController::class, 'rekapStockRack'])->name('gudang.rekap-stock-rack');
+    Route::get('/gudang/price-list', [GudangController::class, 'priceList'])->name('gudang.price-list');
+    Route::post('/gudang/price-list', [GudangController::class, 'priceListUpdate'])->name('gudang.price-list.update');
+    Route::get('/gudang/price-list/create', [GudangController::class, 'priceListCreate'])->name('gudang.price-list.create');
+    Route::post('/gudang/price-list/store',  [GudangController::class, 'priceListStore'])->name('gudang.price-list.store');
+    Route::get('/gudang/price-list/lookup-sku',      [GudangController::class, 'priceListLookupSku'])->name('gudang.price-list.lookup-sku');
+    Route::get('/gudang/price-list/lookup-pricemode',[GudangController::class, 'priceListLookupPriceMode'])->name('gudang.price-list.lookup-pricemode');
+    Route::get('/gudang/price-list/lookup-unit',     [GudangController::class, 'priceListLookupUnit'])->name('gudang.price-list.lookup-unit');
+
+    // Track In / Out
+    Route::get('/gudang/track-in-out', [GudangController::class, 'trackInOut'])->name('gudang.track-in-out');
+    Route::get('/gudang/track-in-out/detail', [GudangController::class, 'trackInOutDetail'])->name('gudang.track-in-out.detail');
+    Route::get('/gudang/track-in-out/print', [GudangController::class, 'trackInOutPrint'])->name('gudang.track-in-out.print');
+    Route::get('/gudang/track-in-out/export', [GudangController::class, 'trackInOutExport'])->name('gudang.track-in-out.export');
+    Route::get('/gudang/track-in-out/export-row-detail', [GudangController::class, 'trackInOutExportRowDetail'])->name('gudang.track-in-out.export-row-detail');
+    Route::get('/gudang/track-in-out/export-out-row-detail', [GudangController::class, 'trackInOutExportOutRowDetail'])->name('gudang.track-in-out.export-out-row-detail');
+    Route::get('/gudang/track-in-out/tallysheet-detail', [GudangController::class, 'trackInOutTallysheetDetail'])->name('gudang.track-in-out.tallysheet-detail');
+    Route::get('/gudang/track-in-out/btb-detail', [GudangController::class, 'trackInOutBtbDetail'])->name('gudang.track-in-out.btb-detail');
+    Route::get('/gudang/track-in-out/putaway-detail', [GudangController::class, 'trackInOutPutawayDetail'])->name('gudang.track-in-out.putaway-detail');
+    Route::get('/gudang/track-in-out/out-request-detail', [GudangController::class, 'trackInOutOutRequestDetail'])->name('gudang.track-in-out.out-request-detail');
+    Route::get('/gudang/track-in-out/out-picking-detail', [GudangController::class, 'trackInOutOutPickingDetail'])->name('gudang.track-in-out.out-picking-detail');
+    Route::get('/gudang/track-in-out/out-bkb-detail', [GudangController::class, 'trackInOutOutBkbDetail'])->name('gudang.track-in-out.out-bkb-detail');
+    Route::get('/gudang/track-in-out/out-dispatch-detail', [GudangController::class, 'trackInOutOutDispatchDetail'])->name('gudang.track-in-out.out-dispatch-detail');
+    Route::get('/gudang/track-in-out/out-pod-detail', [GudangController::class, 'trackInOutOutPodDetail'])->name('gudang.track-in-out.out-pod-detail');
+    Route::get('/gudang/track-in-out/out-btbrv-detail', [GudangController::class, 'trackInOutOutBtbRvDetail'])->name('gudang.track-in-out.out-btbrv-detail');
+    Route::get('/gudang/track-in-out/out-payment-detail', [GudangController::class, 'trackInOutOutPaymentDetail'])->name('gudang.track-in-out.out-payment-detail');
+
+    Route::get('/gudang/kartu-stock', [GudangController::class, 'kartuStock'])->name('gudang.kartu-stock');
+    Route::get('/gudang/kartu-stock/rack-options', [GudangController::class, 'kartuStockRackOptions'])->name('gudang.kartu-stock.rack-options');
+    Route::get('/gudang/kartu-stock/export', [GudangController::class, 'kartuStockExport'])->name('gudang.kartu-stock.export');
 });
 
 Route::get('/Employee-management', [userController::class, 'index'])->name('Employee-management')->middleware('auth');
@@ -114,90 +153,6 @@ Route::get('/Employee-management/get-employe-data', [userController::class, 'get
 Route::get('/SKU-management', [SKU_Controller::class, 'index'])->name('SKU-management')->middleware('auth');
 Route::get('/SKU-management/table_sku', [SKU_Controller::class, 'table_sku'])->name('SKU-management-table_sku')->middleware('auth');
 Route::get('/chart_sales', [SKU_Controller::class, 'chart_sales'])->name('chart_sales');
-
-Route::get('/add-new-tagih-sales-dn', [DN_Controller::class, 'index'])->name('add-new-tagih-sales-dn')->middleware('auth');
-Route::get('/list-tr-tagih-sales-dn-d-date', [DN_Controller::class, 'index_list_tr_tagih_sales_DN_d_date'])->name('list-tr-tagih-sales-dn-d-date')->middleware('auth');
-Route::get('/edit-tagih-sales-dn', [DN_Controller::class, 'index_edit_tagih_sales_dn'])->name('list-tr-tagih-sales-dn-d-date')->middleware('auth');
-Route::get('/page-kwitansi', [DN_Controller::class, 'index_kwitansi'])->name('page-kwitansi')->middleware('auth');
-Route::get('/page-kwitansi-japfa', [DN_Controller::class, 'index_kwitansi_japfa'])->name('page-kwitansi-japfa')->middleware('auth');
-
-
-Route::get('/get_client', [DN_Controller::class, 'get_client'])->middleware('auth');
-Route::get('/get_vehicle', [DN_Controller::class, 'get_vehicle'])->middleware('auth');
-Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware('auth');
-Route::get('/get_chaimber', [DN_Controller::class, 'get_chaimber'])->middleware('auth');
-Route::get('/data_for_chart_1', [DN_Controller::class, 'data_for_chart_1'])->middleware('auth');
-Route::get('/get_header_dn_tagih', [DN_Controller::class, 'get_header_dn_tagih'])->middleware('auth');
-Route::get('/get_header_dn_tagih_japfa', [DN_Controller::class, 'get_header_dn_tagih_japfa'])->middleware('auth');
-Route::get('/get_header_dn_tagih_japfa2', [DN_Controller::class, 'get_header_dn_tagih_japfa2'])->middleware('auth');
-Route::get('/dn_tagih/get_table_add_tagih_sales_dn', [DN_Controller::class, 'get_table_add_tagih_sales_dn'])->middleware('auth');
-Route::get('/dn_tagih/get_table_for_edit_dn_tgih', [DN_Controller::class, 'get_table_for_edit_dn_tgih'])->middleware('auth');
-Route::get('/dn_tagih/get_table_list_tr_tagih_sales_DN_d_date', [DN_Controller::class, 'get_table_list_tr_tagih_sales_DN_d_date'])->middleware('auth');
-Route::get('/cetak-pdf/dn-tagih-inv', [DN_Controller::class, 'cetakPDF_inv'])->middleware('auth');
-Route::get('/cetak-pdf/dn-tagih-kwitansi', [DN_Controller::class, 'cetakPDF_kwitansi'])->middleware('auth');
-Route::get('/cetak-pdf/kwitansi-japfa', [DN_Controller::class, 'cetakPDF_kwitansi_japfa'])->middleware('auth');
-Route::get('/cetak-pdf/inv-japfa', [DN_Controller::class, 'cetakPDF_inv_japfa'])->middleware('auth');
-Route::get('/cetak-pdf/dn-tagih-inv-wt', [DN_Controller::class, 'cetakPDF_inv_for_water_tanker'])->middleware('auth');
-Route::post('/dn-tagih/store', [DN_Controller::class, 'store_dn_tagih'])->middleware('auth');
-Route::post('/dn-tagih/update/po-code', [DN_Controller::class, 'update_dn_tagih_po_code'])->middleware('auth');
-Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail'])->middleware('auth');
-// Route::post('/dn-tagih/update/details-data', [DN_Controller::class, 'update_dn_tagih_detail']);
-Route::post('/dn-tagih/store-kwitansi', [DN_Controller::class, 'store_kwitansi'])->middleware('auth');
-Route::post('/dn-tagih/store-kwitansi-japfa', [DN_Controller::class, 'store_kwitansi_japfa'])->middleware('auth');
-Route::get('/get_business', [DN_Controller::class, 'get_business'])->middleware('auth');
-Route::get('/get_detail_japfa', [DN_Controller::class, 'get_detail_japfa'])->middleware('auth');
-
-Route::get('/export-invoice', [DN_Controller::class, 'exportExcel'])->name('export.invoice');
-// from ba
-Route::get('/add-tagih-sales-dn-from-ba', [DN_Controller::class, 'index_edit_tagih_sales_dn_from_ba'])->name('edit-tagih-sales-dn-from-ba')->middleware('auth');
-
-// payment
-
-Route::get('/dn-payment', [DN_payment_Controller::class, 'index_payment'])->name('dn-payment')->middleware('auth');
-Route::get('/dn-payment-japfa', [DN_payment_Controller::class, 'index_payment_japfa'])->name('dn-payment-japfa')->middleware('auth');
-Route::get('/get_header_coa_transaksi', [DN_payment_Controller::class, 'get_header_coa_transaksi'])->middleware('auth');
-Route::get('/get_detail_coa_transaksi', [DN_payment_Controller::class, 'get_detail_coa_transaksi'])->middleware('auth');
-Route::get('/get_data_dn_payment', [DN_payment_Controller::class, 'get_data_dn_payment'])->middleware('auth');
-Route::get('/get_data_dn_payment_japfa', [DN_payment_Controller::class, 'get_data_dn_payment_japfa'])->middleware('auth');
-Route::post('/dn-payment/store-payment', [DN_payment_Controller::class, 'store_payment'])->middleware('auth');
-Route::post('/dn-payment/store-payment-japfa', [DN_payment_Controller::class, 'store_payment_japfa'])->middleware('auth');
-Route::get('/get_cabang', [DN_payment_Controller::class, 'get_cabang'])->middleware('auth');
-Route::get('/cetak-pdf/payment', [DN_payment_Controller::class, 'cetakPDF_payment'])->middleware('auth');
-Route::get('/cetak-pdf/payment-japfa', [DN_payment_Controller::class, 'cetakPDF_payment_japfa'])->middleware('auth');
-
-
-// faktur pajak
-Route::get('/faktur-pajak', [DN_payment_Controller::class, 'index_faktur_pajak'])->name('faktur-pajak')->middleware('auth');
-Route::get('/faktur-pajak-japfa', [DN_payment_Controller::class, 'index_faktur_pajak_japfa'])->name('faktur-pajak')->middleware('auth');
-Route::get('/dn_tagih/get_list_pajak', [DN_payment_Controller::class, 'get_list_pajak'])->middleware('auth');
-Route::get('/dn_tagih/get_list_pajak_japfa', [DN_payment_Controller::class, 'get_list_pajak_japfa'])->middleware('auth');
-Route::post('/update-faktur-pajak', [DN_payment_Controller::class, 'store_faktur_pajak'])->middleware('auth');
-Route::post('/update-faktur-pajak-japfa', [DN_payment_Controller::class, 'store_faktur_pajak_japfa'])->middleware('auth');
-Route::post('/update-faktur-pajak-confirm', [DN_payment_Controller::class, 'store_faktur_pajak_confirm'])->middleware('auth');
-Route::post('/update-faktur-pajak-confirm-japfa', [DN_payment_Controller::class, 'store_faktur_pajak_confirm_japfa'])->middleware('auth');
-// DN_report_Controller
-
-Route::group(['middleware' => 'auth'], function () {
-	Route::get('/report-list-kwitansi', [DN_report_Controller::class, 'index_list_Kwitansi'])->name('/report-list-kwitansi');
-	Route::get('/report-list-dn', [DN_report_Controller::class, 'index_list_dn'])->name('/report-list-dn');
-    Route::get('/report-list-dn-payment', [DN_report_Controller::class, 'index_list_dn_payment'])->name('/report-list-dn-payment');
-    Route::get('/report-list-dn-payment-japfa', [DN_report_Controller::class, 'index_list_dn_payment_japfa'])->name('/report-list-dn-payment-japfa');
-	Route::get('/report/get-list-kwitansi', [DN_report_Controller::class, 'get_list_kwitansi']);
-	Route::get('/report/get/list_kwitansi-chart', [DN_report_Controller::class, 'get_list_kwitansi_chart']);
-	Route::get('/report/get/list_dn-chart', [DN_report_Controller::class, 'get_list_dn_chart']);
-	Route::get('/report/get/list_dn', [DN_report_Controller::class, 'get_list_dn']);
-    Route::get('/report/get/list_dn_payment', [DN_report_Controller::class, 'get_list_dn_payment']);
-    Route::get('/report/get/list_dn_payment_japfa', [DN_report_Controller::class, 'get_list_dn_payment_japfa']);
-});
-
-
-// import
-
-Route::group(['middleware' => 'auth'], function () {
-	Route::get('/import-inv-japfa', [DN_Controller::class, 'index_import_japfa'])->name('/import-inv-japfa');
-    Route::get('/report/get/list_dn_payment_japfa', [DN_report_Controller::class, 'get_list_dn_payment_japfa']);
-    Route::post('/import-excel-japfa', [DN_Controller::class, 'importjapfa'])->name('import.excel.japfa');
-});
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/register', [RegisterController::class, 'create']);

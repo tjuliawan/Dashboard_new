@@ -18,7 +18,7 @@
                 {{-- SECTION HEADER --}}
                 @if (isset($item['type']) && $item['type'] === 'section')
                     <li class="nav-item mt-2 menu-item">
-                        <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">{{ $item['title'] }}</h6>
+                        <hr class="horizontal dark my-1 mx-3">
                     </li>
 
                     {{-- DROPDOWN MENU --}}
@@ -42,6 +42,29 @@
                         <div class="collapse {{ $isOpen ? 'show' : '' }}" id="menu-{{ Str::slug($item['title']) }}">
                             <ul class="nav flex-column ps-5">
                                 @foreach ($item['submenu'] as $child)
+                                    @if (($child['title'] ?? '') === 'POD Summary')
+                                        @php
+                                            $reportDb = session('report_db', 'hgs');
+                                            $btnBase = 'font-size:.82rem;padding:.3rem .9rem;line-height:1.2;min-width:62px;font-weight:700;border-radius:8px;';
+                                            $hgsStyle = $reportDb === 'hgs'
+                                                ? 'background:#e6f0ff;border:1px solid #93c5fd;color:#1e3a8a;'
+                                                : 'background:#ffffff;border:1px solid #d1d5db;color:#4b5563;';
+                                            $tguStyle = $reportDb === 'tgu'
+                                                ? 'background:#fff7d6;border:1px solid #facc15;color:#92400e;'
+                                                : 'background:#ffffff;border:1px solid #d1d5db;color:#4b5563;';
+                                        @endphp
+                                        <li class="nav-item mb-2">
+                                            <div class="d-flex align-items-center gap-2" style="padding:.15rem .25rem;">
+                                                <span style="font-size:.74rem;font-weight:700;color:#4b5563;min-width:24px;">DB</span>
+                                                <a href="{{ url('/set-report-db/hgs') }}"
+                                                   class="btn"
+                                                   style="{{ $btnBase . $hgsStyle }}">HGS</a>
+                                                <a href="{{ url('/set-report-db/tgu') }}"
+                                                   class="btn"
+                                                   style="{{ $btnBase . $tguStyle }}">TGU</a>
+                                            </div>
+                                        </li>
+                                    @endif
                                     <li class="nav-item">
                                         <a class="nav-link {{ Request::is(ltrim($child['url'], '/')) ? 'active' : '' }}" href="{{ url($child['url']) }}">
                                             {{ $child['title'] }}
@@ -76,9 +99,57 @@
         </ul>
     </div>
     <style>
+        #sidenav-main {
+            position: fixed;
+            overflow: hidden;
+            background-color: #ffffff;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.16) 1.2px, transparent 0),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 250, 255, 0.98));
+            background-size: 16px 16px, 100% 100%;
+        }
+
+        #sidenav-main::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 12% 10%, rgba(59, 130, 246, 0.12) 0, rgba(59, 130, 246, 0) 22%),
+                radial-gradient(circle at 85% 20%, rgba(16, 185, 129, 0.10) 0, rgba(16, 185, 129, 0) 20%);
+            z-index: 0;
+        }
+
+        #sidenav-main .navbar-collapse,
+        #sidenav-main .sidenav-footer {
+            position: relative;
+            z-index: 1;
+        }
+
         .nav-link {
             white-space: normal !important;
             word-break: break-word;
+            position: relative;
+            padding-left: 0.75rem;
+        }
+
+        .navbar-vertical.bg-white .navbar-nav .menu-item > .nav-link::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+            box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.18);
+            position: absolute;
+            left: -0.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .navbar-vertical.bg-white .navbar-nav .menu-item > .nav-link.active::before,
+        .navbar-vertical.bg-white .navbar-nav .menu-item > .nav-link.active2::before {
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.22);
         }
 
         .icon-shape.active2 {

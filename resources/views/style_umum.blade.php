@@ -1,4 +1,226 @@
 <style>
+    /* ===== Tema global formal — palet corporate (slate + steel blue) =====
+       Diterapkan ke seluruh halaman (auth & guest) via layouts/app.blade.php
+    */
+    body.g-sidenav-show,
+    body.bg-gray-100,
+    body {
+        background: #7491ad !important;
+        min-height: 100vh;
+        background-attachment: fixed !important;
+    }
+    /* Override Soft UI bg-gray-100 utility */
+    .bg-gray-100 { background-color: #7491ad !important; }
+
+    /* Card formal: putih solid + border tipis + shadow halus */
+    main .card,
+    .container-fluid .card {
+        background: #ffffff !important;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, .06) !important;
+    }
+    main .card .card-header,
+    .container-fluid .card .card-header { background: transparent !important; }
+
+    /* Brand gradient menggantikan bg-gradient-* dengan nuansa formal */
+    main .bg-gradient-primary,
+    .container-fluid .bg-gradient-primary {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+    }
+    main .bg-gradient-dark,
+    .container-fluid .bg-gradient-dark {
+        background: linear-gradient(135deg, #1f2937 0%, #334155 100%) !important;
+    }
+    main .bg-gradient-info {
+        background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%) !important;
+    }
+    main .bg-gradient-success {
+        background: linear-gradient(135deg, #14532d 0%, #166534 100%) !important;
+    }
+    main .bg-gradient-warning {
+        background: linear-gradient(135deg, #92400e 0%, #b45309 100%) !important;
+    }
+    main .bg-gradient-danger {
+        background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+    }
+
+    /* Sidebar formal: navy gelap solid */
+    .sidenav {
+        background: #1e293b !important;
+        box-shadow: 2px 0 8px rgba(15, 23, 42, .15);
+        border: none;
+        font-size: 1.05em;
+    }
+    /* Brand / logo area */
+    .sidenav .navbar-brand,
+    .sidenav .navbar-brand-img + span,
+    .sidenav .navbar-brand .ms-1,
+    .sidenav .navbar-brand-img,
+    .sidenav hr.horizontal {
+        background-color: transparent !important;
+    }
+    .sidenav .sidenav-header {
+        padding: 18px 16px 12px;
+        min-height: 80px;
+    }
+    .sidenav .navbar-brand {
+        display: flex !important;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px !important;
+        background: rgba(255, 255, 255, .08);
+        border-radius: 8px;
+        box-shadow: none;
+    }
+    .sidenav .navbar-brand-img {
+        height: 44px !important;
+        width: auto !important;
+        max-width: 56px;
+        object-fit: contain;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,.25));
+    }
+    .sidenav .navbar-brand,
+    .sidenav .navbar-brand span,
+    .sidenav .navbar-brand .ms-1,
+    .sidenav .navbar-brand .ms-3 {
+        color: #f1f5f9 !important;
+        text-shadow: none;
+        font-size: .95rem;
+    }
+    .sidenav hr.horizontal.dark,
+    .sidenav hr.horizontal.light {
+        background-image: linear-gradient(90deg, transparent, rgba(241,245,249,.25), transparent) !important;
+        opacity: 1 !important;
+    }
+    /* Tombol close di sidebar (mobile) */
+    .sidenav .text-secondary { color: #cbd5e1 !important; opacity: .9; }
+
+    /* Menu items — teks slate terang di atas navy */
+    .sidenav .navbar-nav .nav-link,
+    .sidenav .navbar-nav .nav-link span,
+    .sidenav .navbar-nav .nav-link .nav-link-text,
+    .sidenav .navbar-nav .nav-link .sidenav-mini-icon,
+    .sidenav .navbar-nav .nav-link .sidenav-normal,
+    .sidenav .navbar-nav .nav-link i,
+    .sidenav .navbar-nav .nav-link svg,
+    .sidenav .navbar-nav .nav-link svg path,
+    .sidenav .navbar-nav .nav-link svg g {
+        color: #cbd5e1 !important;
+        fill: #cbd5e1 !important;
+    }
+    .sidenav .navbar-nav .nav-link {
+        opacity: 1 !important;
+        font-weight: 500;
+        text-shadow: none;
+        border-radius: 6px;
+        margin: 2px 8px;
+        transition: background .15s, color .15s;
+    }
+    .sidenav .navbar-nav .nav-link:hover {
+        background: rgba(255, 255, 255, .06) !important;
+        color: #ffffff !important;
+    }
+    .sidenav .navbar-nav .nav-link.active {
+        background: #ffffff !important;
+        color: #1e293b !important;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0,0,0,.15);
+        text-shadow: none;
+    }
+    .sidenav .navbar-nav .nav-link.active span,
+    .sidenav .navbar-nav .nav-link.active .nav-link-text,
+    .sidenav .navbar-nav .nav-link.active i,
+    .sidenav .navbar-nav .nav-link.active svg,
+    .sidenav .navbar-nav .nav-link.active svg path,
+    .sidenav .navbar-nav .nav-link.active svg g {
+        color: #1e293b !important;
+        fill: #1e293b !important;
+    }
+
+    /* Sub-heading / kategori (mis. "ACCOUNT PAGES") */
+    .sidenav .navbar-nav h6,
+    .sidenav .navbar-nav .text-uppercase,
+    .sidenav .navbar-nav .ms-2.text-uppercase {
+        color: #94a3b8 !important;
+        letter-spacing: .8px;
+        font-weight: 600;
+        opacity: 1 !important;
+        text-shadow: none;
+    }
+
+    /* Icon box (icon-shape) di samping nav-link (Soft UI) */
+    .sidenav .navbar-nav .nav-link .icon-shape {
+        background: rgba(255, 255, 255, .08) !important;
+        box-shadow: none !important;
+    }
+    .sidenav .navbar-nav .nav-link .icon-shape svg path,
+    .sidenav .navbar-nav .nav-link .icon-shape svg g {
+        fill: #cbd5e1 !important;
+    }
+    .sidenav .navbar-nav .nav-link.active .icon-shape {
+        background: #1e40af !important;
+    }
+    .sidenav .navbar-nav .nav-link.active .icon-shape svg path,
+    .sidenav .navbar-nav .nav-link.active .icon-shape svg g {
+        fill: #ffffff !important;
+    }
+
+    /* Card promo / user-card di footer sidebar */
+    .sidenav .card { background: rgba(255,255,255,.05) !important; border: 1px solid rgba(255,255,255,.10) !important; }
+    .sidenav .card *:not(.avatar-wrapper):not(.avatar-wrapper *):not(.btn-white) { color: #e2e8f0 !important; }
+    /* Avatar profile harus tetap kontras */
+    .sidenav .avatar-wrapper { background-color: #ffffff !important; }
+    .sidenav .avatar-wrapper .fallback-icon,
+    .sidenav .avatar-wrapper i { color: #1e293b !important; }
+    .sidenav .avatar-wrapper img { filter: none !important; }
+    /* Tombol "Profile" tetap putih dengan teks gelap */
+    .sidenav .btn-white { color: #1e293b !important; background-color: #ffffff !important; }
+
+    /* ===== Top navbar teks — putih di atas background #7491ad ===== */
+    .navbar-main .breadcrumb-item a,
+    .navbar-main .breadcrumb-item.active,
+    .navbar-main h6,
+    .navbar-main .nav-link,
+    .navbar-main .nav-link span,
+    .navbar-main .nav-link i,
+    .navbar-main .sidenav-toggler-line,
+    #toggleSidebarText {
+        color: #ffffff !important;
+        opacity: 1 !important;
+    }
+    .navbar-main .breadcrumb-item a.opacity-5 { opacity: .75 !important; }
+    .navbar-main .sidenav-toggler-line {
+        background: #ffffff !important;
+    }
+
+    /* ===== Footer teks — putih di atas background #7491ad ===== */
+    .footer .copyright,
+    .footer .copyright .text-muted,
+    .footer .text-muted {
+        color: rgba(255,255,255,.85) !important;
+    }
+    .footer .copyright .font-weight-bold {
+        color: #ffffff !important;
+    }
+
+    /* ===== Dashboard: Active Users & chart area ===== */
+    /* h6 label dan teks persen di bawah chart bar */
+    .card h6.ms-2 {
+        color: #1e293b !important;
+    }
+    #persen-transaksi p,
+    #persen-transaksi span {
+        color: #334155 !important;
+    }
+    /* Teks dalam bg-gradient-dark (chart bar bg) tetap putih */
+    .bg-gradient-dark h6,
+    .bg-gradient-dark p,
+    .bg-gradient-dark span {
+        color: #ffffff !important;
+    }
+
     .dt-search {
         text-align: right;
         margin-right: 1rem;

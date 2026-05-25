@@ -9,33 +9,54 @@ class DispatchTrackController extends Controller
 {
     public function index(Request $request)
     {
-        $today = now()->format('Y-m-d');
+        $today  = now()->format('Y-m-d');
+        $dbConn = session('report_db', 'hgs') === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
+        $reportDb = session('report_db', 'hgs');
 
-        // Semua dispatch yang BELUM SELESAI (masih ada baris dpch_status = 'Open').
-        // Sumber: TGU_dispatch_main (kolom: dptch_date, Dpcth_code_h, Dpcth_drv_code).
-        // Di-group per tanggal di sisi view.
-        $dispatches = DB::connection('rcm_hgs')
+        // Batasi payload list supaya render awal tetap cepat.
+        $listLimit = 600;
+
+        // Kode dispatch valid: hanya yang punya REC_DATEUPDATE >= 2026-01-01.
+        $validDispatch = DB::connection($dbConn)
+            ->table('TGU_dispatch_h as h')
+            ->select([
+                'h.Dpcth_code_h',
+                DB::raw('MAX(h.REC_DATEUPDATE) as last_update'),
+            ])
+            ->whereNotNull('h.Dpcth_code_h')
+            ->where('h.Dpcth_code_h', '<>', '')
+            ->where('h.REC_DATEUPDATE', '>=', '2026-01-01')
+            ->groupBy('h.Dpcth_code_h');
+
+        // Dispatch list: join ke dispatch valid agar query tidak scan korelatif per-row.
+        $dispatches = DB::connection($dbConn)
             ->table('TGU_dispatch_main as m')
+            ->joinSub($validDispatch, 'vh', function ($join) {
+                $join->on('vh.Dpcth_code_h', '=', 'm.Dpcth_code_h');
+            })
             ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'm.Dpcth_drv_code')
             ->select([
                 'm.Dpcth_code_h as dispatch_code',
                 DB::raw('CAST(m.dptch_date AS DATE) as dispatch_date'),
                 'm.Dpcth_drv_code as driver_code',
                 'm.Dpcth_vhcl_code as vhcl_code',
+                DB::raw('vh.last_update as last_update'),
                 DB::raw("ISNULL(NULLIF(LTRIM(RTRIM(drv.Drv_FistName)),''), m.Dpcth_drv_code) as driver_name"),
             ])
             ->whereNotNull('m.Dpcth_code_h')
             ->where('m.Dpcth_code_h', '<>', '')
-            ->where('m.dpch_status', 'Open')
+            ->whereRaw("CAST(m.dptch_date AS DATE) >= '2026-01-01'")
             ->groupBy(
                 'm.Dpcth_code_h',
                 DB::raw('CAST(m.dptch_date AS DATE)'),
                 'm.Dpcth_drv_code',
                 'm.Dpcth_vhcl_code',
+                'vh.last_update',
                 'drv.Drv_FistName'
             )
             ->orderByRaw('CAST(m.dptch_date AS DATE) DESC')
             ->orderBy('m.Dpcth_code_h')
+            ->limit($listLimit)
             ->get();
 
         // Group berdasarkan tanggal (Y-m-d) — terbaru dulu.
@@ -45,7 +66,7 @@ class DispatchTrackController extends Controller
 
         // Penggunaan Handheld — sumber: TGU_dispatch_main (hari ini).
         // driver: m.Dpcth_drv_code, scan: m.dpch_pod_android.
-        $handheld = DB::connection('rcm_hgs')
+        $handheld = DB::connection($dbConn)
             ->table('TGU_dispatch_main as m')
             ->leftJoin('ms_driver as drv', 'drv.drv_id', '=', 'm.Dpcth_drv_code')
             ->whereRaw('CAST(m.dptch_date AS DATE) = ?', [$today])
@@ -65,6 +86,7 @@ class DispatchTrackController extends Controller
             'dispatchesGrouped' => $grouped,
             'handheld'          => $handheld,
             'today'             => $today,
+            'reportDb'          => $reportDb,
         ]);
     }
 
@@ -75,7 +97,9 @@ class DispatchTrackController extends Controller
             return response()->json(['rows' => []]);
         }
 
-        $rows = DB::connection('rcm_hgs')
+        $dbConn = session('report_db', 'hgs') === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
+
+        $rows = DB::connection($dbConn)
             ->table('TGU_dispatch_h as h')
             ->where('h.Dpcth_code_h', $code)
             ->select([
@@ -83,6 +107,7 @@ class DispatchTrackController extends Controller
                 DB::raw('h.dpch_status    AS dpch_status'),
                 DB::raw('h.REC_DATEUPDATE AS rec_dateupdate'),
                 DB::raw('h.Dptch_mobile_pod_delivery_time AS delivered_time'),
+                DB::raw('h.dpch_resaon AS dpch_resaon'),
             ])
             ->orderBy('h.REC_DATEUPDATE')
             ->get();

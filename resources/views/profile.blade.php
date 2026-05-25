@@ -1,5 +1,15 @@
 @extends('layouts.user_type.auth')
 @section('title', 'DN System - Profile')
+
+@section('css')
+<style>
+    .profile-card {
+        border: 1px solid #e5edf8;
+        box-shadow: 0 10px 24px rgba(15, 52, 96, 0.08);
+    }
+</style>
+@endsection
+
 @section('content')
     <div class="container-fluid">
         <div class="page-header min-height-300 border-radius-xl mt-4" style="background-image: url('../assets/img/curved-images/curved0.jpg'); background-position-y: 50%;">
@@ -125,7 +135,7 @@
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12 col-md-5">
-                <div class="card h-100">
+                <div class="card h-100 profile-card">
                     <div class="card-header pb-0 p-3">
                         <div class="row">
                             <div class="col-md-8 d-flex align-items-center">
@@ -161,7 +171,7 @@
                 </div>
             </div>
             <div class="col-12 col-md-7">
-                <div class="card h-100">
+                <div class="card h-100 profile-card">
                     <div class="card-header pb-0 p-3">
                         <div class="row">
                             <div class="col-md-8 d-flex align-items-center">

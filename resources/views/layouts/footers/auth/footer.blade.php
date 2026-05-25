@@ -5,8 +5,8 @@
                 <div class="copyright text-center text-sm text-muted text-lg-start">
                     © <script>
                         document.write(new Date().getFullYear())
-                    </script>, made with <i class="fa fa-heart"></i> by
-                    <a href="https://www.creative-tim.com" class="font-weight-bold" target="_blank">HGS IT Tim</a>
+                    </script>, made with <i class="fa fa-heart" style="color:#f87171;"></i> by
+                    <span class="font-weight-bold">HGS IT Tim</span>
                 </div>
             </div>
             {{-- <div class="col-lg-6">

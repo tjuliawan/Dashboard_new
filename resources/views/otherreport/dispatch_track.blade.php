@@ -39,7 +39,7 @@
         outline: none;
     }
     .dt-search:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
-    .dt-list { flex: 1; overflow: auto; max-height: none; }
+    .dt-list { flex: 1; overflow-y: auto; max-height: 420px; }
     .dt-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     .dt-table th, .dt-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #f1f3f5; }
     .dt-table thead th {
@@ -214,12 +214,16 @@
 
 @section('content')
 <div class="dt-wrap">
+    {{-- Global DB Switch --}}
+    <div class="d-flex justify-content-end mb-3">
+        @include('partials.db-switch', ['reportDb' => $reportDb])
+    </div>
     <div class="dt-grid">
         {{-- Left column: Dispatch List + Penggunaan Handheld --}}
         <div class="dt-left-col">
         <div class="dt-card">
             <div class="dt-card-head">
-                <span>Dispatch List <span style="font-weight:500;color:#9ca3af;font-size:.78rem;">• Status Open</span></span>
+                <span>Dispatch List <span style="font-weight:500;color:#9ca3af;font-size:.78rem;">• Semua Status</span></span>
                 <span style="font-weight:500;font-size:.75rem;color:#9ca3af;" id="dt-count-label">{{ count($dispatches) }} entri</span>
             </div>
             <div style="padding:10px 14px;border-bottom:1px solid #eef0f3;display:flex;flex-direction:column;gap:8px;">
@@ -262,7 +266,7 @@
                                 <td class="dt-driver">{{ $d->driver_name }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada dispatch dengan status Open.</td></tr>
+                            <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada dispatch untuk filter REC_DATEUPDATE 2026 ke atas.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -286,7 +290,13 @@
                         @forelse ($handheld ?? [] as $h)
                             <tr>
                                 <td class="dt-driver">{{ $h->driver_name }}</td>
-                                <td class="dt-code" style="text-align:right;">{{ (int) $h->scan_count }}</td>
+                                <td class="dt-code" style="text-align:right;">
+                                    @if((int) $h->scan_count === 0)
+                                        <span style="color:#16a34a;font-size:1rem;">&#10003;</span>
+                                    @else
+                                        {{ (int) $h->scan_count }}
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
@@ -387,6 +397,14 @@ function dtSelect(rowEl) {
                                 : u === 'CANCEL'    ? 'fa-xmark'
                                 : u === 'OPEN'      ? 'fa-truck' : 'fa-circle';
                     const side  = (idx % 2 === 0) ? 'left' : 'right';
+                                        const deliveredText = (r.delivered_time ? dtFmtDate(r.delivered_time) : '-');
+                                        const reasonText = (r.dpch_resaon || '').toString().trim() || '-';
+                                        const metaLine = u === 'DELIVERED'
+                                                ? '<div class="dt-tl-time"><i class="far fa-clock"></i>Delivered: ' + deliveredText + '</div>'
+                                                : (u === 'CANCEL'
+                                                        ? '<div class="dt-tl-time"><i class="fas fa-circle-exclamation"></i>Reason: ' + reasonText + '</div>'
+                                                            + '<div class="dt-tl-time"><i class="far fa-calendar"></i>Date: ' + (r.rec_dateupdate ? dtFmtDate(r.rec_dateupdate) : '-') + '</div>'
+                                                        : '<div class="dt-tl-time"><i class="far fa-clock"></i>Update: ' + (r.rec_dateupdate ? dtFmtDate(r.rec_dateupdate) : '-') + '</div>');
                     return '<div class="dt-tl-item ' + side + '">'
                          +   '<span class="dt-tl-step">#' + (idx + 1) + '</span>'
                          +   '<div class="dt-tl-dot ' + cls + '"><i class="fas ' + icon + '"></i></div>'
@@ -394,7 +412,7 @@ function dtSelect(rowEl) {
                          +     '<span class="dt-tl-so">' + (r.dpcth_so ?? '-') + '</span>'
                          +     '<span class="dt-status-badge dt-status-' + cls + '"><i class="fas fa-circle"></i>' + ((r.dpch_status ?? '') || '-') + '</span>'
                          +   '</div>'
-                         +   '<div class="dt-tl-time"><i class="far fa-clock"></i>Delivered: ' + (r.delivered_time ? dtFmtDate(r.delivered_time) : '-') + '</div>'
+                                                 +   metaLine
                          + '</div>';
                 }).join('')
               + '</div>';

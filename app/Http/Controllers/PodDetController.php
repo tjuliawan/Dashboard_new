@@ -34,11 +34,19 @@ class PodDetController extends Controller
      * Build the base query: header + main joined, dispatch_d via OUTER APPLY (TOP 1)
      * so each header produces exactly one row (no fan-out).
      */
-    private function baseQuery($dateFrom, $dateTo, string $filterCol, string $filterVal)
+    private function dbConn(): string
     {
+        return session('report_db', 'hgs') === 'tgu' ? 'rcm_ol_tgu' : 'rcm_hgs';
+    }
+
+    private function baseQuery($dateFrom, $dateTo, string $filterCol, string $filterVal, string $dbConn = '')
+    {
+        if ($dbConn === '') {
+            $dbConn = $this->dbConn();
+        }
         $colMap = $this->colMap();
 
-        $q = DB::connection('rcm_hgs')
+        $q = DB::connection($dbConn)
             ->table(DB::raw('(
                 SELECT * FROM (
                     SELECT
@@ -120,6 +128,7 @@ class PodDetController extends Controller
                 $items = $this->baseQuery($dateFrom, $dateTo, $filterCol, $filterVal)
                     ->select([
                         DB::raw('h.Dptch_date              as dptch_date'),
+                        DB::raw('h.Dpcth_code_h            as dptch_code_h'),
                         DB::raw('h.rec_comcode             as rec_comcode'),
                         DB::raw('h.Dpcth_vhcl_code         as dpcth_vhcl_code'),
                         DB::raw('h.Dpcth_drv_code          as dpcth_driver_code'),
@@ -168,7 +177,8 @@ class PodDetController extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        return view('otherreport.pod', compact('rows', 'dateFrom', 'dateTo', 'filterCol', 'filterVal', 'view'));
+        $reportDb = session('report_db', 'hgs');
+        return view('otherreport.pod', compact('rows', 'dateFrom', 'dateTo', 'filterCol', 'filterVal', 'view', 'reportDb'));
     }
 
     public function calculate(Request $request)
@@ -308,5 +318,55 @@ class PodDetController extends Controller
             'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * AJAX: return detail rows from TGU_dispatch_d for a given dispatch code.
+     */
+    public function rowDetail(Request $request)
+    {
+        $code = trim((string) $request->input('dispatch_code', ''));
+        if ($code === '') {
+            return response()->json(['error' => 'dispatch_code wajib diisi.'], 422);
+        }
+
+        $dbConn = $this->dbConn();
+
+        try {
+            // Deduplicate dispatch_h by (code_h, SO) before joining to prevent fan-out.
+            $rows = DB::connection($dbConn)
+                ->table('TGU_dispatch_d as d')
+                ->leftJoin(DB::raw('(
+                    SELECT *,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY LTRIM(RTRIM(Dpcth_code_h)), LTRIM(RTRIM(dpcth_SO))
+                            ORDER BY Dptch_date DESC
+                        ) AS __hrn
+                    FROM TGU_dispatch_h
+                ) h'), function ($j) {
+                    $j->on(DB::raw('LTRIM(RTRIM(h.Dpcth_code_h))'), '=', DB::raw('LTRIM(RTRIM(d.dptch_code_h))'))
+                      ->on(DB::raw('LTRIM(RTRIM(h.dpcth_SO))'),     '=', DB::raw('LTRIM(RTRIM(d.dptch_SO))'))
+                      ->where('h.__hrn', '=', 1);
+                })
+                ->whereRaw('LTRIM(RTRIM(d.dptch_code_h)) = ?', [$code])
+                ->select([
+                    DB::raw('d.dptch_SO                               as so'),
+                    DB::raw('d.dptch_product_internal                 as sku'),
+                    DB::raw("COALESCE(d.dptch_status, h.dpch_status) as status"),
+                    DB::raw('d.dptch_unit_quantity                    as qty'),
+                    DB::raw('d.dptch_unit                             as unit'),
+                    DB::raw('d.dptch_qty_terima                       as qty_received'),
+                    DB::raw('d.dptch_valuebongkaran                   as value_bongkaran'),
+                ])
+                ->distinct()
+                ->orderBy('d.dptch_SO')
+                ->orderBy('d.dptch_product_internal')
+                ->get();
+
+            return response()->json(['rows' => $rows]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('PodDetController::rowDetail error', ['message' => $e->getMessage()]);
+            return response()->json(['error' => 'Gagal mengambil detail: ' . $e->getMessage()], 500);
+        }
     }
 }

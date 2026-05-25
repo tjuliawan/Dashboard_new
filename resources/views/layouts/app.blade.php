@@ -45,6 +45,8 @@
   <link href="../assets/css/nucleo-svg.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link id="pagestyle" href="../assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+  <!-- Responsive Fixes -->
+  <link href="{{ asset('css/responsive-fixes.css') }}" rel="stylesheet" />
   @include('config_pihakketiga')
   @include('style_umum')
   @yield('css')
@@ -90,6 +92,8 @@
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/soft-ui-dashboard.min.js?v=1.0.3"></script>
+  <!-- Responsive Utilities -->
+  <script src="{{ asset('js/responsive-utils.js') }}"></script>
 </body>
 
 </html>

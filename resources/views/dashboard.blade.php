@@ -1,179 +1,364 @@
-@extends('layouts.user_type.auth')
+﻿@extends('layouts.user_type.auth')
 @section('title', 'DN System-Dashboard')
+
+@section('css')
+<style>
+    /* ── Banner ─────────────────────────────────────── */
+    .db-banner {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%);
+        border-radius: 16px;
+        position: relative;
+        overflow: hidden;
+        padding: 2rem 2rem 1.8rem;
+        color: #fff;
+    }
+    .db-banner::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 220px; height: 220px;
+        background: rgba(255,255,255,.06);
+        border-radius: 50%;
+    }
+    .db-banner::after {
+        content: '';
+        position: absolute;
+        bottom: -40px; left: 30%;
+        width: 160px; height: 160px;
+        background: rgba(255,255,255,.04);
+        border-radius: 50%;
+    }
+    .db-banner .badge-live {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,.15);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: .7rem; font-weight: 600;
+        letter-spacing: .5px;
+    }
+    .db-banner .badge-live span.dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #4ade80;
+        animation: pulse-dot 1.5s infinite;
+    }
+    @keyframes pulse-dot {
+        0%,100% { opacity: 1; } 50% { opacity: .3; }
+    }
+    .db-banner h3 { font-size: 1.6rem; font-weight: 700; margin: .6rem 0 .3rem; }
+    .db-banner p  { font-size: .85rem; opacity: .8; margin: 0; }
+    .db-banner .clock-box {
+        background: rgba(255,255,255,.12);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 12px;
+        padding: .8rem 1.2rem;
+        text-align: center;
+    }
+    .db-banner .clock-box #db-time {
+        font-size: 1.8rem; font-weight: 700; letter-spacing: 2px;
+        font-variant-numeric: tabular-nums;
+    }
+    .db-banner .clock-box #db-date {
+        font-size: .75rem; opacity: .75; margin-top: 2px;
+    }
+
+    /* ── Stat cards ─────────────────────────────────── */
+    .stat-card {
+        border-radius: 14px;
+        border: none;
+        padding: 1.2rem 1.4rem;
+        position: relative;
+        overflow: hidden;
+        transition: transform .2s, box-shadow .2s;
+        cursor: default;
+        height: 100%;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.15)!important; }
+    .stat-card .stat-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: #fff;
+        background: rgba(255,255,255,.25);
+    }
+    .stat-card .stat-label  { font-size: .72rem; font-weight: 600; letter-spacing: .5px; opacity: .85; margin-bottom: 2px; }
+    .stat-card .stat-value  { font-size: 1.45rem; font-weight: 700; }
+    .stat-card .stat-change { font-size: .72rem; margin-top: 2px; }
+    .stat-card.s1 { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
+    .stat-card.s2 { background: linear-gradient(135deg,#f093fb,#f5576c); color:#fff; }
+    .stat-card.s3 { background: linear-gradient(135deg,#4facfe,#00f2fe); color:#fff; }
+    .stat-card.s4 { background: linear-gradient(135deg,#43e97b,#38f9d7); color:#fff; }
+
+    /* ── Quick-access cards ──────────────────────────── */
+    .qa-card {
+        border-radius: 14px;
+        border: 1px solid #e9ecef;
+        padding: 1.3rem 1rem;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        transition: transform .2s, box-shadow .2s, border-color .2s;
+        background: #fff;
+        color: #344767;
+    }
+    .qa-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 32px rgba(0,0,0,.12)!important;
+        border-color: transparent;
+        color: #344767;
+        text-decoration: none;
+    }
+    .qa-card .qa-icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem; color: #fff;
+        margin: 0 auto .75rem;
+        transition: transform .2s;
+    }
+    .qa-card:hover .qa-icon { transform: scale(1.1) rotate(-5deg); }
+    .qa-card .qa-title { font-size: .8rem; font-weight: 700; margin-bottom: 2px; }
+    .qa-card .qa-sub   { font-size: .68rem; color: #8392a5; }
+
+    /* Quick Access: force 2x4 only on 608x686 viewport */
+    @media (width: 608px) and (height: 686px) {
+        .qa-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .qa-grid > [class*="col-"] {
+            width: auto !important;
+            max-width: none !important;
+            flex: initial !important;
+            padding-right: 0 !important;
+            padding-left: 0 !important;
+        }
+    }
+
+    /* Fallback when JS class is applied due viewport rounding */
+    body.qa-608x686 .qa-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    body.qa-608x686 .qa-grid > [class*="col-"] {
+        width: auto !important;
+        max-width: none !important;
+        flex: initial !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* Android phones (Pixel 7-like): force quick access 2x4 */
+    body.qa-android-2x4 .qa-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    body.qa-android-2x4 .qa-grid > [class*="col-"] {
+        width: auto !important;
+        max-width: none !important;
+        flex: initial !important;
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    /* ── Chart cards ─────────────────────────────────── */
+    .chart-card { border-radius: 14px; border: none; }
+    .chart-card .chart-inner {
+        background: linear-gradient(135deg,#1a1a2e,#0f3460);
+        border-radius: 10px; padding: 1rem .5rem;
+    }
+</style>
+@endsection
+
 @section('content')
-    <div class="row mt-4">
+<div class="row mt-4 g-3">
 
-
-
-        <div class="col-lg-7 mb-4">
-            <div class="card">
-                <div class="card-body p-3">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="d-flex flex-column h-100">
-                                <p class="mb-1 pt-2 text-bold">Built by HGS IT Division</p>
-                                <h5 class="font-weight-bolder">DN Tagih Dashboard</h5>
-                                <p class="mb-5">Stay productive, stay positive. Good things happen when you show up with the right energy and a clear purpose. One step at a time, and the progress adds up!.</p>
-                                {{-- <a class="text-body text-sm font-weight-bold mb-0 icon-move-right mt-auto" href="javascript:;">
-                  Read More
-                  <i class="fas fa-arrow-right text-sm ms-1" aria-hidden="true"></i>
-                </a> --}}
-                            </div>
-                        </div>
-                        <div class="col-lg-5 ms-auto text-center mt-5 mt-lg-0">
-                            <div class="bg-gradient-primary border-radius-lg h-100">
-                                <img src="../assets/img/shapes/waves-white.svg" class="position-absolute h-100 w-50 top-0 d-lg-block d-none" alt="waves">
-                                <div class="position-relative d-flex align-items-center justify-content-center h-100">
-                                    <img class="w-100 position-relative z-index-2 pt-4" src="../assets/img/illustrations/rocket-white.png" alt="rocket">
-                                </div>
-                            </div>
-                        </div>
+    {{-- ══════════════ BANNER ══════════════ --}}
+    <div class="col-12">
+        <div class="db-banner">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="badge-live mb-2">
+                        <span class="dot"></span> LIVE SYSTEM
                     </div>
+                    <h3>Selamat Datang, {{ Auth::user()->name }} 👋</h3>
+                    <p>DASHBOARD REPORT &mdash; Built by HGS IT Division. Stay productive, stay positive.</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-5 mb-3">
-            <div class="card h-100 p-3">
-                <div class="overflow-hidden position-relative border-radius-lg bg-cover h-100" style="background-image: url('../assets/img/gudang.jpg');">
-                    <span class="mask bg-gradient-dark"></span>
-                    <div class="card-body position-relative z-index-1 d-flex flex-column h-100 p-3">
-                        <h5 class="text-white font-weight-bolder mb-4 pt-2">Work with the rockets</h5>
-                        <p class="text-white">Opportunity doesn’t wait. Take the first step, keep the energy high, and let your passion make the work feel like play.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-5 mb-lg-0 mb-4">
-            <div class="card z-index-2 h-100">
-                <div class="card-body p-3">
-                    <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
-                        <div class="chart">
-                            <canvas id="chart-bars" class="chart-canvas" height="220"></canvas>
-                        </div>
-                    </div>
-                    <h6 class="ms-2 mt-4 mb-0"> Active Users </h6>
-                    <div id="persen-transaksi"></div>
-                    {{-- <div class="container border-radius-lg">
-                        <div class="row">
-                            <div class="col-3 py-3 ps-0">
-                                <div class="d-flex mb-2">
-                                    <div class="icon icon-shape icon-xxs shadow border-radius-sm bg-gradient-primary text-center me-2 d-flex align-items-center justify-content-center">
-                                        <svg width="10px" height="10px" viewBox="0 0 40 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                            <title>document</title>
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-1870.000000, -591.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(154.000000, 300.000000)">
-                                                            <path class="color-background" d="M40,40 L36.3636364,40 L36.3636364,3.63636364 L5.45454545,3.63636364 L5.45454545,0 L38.1818182,0 C39.1854545,0 40,0.814545455 40,1.81818182 L40,40 Z" opacity="0.603585379"></path>
-                                                            <path class="color-background" d="M30.9090909,7.27272727 L1.81818182,7.27272727 C0.814545455,7.27272727 0,8.08727273 0,9.09090909 L0,41.8181818 C0,42.8218182 0.814545455,43.6363636 1.81818182,43.6363636 L30.9090909,43.6363636 C31.9127273,43.6363636 32.7272727,42.8218182 32.7272727,41.8181818 L32.7272727,9.09090909 C32.7272727,8.08727273 31.9127273,7.27272727 30.9090909,7.27272727 Z M18.1818182,34.5454545 L7.27272727,34.5454545 L7.27272727,30.9090909 L18.1818182,30.9090909 L18.1818182,34.5454545 Z M25.4545455,27.2727273 L7.27272727,27.2727273 L7.27272727,23.6363636 L25.4545455,23.6363636 L25.4545455,27.2727273 Z M25.4545455,20 L7.27272727,20 L7.27272727,16.3636364 L25.4545455,16.3636364 L25.4545455,20 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <p class="text-xs mt-1 mb-0 font-weight-bold">Users</p>
-                                </div>
-                                <h4 class="font-weight-bolder">36K</h4>
-                                <div class="progress w-75">
-                                    <div class="progress-bar bg-dark w-60" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="col-3 py-3 ps-0">
-                                <div class="d-flex mb-2">
-                                    <div class="icon icon-shape icon-xxs shadow border-radius-sm bg-gradient-info text-center me-2 d-flex align-items-center justify-content-center">
-                                        <svg width="10px" height="10px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                            <title>spaceship</title>
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-1720.000000, -592.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(4.000000, 301.000000)">
-                                                            <path class="color-background" d="M39.3,0.706666667 C38.9660984,0.370464027 38.5048767,0.192278529 38.0316667,0.216666667 C14.6516667,1.43666667 6.015,22.2633333 5.93166667,22.4733333 C5.68236407,23.0926189 5.82664679,23.8009159 6.29833333,24.2733333 L15.7266667,33.7016667 C16.2013871,34.1756798 16.9140329,34.3188658 17.535,34.065 C17.7433333,33.98 38.4583333,25.2466667 39.7816667,1.97666667 C39.8087196,1.50414529 39.6335979,1.04240574 39.3,0.706666667 Z M25.69,19.0233333 C24.7367525,19.9768687 23.3029475,20.2622391 22.0572426,19.7463614 C20.8115377,19.2304837 19.9992882,18.0149658 19.9992882,16.6666667 C19.9992882,15.3183676 20.8115377,14.1028496 22.0572426,13.5869719 C23.3029475,13.0710943 24.7367525,13.3564646 25.69,14.31 C26.9912731,15.6116662 26.9912731,17.7216672 25.69,19.0233333 L25.69,19.0233333 Z"></path>
-                                                            <path class="color-background" d="M1.855,31.4066667 C3.05106558,30.2024182 4.79973884,29.7296005 6.43969145,30.1670277 C8.07964407,30.6044549 9.36054508,31.8853559 9.7979723,33.5253085 C10.2353995,35.1652612 9.76258177,36.9139344 8.55833333,38.11 C6.70666667,39.9616667 0,40 0,40 C0,40 0,33.2566667 1.855,31.4066667 Z"></path>
-                                                            <path class="color-background" d="M17.2616667,3.90166667 C12.4943643,3.07192755 7.62174065,4.61673894 4.20333333,8.04166667 C3.31200265,8.94126033 2.53706177,9.94913142 1.89666667,11.0416667 C1.5109569,11.6966059 1.61721591,12.5295394 2.155,13.0666667 L5.47,16.3833333 C8.55036617,11.4946947 12.5559074,7.25476565 17.2616667,3.90166667 L17.2616667,3.90166667 Z" opacity="0.598539807"></path>
-                                                            <path class="color-background" d="M36.0983333,22.7383333 C36.9280725,27.5056357 35.3832611,32.3782594 31.9583333,35.7966667 C31.0587397,36.6879974 30.0508686,37.4629382 28.9583333,38.1033333 C28.3033941,38.4890431 27.4704606,38.3827841 26.9333333,37.845 L23.6166667,34.53 C28.5053053,31.4496338 32.7452344,27.4440926 36.0983333,22.7383333 L36.0983333,22.7383333 Z" opacity="0.598539807"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <p class="text-xs mt-1 mb-0 font-weight-bold">Clicks</p>
-                                </div>
-                                <h4 class="font-weight-bolder">2m</h4>
-                                <div class="progress w-75">
-                                    <div class="progress-bar bg-dark w-90" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="col-3 py-3 ps-0">
-                                <div class="d-flex mb-2">
-                                    <div class="icon icon-shape icon-xxs shadow border-radius-sm bg-gradient-warning text-center me-2 d-flex align-items-center justify-content-center">
-                                        <svg width="10px" height="10px" viewBox="0 0 43 36" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                            <title>credit-card</title>
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-2169.000000, -745.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(453.000000, 454.000000)">
-                                                            <path class="color-background" d="M43,10.7482083 L43,3.58333333 C43,1.60354167 41.3964583,0 39.4166667,0 L3.58333333,0 C1.60354167,0 0,1.60354167 0,3.58333333 L0,10.7482083 L43,10.7482083 Z" opacity="0.593633743"></path>
-                                                            <path class="color-background" d="M0,16.125 L0,32.25 C0,34.2297917 1.60354167,35.8333333 3.58333333,35.8333333 L39.4166667,35.8333333 C41.3964583,35.8333333 43,34.2297917 43,32.25 L43,16.125 L0,16.125 Z M19.7083333,26.875 L7.16666667,26.875 L7.16666667,23.2916667 L19.7083333,23.2916667 L19.7083333,26.875 Z M35.8333333,26.875 L28.6666667,26.875 L28.6666667,23.2916667 L35.8333333,23.2916667 L35.8333333,26.875 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <p class="text-xs mt-1 mb-0 font-weight-bold">Sales</p>
-                                </div>
-                                <h4 class="font-weight-bolder">435$</h4>
-                                <div class="progress w-75">
-                                    <div class="progress-bar bg-dark w-30" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="col-3 py-3 ps-0">
-                                <div class="d-flex mb-2">
-                                    <div class="icon icon-shape icon-xxs shadow border-radius-sm bg-gradient-danger text-center me-2 d-flex align-items-center justify-content-center">
-                                        <svg width="10px" height="10px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                                            <title>settings</title>
-                                            <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                                <g transform="translate(-2020.000000, -442.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                                                    <g transform="translate(1716.000000, 291.000000)">
-                                                        <g transform="translate(304.000000, 151.000000)">
-                                                            <polygon class="color-background" opacity="0.596981957" points="18.0883333 15.7316667 11.1783333 8.82166667 13.3333333 6.66666667 6.66666667 0 0 6.66666667 6.66666667 13.3333333 8.82166667 11.1783333 15.315 17.6716667"></polygon>
-                                                            <path class="color-background" d="M31.5666667,23.2333333 C31.0516667,23.2933333 30.53,23.3333333 30,23.3333333 C29.4916667,23.3333333 28.9866667,23.3033333 28.48,23.245 L22.4116667,30.7433333 L29.9416667,38.2733333 C32.2433333,40.575 35.9733333,40.575 38.275,38.2733333 L38.275,38.2733333 C40.5766667,35.9716667 40.5766667,32.2416667 38.275,29.94 L31.5666667,23.2333333 Z" opacity="0.596981957"></path>
-                                                            <path class="color-background" d="M33.785,11.285 L28.715,6.215 L34.0616667,0.868333333 C32.82,0.315 31.4483333,0 30,0 C24.4766667,0 20,4.47666667 20,10 C20,10.99 20.1483333,11.9433333 20.4166667,12.8466667 L2.435,27.3966667 C0.95,28.7083333 0.0633333333,30.595 0.00333333333,32.5733333 C-0.0583333333,34.5533333 0.71,36.4916667 2.11,37.89 C3.47,39.2516667 5.27833333,40 7.20166667,40 C9.26666667,40 11.2366667,39.1133333 12.6033333,37.565 L27.1533333,19.5833333 C28.0566667,19.8516667 29.01,20 30,20 C35.5233333,20 40,15.5233333 40,10 C40,8.55166667 39.685,7.18 39.1316667,5.93666667 L33.785,11.285 Z"></path>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                    <p class="text-xs mt-1 mb-0 font-weight-bold">Items</p>
-                                </div>
-                                <h4 class="font-weight-bolder">43</h4>
-                                <div class="progress w-75">
-                                    <div class="progress-bar bg-dark w-50" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> --}}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-7">
-            <div class="card z-index-2 h-100">
-                <div class="card-header pb-0">
-                    <h6>DN tagih overview</h6>
-                    <p class="text-sm mb-0">
-                    </p>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chart-line" class="chart-canvas" height="280"></canvas>
+                <div class="col-md-4 mt-3 mt-md-0 text-center">
+                    <div class="clock-box d-inline-block">
+                        <div id="db-time">00:00:00</div>
+                        <div id="db-date"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- ══════════════ STAT CARDS ══════════════ --}}
+    <div class="col-6 col-sm-6 col-md-3">
+        <div class="card stat-card s1 shadow">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">TOTAL TRANSAKSI</div>
+                    <div class="stat-value" id="stat-total-trx">—</div>
+                    <div class="stat-change" id="stat-trx-pct"></div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-6 col-md-3">
+        <div class="card stat-card s2 shadow">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">TOTAL NILAI</div>
+                    <div class="stat-value" id="stat-total-val">—</div>
+                    <div class="stat-change" id="stat-val-pct"></div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-coins"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-6 col-md-3">
+        <div class="card stat-card s3 shadow">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">BULAN BERJALAN</div>
+                    <div class="stat-value" id="stat-cur-month">—</div>
+                    <div class="stat-change" style="opacity:.85;">transaksi bulan ini</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-sm-6 col-md-3">
+        <div class="card stat-card s4 shadow">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-label">MENU AKTIF</div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-change" style="opacity:.85;">fitur tersedia</div>
+                </div>
+                <div class="stat-icon"><i class="fas fa-th-large"></i></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════ QUICK ACCESS ══════════════ --}}
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius:14px;">
+            <div class="card-body pb-2">
+                <h6 class="text-uppercase text-xs font-weight-bolder text-secondary mb-3">
+                    <i class="fas fa-bolt me-1 text-warning"></i> Akses Cepat
+                </h6>
+                <div class="row g-3 qa-grid">
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/pod/summary" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </div>
+                            <div class="qa-title">POD Summary</div>
+                            <div class="qa-sub">Proof of Delivery</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/pod/detail" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c);">
+                                <i class="fas fa-search-location"></i>
+                            </div>
+                            <div class="qa-title">POD Report</div>
+                            <div class="qa-sub">Detail per transaksi</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/lastmile" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="qa-title">Report Last Mile</div>
+                            <div class="qa-sub">Laporan pengiriman</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/dispatch-track" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#43e97b,#38f9d7);">
+                                <i class="fas fa-route"></i>
+                            </div>
+                            <div class="qa-title">Dispatch Track</div>
+                            <div class="qa-sub">Tracking dispatch</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/gudang/rekap-stock-rack" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#fa709a,#fee140);">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <div class="qa-title">Rekap Stock</div>
+                            <div class="qa-sub">Stock per rack</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/gudang/track-in-out" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="qa-title">Track In/Out</div>
+                            <div class="qa-sub">Mutasi gudang</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/gudang/price-list" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#fccb90,#d57eeb);">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div class="qa-title">Price List</div>
+                            <div class="qa-sub">Daftar harga</div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <a href="/gudang/kartu-stock" class="qa-card shadow-sm">
+                            <div class="qa-icon" style="background:linear-gradient(135deg,#30cfd0,#330867);">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="qa-title">Kartu Stock</div>
+                            <div class="qa-sub">Mutasi per SKU</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════ CHARTS ══════════════ --}}
+    <div class="col-lg-5 mb-lg-0 mb-3">
+        <div class="card chart-card shadow h-100">
+            <div class="card-body p-3">
+                <div class="chart-inner">
+                    <div class="chart">
+                        <canvas id="chart-bars" class="chart-canvas" height="220"></canvas>
+                    </div>
+                </div>
+                <div id="persen-transaksi" class="ms-1 mt-2"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card chart-card shadow h-100">
+            <div class="card-body p-3">
+                <div class="chart">
+                    <canvas id="chart-line" class="chart-canvas" height="280"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 @endsection
 @include('harus_ada')
 @push('dashboard')
@@ -190,6 +375,24 @@
     @endif
 
     <script>
+        // ── Live clock ──────────────────────────────────
+        (function() {
+            const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+            function updateClock() {
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2,'0');
+                const m = String(now.getMinutes()).padStart(2,'0');
+                const s = String(now.getSeconds()).padStart(2,'0');
+                const el = document.getElementById('db-time');
+                const ed = document.getElementById('db-date');
+                if (el) el.textContent = h + ':' + m + ':' + s;
+                if (ed) ed.textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        })();
+
         window.onload = function() {
 
             var ctx = document.getElementById("chart-bars").getContext("2d");
@@ -218,21 +421,51 @@
                     dataType: 'json',
                     success: function(data) {
                         let transaksi = data.tol_transaction;
+
+                        // Populate stat cards
+                        const totalTrx = transaksi.reduce((a,b) => a + b, 0);
+                        const totalVal = data.total.reduce((a,b) => a + parseFloat(b), 0);
+                        const curMonthTrx = transaksi[transaksi.length - 1];
+
+                        function fmtNum(n) {
+                            if (n >= 1e9) return (n/1e9).toFixed(1)+' M';
+                            if (n >= 1e6) return (n/1e6).toFixed(1)+' Jt';
+                            if (n >= 1e3) return (n/1e3).toFixed(1)+' rb';
+                            return n;
+                        }
+                        const elTrx = document.getElementById('stat-total-trx');
+                        const elVal = document.getElementById('stat-total-val');
+                        const elCur = document.getElementById('stat-cur-month');
+                        if (elTrx) elTrx.textContent = fmtNum(totalTrx);
+                        if (elVal) elVal.textContent = 'Rp ' + fmtNum(totalVal);
+                        if (elCur) elCur.textContent = fmtNum(curMonthTrx);
+
                         if (transaksi.length >= 2) {
                             let bulanIni = transaksi[transaksi.length - 1];
                             let bulanLalu = transaksi[transaksi.length - 2];
-                            let persen = 0;
-
-                            if (bulanLalu !== 0) {
-                                persen = ((bulanIni - bulanLalu) / bulanLalu) * 100;
-                            }
-
+                            let persen = bulanLalu !== 0 ? ((bulanIni - bulanLalu) / bulanLalu) * 100 : 0;
                             persen = persen.toFixed(2);
+                            let sign = persen >= 0 ? '+' : '';
+                            let clr = persen >= 0 ? 'text-success' : 'text-danger';
+                            let ico = persen >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+                            document.getElementById('persen-transaksi').innerHTML =
+                                `<span class="text-sm ${clr}"><i class="fas ${ico} me-1"></i>${sign}${persen}% vs bulan lalu</span>`;
+                            const trxPct = document.getElementById('stat-trx-pct');
+                            if (trxPct) trxPct.innerHTML = `<i class="fas ${ico}"></i> ${sign}${persen}%`;
+                        }
 
-                            let sign = persen >= 0 ? "+" : "";
-                            let persenHTML = `<p class="text-sm ms-2">(<span class="font-weight-bolder">${sign}${persen}%</span>) than last Month</p>`;
-
-                            document.getElementById("persen-transaksi").innerHTML = persenHTML;
+                        // Value trend for stat card
+                        const vals = data.total;
+                        if (vals.length >= 2) {
+                            const vCur = parseFloat(vals[vals.length-1]);
+                            const vPrv = parseFloat(vals[vals.length-2]);
+                            if (vPrv !== 0) {
+                                const vPct = ((vCur - vPrv) / vPrv * 100).toFixed(2);
+                                const vSign = vPct >= 0 ? '+' : '';
+                                const vClr = vPct >= 0 ? 'text-success' : 'text-danger';
+                                const elVP = document.getElementById('stat-val-pct');
+                                if (elVP) elVP.innerHTML = `<i class="fas ${vPct>=0?'fa-arrow-up':'fa-arrow-down'}"></i> ${vSign}${vPct}%`;
+                            }
                         }
                         const totalArray = data.total;
 
@@ -251,7 +484,7 @@
                         const text = isUp ? 'more' : 'less';
                         const html = `${icon} <span class="font-weight-bold">${percentage}% ${text}</span>`;
 
-                        $('.card-header p').html(html)
+                        $('#chart-line-change').html(html)
                         new Chart(ctx, {
                             type: "bar",
                             data: {
@@ -378,7 +611,7 @@
                                                 style: 'normal',
                                                 lineHeight: 2
                                             },
-                                            // ✅ Tambahkan formatter di sini
+                                            // âœ… Tambahkan formatter di sini
                                             callback: function(value) {
                                                 const isNegative = value < 0;
                                                 const absValue = Math.abs(value);
@@ -430,3 +663,4 @@
         }
     </script>
 @endpush
+

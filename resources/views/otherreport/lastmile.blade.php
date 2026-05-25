@@ -99,6 +99,25 @@
     .lm-status-delivered { background: #dcfce7; color: #15803d; }
     .lm-status-cancel    { background: #fee2e2; color: #b91c1c; }
     .lm-status-other     { background: #e5e7eb; color: #374151; }
+
+    /* Responsive layout helpers */
+    .lm-split-spk-sla { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 24px; margin-bottom: 24px; }
+    .lm-split-weeks   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    @media (max-width: 992px) {
+        .lm-split-spk-sla { grid-template-columns: 1fr; }
+        .lm-split-weeks   { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+        .lm-card { padding: 14px 16px; border-radius: 10px; }
+        .lm-card-title { font-size: 0.78rem; flex-wrap: wrap; gap: 4px; }
+        .lm-filter-bar { padding: 12px; gap: 10px; }
+        .lm-filter-group, .lm-filter-input { width: 100%; }
+        .lm-btn-filter, .lm-btn-reset { width: 100%; text-align: center; }
+        table.lm-table { font-size: 0.78rem; }
+        table.lm-table thead th, table.lm-table tbody td { padding: 7px 9px; }
+        .lm-modal { padding: 16px 18px; border-radius: 12px; }
+    }
 </style>
 @endsection
 
@@ -106,10 +125,14 @@
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
-            <h4 class="mb-4">Last Mile</h4>
+            <div class="d-flex align-items-center gap-3 mb-4" style="flex-wrap:wrap;">
+                <h4 class="mb-0">Last Mile</h4>
+                {{-- Toggle HGS / TGU (pakai global session switch) --}}
+                @include('partials.db-switch', ['reportDb' => $db ?? 'hgs'])
+            </div>
 
             {{-- ── SPK & CANCEL  +  SLA & PERFORMA (split: SPK kecil, SLA besar) ── --}}
-            <div style="display:grid;grid-template-columns:minmax(0, 1fr) minmax(0, 2fr);gap:24px;margin-bottom:24px;">
+            <div class="lm-split-spk-sla">
 
             {{-- ── 5. SPK & CANCEL ── --}}
             <div class="lm-card" id="lm-spk-cancel" style="margin-bottom:0;">
@@ -123,6 +146,7 @@
                 {{-- Filter range SPK --}}
                 <form method="GET" action="{{ route('lastmile.index') }}#lm-spk-cancel" class="lm-filter-bar">
                     {{-- preserve filter Data Per Driver --}}
+                    <input type="hidden" name="db" value="{{ $db ?? 'hgs' }}">
                     @if(request('date_from'))<input type="hidden" name="date_from" value="{{ request('date_from') }}">@endif
                     @if(request('date_to'))<input type="hidden" name="date_to" value="{{ request('date_to') }}">@endif
                     @if(request('per_page'))<input type="hidden" name="per_page" value="{{ request('per_page') }}">@endif
@@ -169,7 +193,7 @@
                 <div style="font-size:.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">
                     Breakdown Reason Cancel
                 </div>
-                <div class="lm-table-wrap">
+                <div class="lm-table-wrap" style="max-height:280px;overflow-y:auto;">
                     <table class="lm-table">
                         <thead>
                             <tr>
@@ -266,7 +290,7 @@
                 @endphp
 
                 {{-- Minggu Ini | Minggu Kemarin (side-by-side, kompak) --}}
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="lm-split-weeks">
                     @foreach($weekSections as $sec)
                         <div>
                             <div style="font-size:.74rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.4px;margin:14px 0 6px;">
@@ -371,6 +395,7 @@
                 {{-- Filter Dptch_date --}}
                 <form method="GET" action="{{ route('lastmile.index') }}" class="lm-filter-bar">
                     @if(request('spk_range'))<input type="hidden" name="spk_range" value="{{ request('spk_range') }}">@endif
+                    <input type="hidden" name="db" value="{{ $db ?? 'hgs' }}">
                     <div class="lm-filter-group">
                         <label class="lm-filter-label">Dari Tanggal (Dptch_date)</label>
                         <input type="date" name="date_from" class="lm-filter-input"
@@ -390,7 +415,7 @@
                         </select>
                     </div>
                     <button type="submit" class="lm-btn-filter">Filter</button>
-                    <a href="{{ route('lastmile.index') }}" class="lm-btn-reset">Reset</a>
+                    <a href="{{ route('lastmile.index', ['db' => $db ?? 'hgs']) }}" class="lm-btn-reset">Reset</a>
                 </form>
 
                 <div class="lm-table-wrap">
@@ -445,6 +470,11 @@
                     <div style="font-size:.78rem;color:#6b7280;">
                         Menampilkan {{ $drivers->firstItem() ?? 0 }}–{{ $drivers->lastItem() ?? 0 }} dari {{ $drivers->total() }} baris
                     </div>
+                    @if($drivers->hasPages())
+                        <div>
+                            {{ $drivers->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -464,6 +494,7 @@
             <table class="lm-table" id="lm-cancel-table">
                 <thead>
                     <tr>
+                        <th style="width:48px;text-align:right;">No</th>
                         <th>Tanggal</th>
                         <th>Dispatch Code</th>
                         <th>SO</th>
@@ -472,7 +503,7 @@
                     </tr>
                 </thead>
                 <tbody id="lm-cancel-tbody">
-                    <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>
+                    <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -491,6 +522,7 @@
             <table class="lm-table" id="lm-invoice-table">
                 <thead>
                     <tr>
+                        <th style="width:48px;text-align:right;">No</th>
                         <th>SO</th>
                         <th>Status</th>
                         <th style="text-align:right;">Value</th>
@@ -498,7 +530,7 @@
                     </tr>
                 </thead>
                 <tbody id="lm-invoice-tbody">
-                    <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>
+                    <tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -509,6 +541,7 @@
 const lmInvoiceUrl      = '{{ route('lastmile.invoices') }}';
 const lmCancelDetailUrl = '{{ route('lastmile.cancel-detail') }}';
 const lmSpkRange        = {{ (int) $spkRange }};
+const lmDb              = '{{ $db ?? 'hgs' }}';
 
 function openInvoiceModal(rowEl) {
     const date         = rowEl.dataset.date;
@@ -535,7 +568,7 @@ function openInvoiceModal(rowEl) {
                    + ' &nbsp;·&nbsp; <strong>Driver:</strong> ' + (driverName || driverCode)
                    + ' &nbsp;·&nbsp; <strong>Kendaraan:</strong> ' + (vhcl || '-')
                    + ' &nbsp;·&nbsp; <strong>Dispatch:</strong> <span style="font-family:monospace;">' + (dispatchCode || '-') + '</span>';
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>';
     modal.classList.add('visible');
 
     const params = new URLSearchParams({
@@ -543,6 +576,7 @@ function openInvoiceModal(rowEl) {
         driver_code:   driverCode,
         vhcl_code:     vhcl || '',
         dispatch_code: dispatchCode || '',
+        db:            lmDb,
     });
 
     fetch(lmInvoiceUrl + '?' + params.toString(), {
@@ -551,13 +585,13 @@ function openInvoiceModal(rowEl) {
     .then(r => r.json())
     .then(function(data) {
         if (data.error) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#dc2626;padding:24px;">'
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:24px;">'
                             + data.error + '</td></tr>';
             return;
         }
         const rows = data.rows || [];
         if (!rows.length) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada invoice.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada invoice.</td></tr>';
             return;
         }
         const fmtNum = function(v) {
@@ -571,9 +605,10 @@ function openInvoiceModal(rowEl) {
             if (u === 'CANCEL')    return 'lm-status-cancel';
             return 'lm-status-other';
         };
-        tbody.innerHTML = rows.map(function(r) {
+        tbody.innerHTML = rows.map(function(r, i) {
             const reasonText = (r.dpch_resaon ?? '').toString().trim();
             return '<tr>'
+                 + '<td style="text-align:right;">' + (i + 1) + '</td>'
                  + '<td>' + (r.dpcth_so ?? '') + '</td>'
                  + '<td><span class="lm-status-badge ' + statusClass(r.dpch_status) + '">'
                        + ((r.dpch_status ?? '') || '-') + '</span></td>'
@@ -583,7 +618,7 @@ function openInvoiceModal(rowEl) {
         }).join('');
     })
     .catch(function() {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#dc2626;padding:24px;">Gagal memuat data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:24px;">Gagal memuat data.</td></tr>';
     });
 }
 
@@ -602,12 +637,13 @@ function openCancelDetailModal(rowEl) {
                         ? '<em style="color:#b91c1c;">(Tanpa Reason)</em>'
                         : reason)
                    + ' &nbsp;·&nbsp; <strong>Periode:</strong> ' + lmSpkRange + ' hari terakhir';
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px;">Memuat...</td></tr>';
     modal.classList.add('visible');
 
     const params = new URLSearchParams({
         reason:    reason || '',
         spk_range: String(lmSpkRange),
+        db:        lmDb,
     });
 
     fetch(lmCancelDetailUrl + '?' + params.toString(), {
@@ -616,13 +652,13 @@ function openCancelDetailModal(rowEl) {
     .then(r => r.json())
     .then(function(data) {
         if (data.error) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:24px;">'
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#dc2626;padding:24px;">'
                             + data.error + '</td></tr>';
             return;
         }
         const rows = data.rows || [];
         if (!rows.length) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada data.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:24px;">Tidak ada data.</td></tr>';
             return;
         }
         const fmtDate = function(v) {
@@ -635,7 +671,7 @@ function openCancelDetailModal(rowEl) {
             } catch(e){}
             return v;
         };
-        tbody.innerHTML = rows.map(function(r) {
+        tbody.innerHTML = rows.map(function(r, i) {
             const driver = (r.driver_name && r.driver_name.trim())
                 ? r.driver_name + ' <span style="color:#9ca3af;font-size:.72rem;">(' + (r.driver_code || '') + ')</span>'
                 : (r.driver_code || '-');
@@ -643,6 +679,7 @@ function openCancelDetailModal(rowEl) {
                 ? r.dpch_resaon
                 : '<em style="color:#b91c1c;">(kosong)</em>';
             return '<tr>'
+                 + '<td style="text-align:right;">' + (i + 1) + '</td>'
                  + '<td>' + fmtDate(r.dispatch_date) + '</td>'
                  + '<td style="font-family:monospace;font-size:.78rem;">' + (r.dispatch_code || '-') + '</td>'
                  + '<td>' + (r.dpcth_so || '-') + '</td>'
@@ -652,7 +689,7 @@ function openCancelDetailModal(rowEl) {
         }).join('');
     })
     .catch(function() {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#dc2626;padding:24px;">Gagal memuat data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#dc2626;padding:24px;">Gagal memuat data.</td></tr>';
     });
 }
 

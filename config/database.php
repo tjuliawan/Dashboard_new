@@ -165,6 +165,24 @@ return [
             ],
         ],
 
+        'rcm_ol_tgu' => [
+            'driver' => env('DB_rcm_ol_tgu_CONNECTION', 'sqlsrv'),
+            'host' => env('DB_rcm_ol_tgu_HOST', 'rcm.hgs.co.id'),
+            'port' => env('DB_rcm_ol_tgu_PORT', '26452'),
+            'database' => env('DB_rcm_ol_tgu_DATABASE', 'RCM_OL_TGU'),
+            'username' => env('DB_rcm_ol_tgu_USERNAME', 'tegar_dev_tgu'),
+            'password' => env('DB_rcm_ol_tgu_PASSWORD', 'sql@PfindS3rv3r2026!'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'trust_server_certificate' => true,
+            'options' => [
+                'TrustServerCertificate' => true,
+                'ConnectionTimeout' => 0,
+                'QueryTimeout' => 0,
+            ],
+        ],
+
     ],
 
     /*

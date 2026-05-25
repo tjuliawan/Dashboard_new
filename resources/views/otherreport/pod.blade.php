@@ -56,9 +56,47 @@
         font-size: 0.75rem; text-transform: uppercase; letter-spacing: .4px;
         border-bottom: 2px solid #e5e7eb; white-space: nowrap;
     }
-    table.data-table tbody tr { border-bottom: 1px solid #f3f4f6; }
-    table.data-table tbody tr:hover { background: #f9fafb; }
+    table.data-table tbody tr { border-bottom: 1px solid #f3f4f6; cursor: pointer; }
+    table.data-table tbody tr:hover { background: #eff6ff; }
     table.data-table tbody td { padding: 9px 14px; color: #4b5563; white-space: nowrap; }
+
+    /* Detail modal */
+    #pod-detail-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,.5); z-index: 10000;
+        align-items: center; justify-content: center;
+    }
+    #pod-detail-overlay.open { display: flex; }
+    #pod-detail-box {
+        background: #fff; border-radius: 14px; width: 92vw; max-width: 900px;
+        max-height: 88vh; display: flex; flex-direction: column;
+        box-shadow: 0 10px 50px rgba(0,0,0,.22);
+    }
+    #pod-detail-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 18px 24px 14px; border-bottom: 1px solid #e5e7eb;
+    }
+    #pod-detail-header h6 { margin: 0; font-size: .95rem; font-weight: 700; color: #111827; }
+    #pod-detail-header span { font-size: .8rem; color: #6b7280; margin-left: 10px; }
+    #pod-detail-body { flex: 1; overflow-y: auto; padding: 16px 24px 20px; }
+    .detail-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .detail-table thead th {
+        background: #f1f5f9; padding: 8px 12px; text-align: left;
+        font-weight: 600; color: #374151; font-size: 0.73rem;
+        text-transform: uppercase; letter-spacing: .4px;
+        border-bottom: 2px solid #e5e7eb; white-space: nowrap;
+    }
+    .detail-table tbody tr { border-bottom: 1px solid #f3f4f6; }
+    .detail-table tbody tr:nth-child(even) { background: #f9fafb; }
+    .detail-table tbody td { padding: 8px 12px; color: #4b5563; white-space: nowrap; }
+    .badge-status {
+        display: inline-block; padding: 2px 9px; border-radius: 20px;
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    }
+    .badge-delivered { background: #dcfce7; color: #16a34a; }
+    .badge-cancel    { background: #fee2e2; color: #dc2626; }
+    .badge-pending   { background: #fef9c3; color: #92400e; }
+    .badge-other     { background: #f3f4f6; color: #6b7280; }
 
     .agg-result-box {
         display: none; background: #f0f9ff; border: 1.5px solid #bae6fd;
@@ -75,7 +113,10 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-        <h4 class="mb-4">POD Report</h4>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">POD Report</h4>
+            @include('partials.db-switch', ['reportDb' => $reportDb])
+        </div>
 
         {{-- ── DATA TABLE WIDGET ── --}}
         <div class="widget-card">
@@ -185,13 +226,13 @@
                             <th>Vehicle Code</th>
                             <th>Driver Code</th>
                             <th>Status</th>
-                            <th>Kasir</th>
+                            <th>Sales</th>
                             <th>Value</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($rows as $row)
-                        <tr>
+                        <tr onclick="openPodDetail('{{ addslashes($row->dptch_code_h ?? '') }}', '{{ addslashes($row->dpcth_driver_code ?? '') }}', '{{ addslashes($row->dpch_status ?? '') }}', '{{ addslashes($row->rec_comcode ?? '') }}')" title="Klik untuk lihat detail">
                             <td data-col="dptch_date">{{ $row->dptch_date }}</td>
                             <td data-col="rec_comcode">{{ $row->rec_comcode }}</td>
                             <td data-col="dpcth_vhcl_code">{{ $row->dpcth_vhcl_code }}</td>
@@ -225,7 +266,7 @@
                     </thead>
                     <tbody>
                         @forelse($rows as $row)
-                        <tr>
+                        <tr onclick="openPodDetail('{{ addslashes($row->dptch_code_h ?? '') }}', '{{ addslashes($row->dptch_drv_code ?? '') }}', '{{ addslashes($row->dpch_status ?? '') }}', '{{ addslashes($row->dptch_date ?? '') }}')" title="Klik untuk lihat detail">
                             <td data-col="dptch_date">{{ $row->dptch_date }}</td>
                             <td data-col="dptch_vhcl_code">{{ $row->dptch_vhcl_code }}</td>
                             <td data-col="dptch_drv_code">{{ $row->dptch_drv_code }}</td>
@@ -300,6 +341,40 @@
             @endif
         </div>
 
+        {{-- ── ROW DETAIL MODAL ── --}}
+        <div id="pod-detail-overlay">
+            <div id="pod-detail-box">
+                <div id="pod-detail-header">
+                    <div>
+                        <h6 id="pod-detail-title">Detail Dispatch</h6>
+                        <span id="pod-detail-sub"></span>
+                    </div>
+                    <button onclick="closePodDetail()" style="background:none;border:none;font-size:1.4rem;color:#6b7280;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
+                </div>
+                <div id="pod-detail-body">
+                    <div id="pod-detail-loading" style="text-align:center;padding:40px;color:#6b7280;font-size:.9rem;">Memuat data…</div>
+                    <div id="pod-detail-error"  style="display:none;padding:24px;color:#dc2626;font-size:.85rem;"></div>
+                    <div id="pod-detail-content" style="display:none;">
+                        <table class="detail-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>SO</th>
+                                    <th>SKU</th>
+                                    <th>Status</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                    <th>Qty Diterima</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pod-detail-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- ── EXPORT MODAL ── --}}
         <div id="export-modal-overlay"
              style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
@@ -340,9 +415,92 @@
 </div>
 
 <script>
-const exportBaseUrl   = @json(route('pod.detail.export'));
-const exportFilterCol = @json($filterCol ?? '');
-const exportFilterVal = @json($filterVal ?? '');
+const exportBaseUrl    = @json(route('pod.detail.export'));
+const exportFilterCol  = @json($filterCol ?? '');
+const exportFilterVal  = @json($filterVal ?? '');
+const rowDetailBaseUrl = @json(route('pod.detail.row-detail'));
+
+// ── Row detail modal ────────────────────────────────────────────
+function openPodDetail(dispatchCode, driver, status, dateOrArea) {
+    const overlay = document.getElementById('pod-detail-overlay');
+    const title   = document.getElementById('pod-detail-title');
+    const sub     = document.getElementById('pod-detail-sub');
+    const loading = document.getElementById('pod-detail-loading');
+    const errBox  = document.getElementById('pod-detail-error');
+    const content = document.getElementById('pod-detail-content');
+    const tbody   = document.getElementById('pod-detail-tbody');
+
+    title.textContent = 'Detail — ' + (dispatchCode || '-');
+    sub.textContent   = (driver ? 'Driver: ' + driver : '') + (status ? '  |  Status: ' + status : '');
+    loading.style.display  = 'block';
+    errBox.style.display   = 'none';
+    content.style.display  = 'none';
+    tbody.innerHTML        = '';
+    overlay.classList.add('open');
+
+    if (!dispatchCode) {
+        loading.style.display = 'none';
+        errBox.style.display  = 'block';
+        errBox.textContent    = 'Dispatch code tidak tersedia.';
+        return;
+    }
+
+    const params = new URLSearchParams({ dispatch_code: dispatchCode });
+    fetch(rowDetailBaseUrl + '?' + params.toString(), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(function(data) {
+        loading.style.display = 'none';
+        if (data.error) {
+            errBox.style.display = 'block';
+            errBox.textContent   = data.error;
+            return;
+        }
+        const rows = data.rows || [];
+        if (rows.length === 0) {
+            errBox.style.display = 'block';
+            errBox.textContent   = 'Tidak ada data detail untuk dispatch ini.';
+            return;
+        }
+        rows.forEach(function(r, idx) {
+            const st  = (r.status || '').trim().toUpperCase();
+            const cls = st === 'DELIVERED' ? 'badge-delivered'
+                      : (st === 'CANCEL' || st === 'CANCELLED') ? 'badge-cancel'
+                      : st === 'PENDING' ? 'badge-pending' : 'badge-other';
+            const qty = (r.qty ?? '') !== '' ? r.qty : '-';
+            const qtyReceived = (r.qty_received ?? '') !== '' ? r.qty_received : '-';
+            const valueBongkaran = (r.value_bongkaran ?? '') !== '' ? r.value_bongkaran : '-';
+            const tr  = document.createElement('tr');
+            tr.innerHTML = `<td>${idx + 1}</td>`
+                + `<td><strong>${r.so || '-'}</strong></td>`
+                + `<td>${r.sku || '-'}</td>`
+                + `<td><span class="badge-status ${cls}">${r.status || '-'}</span></td>`
+                + `<td>${qty}</td>`
+                + `<td>${r.unit || '-'}</td>`
+                + `<td>${qtyReceived}</td>`
+                + `<td>${valueBongkaran}</td>`;
+            tbody.appendChild(tr);
+        });
+        content.style.display = 'block';
+    })
+    .catch(function() {
+        loading.style.display = 'none';
+        errBox.style.display  = 'block';
+        errBox.textContent    = 'Terjadi kesalahan saat mengambil data.';
+    });
+}
+
+function closePodDetail() {
+    document.getElementById('pod-detail-overlay').classList.remove('open');
+}
+
+document.getElementById('pod-detail-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closePodDetail();
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePodDetail();
+});
 
 function openExportModal() {
     document.getElementById('export-modal-overlay').style.display = 'flex';
